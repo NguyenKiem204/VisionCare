@@ -5,6 +5,7 @@ import Footer from "./components/common/Footer";
 import Home from "./pages/Home";
 import Services from "./pages/Services";
 import Equipment from "./pages/Equipment";
+import Booking from "./pages/Booking";
 import "./index.css";
 
 function App() {
@@ -17,10 +18,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
             <Route path="/equipment" element={<Equipment />} />
-            <Route
-              path="/booking"
-              element={<div className="pt-20">Booking Page</div>}
-            />
+            <Route path="/booking" element={<Booking />} />
             <Route
               path="/contact"
               element={<div className="pt-20">Contact Page</div>}

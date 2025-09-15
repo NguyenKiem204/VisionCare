@@ -1,0 +1,31 @@
+# ===== Frontend (React + Vite) =====
+fe/node_modules/
+fe/dist/
+fe/.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== Backend (ASP.NET Core) =====
+be/bin/
+be/obj/
+be/.vs/
+be/*.user
+be/*.dbmdl
+be/Properties/launchSettings.json
+be/appsettings.Development.json
+
+# ===== System =====
+.DS_Store
+Thumbs.db
+
+# ===== IDE =====
+.vscode/
+.idea/
+
+# ===== Logs =====
+*.log
+
+# ===== Environment =====
+.env
+*.env.local

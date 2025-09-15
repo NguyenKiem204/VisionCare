@@ -1,0 +1,37 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.test-red {
+  background-color: red;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.test-blue {
+  background-color: blue;
+  color: white;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 8px;
+}
+
+.test-green {
+  background-color: green;
+  color: white;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 8px;
+}
+
+.test-orange {
+  background-color: orange;
+  color: white;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 8px;
+}

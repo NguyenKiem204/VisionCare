@@ -31,12 +31,6 @@ public class UsersController : ControllerBase
     {
         var query = new GetUserByIdQuery { Id = id };
         var result = await _mediator.Send(query);
-
-        if (result == null)
-        {
-            return NotFound($"User with ID {id} not found.");
-        }
-
         return Ok(result);
     }
 

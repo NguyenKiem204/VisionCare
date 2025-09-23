@@ -9,7 +9,6 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddWebAPIServices(this IServiceCollection services)
     {
-        // Add Swagger
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
@@ -24,25 +23,17 @@ public static class ServiceExtensions
             );
         });
 
-        // Add FluentValidation
         services.AddFluentValidationAutoValidation();
         services.AddFluentValidationClientsideAdapters();
 
-        // Add custom filters
         services.AddScoped<ValidationFilter>();
 
-        // Add custom services
-        services.AddScoped<
-            ILogger<ExceptionHandlingMiddleware>,
-            Logger<ExceptionHandlingMiddleware>
-        >();
 
         return services;
     }
 
     public static IApplicationBuilder UseWebAPIMiddleware(this IApplicationBuilder app)
     {
-        // Add custom middleware
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         return app;

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VisionCare.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+efd96e210fa35c2c943813698eef5e7676388094")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1ccef2ee9ead2a569e0024d6addb28d854416b3f")]
 [assembly: System.Reflection.AssemblyProductAttribute("VisionCare.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VisionCare.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

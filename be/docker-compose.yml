@@ -1,29 +1,43 @@
 services:
-  postgres:
-    image: postgres:15
-    container_name: visioncare_postgres
+  db:
+    image: postgres:16
+    container_name: visioncare-db
     environment:
-      POSTGRES_DB: visioncare
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres123
+      POSTGRES_DB: ${POSTGRES_DB:-visioncare}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}
     ports:
       - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/postgresql/data
+      - ./docker/db/init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: ./src/WebAPI/Dockerfile
+    container_name: visioncare-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-visioncare};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres123}
+    depends_on:
+      - db
+    ports:
+      - "5000:8080"
     restart: unless-stopped
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: visioncare_pgadmin
+    container_name: visioncare-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin123}
     ports:
       - "8080:80"
     depends_on:
-      - postgres
+      - db
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  db-data:

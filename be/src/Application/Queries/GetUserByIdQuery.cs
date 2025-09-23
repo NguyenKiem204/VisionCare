@@ -1,16 +1,17 @@
-using MediatR;
 using AutoMapper;
+using MediatR;
 using VisionCare.Application.DTOs;
+using VisionCare.Application.Exceptions;
 using VisionCare.Application.Interfaces;
 
 namespace VisionCare.Application.Queries;
 
-public class GetUserByIdQuery : IRequest<UserDto?>
+public class GetUserByIdQuery : IRequest<UserDto>
 {
     public int Id { get; set; }
 }
 
-public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto?>
+public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto>
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
@@ -21,18 +22,14 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
         _mapper = mapper;
     }
 
-    public async Task<UserDto?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+    public async Task<UserDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
-        // 1. Lấy user từ database
         var user = await _userRepository.GetByIdAsync(request.Id);
-        
-        // 2. Nếu không tìm thấy, trả về null
+
         if (user == null)
         {
-            return null;
+            throw new NotFoundException($"User with ID {request.Id} not found.");
         }
-
-        // 3. Map sang DTO và trả về
         return _mapper.Map<UserDto>(user);
     }
 }

@@ -1,5 +1,5 @@
-using MediatR;
 using AutoMapper;
+using MediatR;
 using VisionCare.Application.DTOs;
 using VisionCare.Application.Interfaces;
 using VisionCare.Domain.Entities;
@@ -25,7 +25,10 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
         _mapper = mapper;
     }
 
-    public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<UserDto> Handle(
+        CreateUserCommand request,
+        CancellationToken cancellationToken
+    )
     {
         var user = new User
         {
@@ -33,7 +36,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
             RoleId = request.RoleId,
-            Created = DateTime.UtcNow
+            Created = DateTime.UtcNow,
         };
 
         var createdUser = await _userRepository.AddAsync(user);

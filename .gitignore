@@ -6,14 +6,67 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# ===== Backend (ASP.NET Core) =====
+# ===== Backend (ASP.NET Core) in be/ =====
+# Build outputs
 be/bin/
 be/obj/
+be/**/bin/
+be/**/obj/
+
+# IDE
 be/.vs/
+be/*.suo
 be/*.user
-be/*.dbmdl
-be/Properties/launchSettings.json
-be/appsettings.Development.json
+be/*.userosscache
+be/*.sln.docstates
+be/.idea/
+be/*.sln.iml
+
+# Database/tooling
+be/**/*.dbmdl
+be/**/*.mdf
+be/**/*.ldf
+
+# Local launch settings (machine-specific)
+be/**/Properties/launchSettings.json
+
+# App settings for local env (keep secrets out of git)
+be/src/WebAPI/appsettings.Development.json
+
+# Environment files under be (nếu có)
+be/.env
+be/.env.local
+be/.env.*.local
+!be/.env.example
+
+# Logs
+be/**/logs/
+be/**/*.log
+
+# NuGet
+be/**/*.nupkg
+be/**/*.snupkg
+be/packages/
+be/.nuget/
+
+# Test/Coverage
+be/**/TestResult*/
+be/**/*.coverage
+be/**/*.coveragexml
+
+# ReSharper/StyleCop
+be/**/_ReSharper*/
+be/**/*.[Rr]e[Ss]harper
+be/**/StyleCopReport.xml
+
+# Common other
+be/**/[Bb]uild/
+be/**/[Dd]ebug/
+be/**/[Rr]elease/
+be/**/[Tt]emp/
+
+# Docker overrides (giữ docker-compose.yml, ignore override nếu có)
+be/**/docker-compose.override.yml
 
 # ===== System =====
 .DS_Store

@@ -1,0 +1,33 @@
+# Ignore VCS and IDE
+.git
+.gitignore
+.vs
+.idea
+.vscode
+
+# Build outputs
+bin
+obj
+**/bin
+**/obj
+TestResult*
+*.log
+
+# Local settings
+*.user
+*.suo
+*.dbmdl
+*.mdf
+*.ldf
+.env
+.env.local
+.env.*.local
+
+# Frontend caches (if monorepo)
+node_modules
+.next
+dist
+build
+
+# Docker
+docker-compose.override.yml

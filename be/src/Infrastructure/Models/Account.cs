@@ -7,27 +7,47 @@ public partial class Account
 {
     public int AccountId { get; set; }
 
-    public string Username { get; set; } = null!;
+    public string Email { get; set; } = null!;
 
-    public string? Password { get; set; }
+    public string? Username { get; set; }
 
-    public string? Email { get; set; }
+    public string? PasswordHash { get; set; }
 
-    public string? PhoneNumber { get; set; }
+    public bool? EmailConfirmed { get; set; }
 
-    public DateTime? CreatedDate { get; set; }
+    public string? EmailConfirmationToken { get; set; }
 
-    public int? RoleId { get; set; }
+    public DateTime? LockoutEnd { get; set; }
+
+    public short? AccessFailedCount { get; set; }
+
+    public string? PasswordResetToken { get; set; }
+
+    public DateTime? PasswordResetExpires { get; set; }
+
+    public DateTime? LastPasswordChange { get; set; }
 
     public string? GoogleId { get; set; }
 
     public string? FacebookId { get; set; }
 
-    public string? FirstConfirm { get; set; }
+    public DateTime? CreatedAt { get; set; }
 
-    public string? StatusAccount { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+
+    public DateTime? LastLogin { get; set; }
+
+    public string? Status { get; set; }
+
+    public int RoleId { get; set; }
+
+    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+
+    public virtual ICollection<Auditlog> Auditlogs { get; set; } = new List<Auditlog>();
 
     public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
+
+    public virtual ICollection<Claim> Claims { get; set; } = new List<Claim>();
 
     public virtual ICollection<Commentblog> Commentblogs { get; set; } = new List<Commentblog>();
 
@@ -35,11 +55,11 @@ public partial class Account
 
     public virtual Doctor? Doctor { get; set; }
 
-    public virtual ICollection<OtpService> OtpServices { get; set; } = new List<OtpService>();
+    public virtual ICollection<Otpservice> Otpservices { get; set; } = new List<Otpservice>();
 
-    public virtual Role? Role { get; set; }
+    public virtual ICollection<Refreshtoken> Refreshtokens { get; set; } = new List<Refreshtoken>();
+
+    public virtual Role Role { get; set; } = null!;
 
     public virtual Staff? Staff { get; set; }
-
-    public virtual ICollection<TokenUser> TokenUsers { get; set; } = new List<TokenUser>();
 }

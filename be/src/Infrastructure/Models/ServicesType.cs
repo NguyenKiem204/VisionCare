@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace VisionCare.Infrastructure.Models;
 
-public partial class ServicesType
+public partial class Servicestype
 {
     public int ServiceTypeId { get; set; }
 
-    public string? ServiceTypeName { get; set; }
+    public string Name { get; set; } = null!;
 
-    public string? DurationService { get; set; }
+    public short DurationMinutes { get; set; }
 
-    public virtual ICollection<ServicesDetail> ServicesDetails { get; set; } = new List<ServicesDetail>();
+    public virtual ICollection<Servicesdetail> Servicesdetails { get; set; } = new List<Servicesdetail>();
 
     public virtual ICollection<Slot> Slots { get; set; } = new List<Slot>();
 }

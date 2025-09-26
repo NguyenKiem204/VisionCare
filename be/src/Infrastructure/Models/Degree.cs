@@ -7,7 +7,7 @@ public partial class Degree
 {
     public int DegreeId { get; set; }
 
-    public string? DegreeName { get; set; }
+    public string Name { get; set; } = null!;
 
-    public virtual ICollection<DegreeDoctor> DegreeDoctors { get; set; } = new List<DegreeDoctor>();
+    public virtual ICollection<Degreedoctor> Degreedoctors { get; set; } = new List<Degreedoctor>();
 }

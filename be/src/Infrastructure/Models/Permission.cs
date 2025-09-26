@@ -9,5 +9,11 @@ public partial class Permission
 
     public string PermissionName { get; set; } = null!;
 
-    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
+    public string Resource { get; set; } = null!;
+
+    public string Action { get; set; } = null!;
+
+    public DateTime? CreatedAt { get; set; }
+
+    public virtual ICollection<Permissionrole> Permissionroles { get; set; } = new List<Permissionrole>();
 }

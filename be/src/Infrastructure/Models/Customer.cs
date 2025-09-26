@@ -9,15 +9,17 @@ public partial class Customer
 
     public string FullName { get; set; } = null!;
 
+    public string? Phone { get; set; }
+
     public string? Address { get; set; }
 
     public DateOnly? Dob { get; set; }
 
     public string? Gender { get; set; }
 
-    public int? Rankid { get; set; }
+    public int? RankId { get; set; }
 
-    public string? ImageProfileUser { get; set; }
+    public string? Avatar { get; set; }
 
     public virtual Account Account { get; set; } = null!;
 

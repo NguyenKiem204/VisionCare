@@ -9,8 +9,8 @@ namespace VisionCare.Application.Commands;
 public class CreateUserCommand : IRequest<UserDto>
 {
     public string Username { get; set; } = string.Empty;
-    public string? Email { get; set; }
-    public string? PhoneNumber { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string? Password { get; set; }
     public int? RoleId { get; set; }
 }
 
@@ -34,9 +34,9 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
         {
             Username = request.Username,
             Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
+            Password = request.Password,
             RoleId = request.RoleId,
-            Created = DateTime.UtcNow,
+            CreatedDate = DateTime.UtcNow,
         };
 
         var createdUser = await _userRepository.AddAsync(user);

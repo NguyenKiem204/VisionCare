@@ -5,29 +5,27 @@ namespace VisionCare.Infrastructure.Models;
 
 public partial class Staff
 {
-    public int StaffId { get; set; }
+    public int AccountId { get; set; }
 
-    public int? AccountId { get; set; }
+    public string FullName { get; set; } = null!;
 
-    public string? AdminFullname { get; set; }
+    public string? Phone { get; set; }
 
-    public string? AdminAddress { get; set; }
+    public string? Address { get; set; }
 
-    public DateOnly? AdminDob { get; set; }
+    public DateOnly? Dob { get; set; }
 
-    public string? AdminGender { get; set; }
+    public string? Gender { get; set; }
 
-    public string? ImageProfileAdmin { get; set; }
+    public string? Avatar { get; set; }
 
-    public DateTime? AdminHiredDate { get; set; }
+    public DateOnly? HiredDate { get; set; }
 
-    public decimal? AdminSalary { get; set; }
+    public decimal? Salary { get; set; }
 
-    public virtual Account? Account { get; set; }
+    public virtual Account Account { get; set; } = null!;
 
-    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    public virtual ICollection<Feedbackdoctor> Feedbackdoctors { get; set; } = new List<Feedbackdoctor>();
 
-    public virtual ICollection<FeedbackDoctor> FeedbackDoctors { get; set; } = new List<FeedbackDoctor>();
-
-    public virtual ICollection<FeedbackService> FeedbackServices { get; set; } = new List<FeedbackService>();
+    public virtual ICollection<Feedbackservice> Feedbackservices { get; set; } = new List<Feedbackservice>();
 }

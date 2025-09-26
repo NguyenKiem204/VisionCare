@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace VisionCare.Infrastructure.Models;
 
-public partial class ImagesService
+public partial class Imagesservice
 {
     public int ServiceId { get; set; }
 

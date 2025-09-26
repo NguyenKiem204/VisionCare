@@ -4,10 +4,9 @@ namespace VisionCare.Domain.Entities;
 
 public class User : BaseEntity
 {
-    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string? Username { get; set; }
     public string? Password { get; set; }
-    public string? Email { get; set; }
-    public string? PhoneNumber { get; set; }
     public DateTime? CreatedDate { get; set; }
     public int? RoleId { get; set; }
     public string? GoogleId { get; set; }
@@ -20,4 +19,20 @@ public class User : BaseEntity
     public Doctor? Doctor { get; set; }
     public Customer? Customer { get; set; }
     public Staff? Staff { get; set; }
+
+    // Domain methods
+    public void ConfirmEmail()
+    {
+        FirstConfirm = "Confirmed";
+    }
+
+    public void ActivateAccount()
+    {
+        StatusAccount = "Active";
+    }
+
+    public void DeactivateAccount()
+    {
+        StatusAccount = "Inactive";
+    }
 }

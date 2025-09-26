@@ -7,15 +7,19 @@ public partial class Banner
 {
     public int BannerId { get; set; }
 
-    public string? BannerName { get; set; }
+    public string Title { get; set; } = null!;
 
-    public string? BannerTitle { get; set; }
+    public string? Description { get; set; }
 
-    public string? BannerDescription { get; set; }
+    public string? ImageUrl { get; set; }
 
-    public string? BannerStatus { get; set; }
+    public string? LinkUrl { get; set; }
 
-    public string? LinkBanner { get; set; }
+    public int? DisplayOrder { get; set; }
 
-    public string? HrefBanner { get; set; }
+    public string? Status { get; set; }
+
+    public DateOnly? StartDate { get; set; }
+
+    public DateOnly? EndDate { get; set; }
 }

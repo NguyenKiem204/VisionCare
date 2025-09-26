@@ -7,41 +7,43 @@ public partial class Appointment
 {
     public int AppointmentId { get; set; }
 
-    public DateTime? AppointmentDate { get; set; }
+    public int PatientId { get; set; }
 
-    public string? AppointmentStatus { get; set; }
+    public int DoctorId { get; set; }
 
-    public int? DoctorId { get; set; }
+    public int ServiceDetailId { get; set; }
 
-    public int? SlotId { get; set; }
+    public int? DiscountId { get; set; }
 
-    public int? ServiceDetailId { get; set; }
+    public DateTime AppointmentDatetime { get; set; }
 
-    public int? Discountid { get; set; }
+    public string? Status { get; set; }
 
-    public decimal? Actualcost { get; set; }
+    public decimal? ActualCost { get; set; }
 
-    public int? PatientId { get; set; }
+    public string? Notes { get; set; }
 
-    public int? StaffId { get; set; }
+    public DateTime? CreatedAt { get; set; }
+
+    public int? CreatedBy { get; set; }
 
     public virtual ICollection<Checkout> Checkouts { get; set; } = new List<Checkout>();
 
+    public virtual Account? CreatedByNavigation { get; set; }
+
     public virtual Discount? Discount { get; set; }
 
-    public virtual Doctor? Doctor { get; set; }
+    public virtual Doctor Doctor { get; set; } = null!;
 
-    public virtual ICollection<FeedbackDoctor> FeedbackDoctors { get; set; } = new List<FeedbackDoctor>();
+    public virtual ICollection<Feedbackdoctor> Feedbackdoctors { get; set; } = new List<Feedbackdoctor>();
 
-    public virtual ICollection<FeedbackService> FeedbackServices { get; set; } = new List<FeedbackService>();
+    public virtual ICollection<Feedbackservice> Feedbackservices { get; set; } = new List<Feedbackservice>();
 
-    public virtual Medicalhistory? Medicalhistory { get; set; }
+    public virtual ICollection<Followup> Followups { get; set; } = new List<Followup>();
 
-    public virtual Customer? Patient { get; set; }
+    public virtual ICollection<Medicalhistory> Medicalhistories { get; set; } = new List<Medicalhistory>();
 
-    public virtual ServicesDetail? ServiceDetail { get; set; }
+    public virtual Customer Patient { get; set; } = null!;
 
-    public virtual Slot? Slot { get; set; }
-
-    public virtual Staff? Staff { get; set; }
+    public virtual Servicesdetail ServiceDetail { get; set; } = null!;
 }

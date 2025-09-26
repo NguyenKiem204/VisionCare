@@ -7,15 +7,13 @@ public partial class Slot
 {
     public int SlotId { get; set; }
 
-    public string StartTime { get; set; } = null!;
+    public TimeOnly StartTime { get; set; }
 
-    public string EndTime { get; set; } = null!;
+    public TimeOnly EndTime { get; set; }
 
     public int ServiceTypeId { get; set; }
 
-    public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
-
     public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
-    public virtual ServicesType ServiceType { get; set; } = null!;
+    public virtual Servicestype ServiceType { get; set; } = null!;
 }

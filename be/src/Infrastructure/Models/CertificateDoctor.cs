@@ -3,21 +3,21 @@ using System.Collections.Generic;
 
 namespace VisionCare.Infrastructure.Models;
 
-public partial class CertificateDoctor
+public partial class Certificatedoctor
 {
-    public int CertificateId { get; set; }
-
     public int DoctorId { get; set; }
 
-    public DateTime? DateCertificate { get; set; }
+    public int CertificateId { get; set; }
 
-    public DateTime? DateChange { get; set; }
-
-    public string? Status { get; set; }
+    public DateOnly? IssuedDate { get; set; }
 
     public string? IssuedBy { get; set; }
 
     public string? CertificateImage { get; set; }
+
+    public DateOnly? ExpiryDate { get; set; }
+
+    public string? Status { get; set; }
 
     public virtual Certificate Certificate { get; set; } = null!;
 

@@ -10,8 +10,8 @@ public class UpdateUserCommand : IRequest<UserDto>
 {
     public int Id { get; set; }
     public string Username { get; set; } = string.Empty;
-    public string? Email { get; set; }
-    public string? PhoneNumber { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string? Password { get; set; }
     public int? RoleId { get; set; }
 }
 
@@ -31,24 +31,20 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
         CancellationToken cancellationToken
     )
     {
-        // 1. Lấy user hiện tại
         var existingUser = await _userRepository.GetByIdAsync(request.Id);
         if (existingUser == null)
         {
             throw new ArgumentException($"User with ID {request.Id} not found.");
         }
 
-        // 2. Cập nhật thông tin
         existingUser.Username = request.Username;
         existingUser.Email = request.Email;
-        existingUser.PhoneNumber = request.PhoneNumber;
+        existingUser.Password = request.Password;
         existingUser.RoleId = request.RoleId;
         existingUser.LastModified = DateTime.UtcNow;
 
-        // 3. Lưu vào database
         await _userRepository.UpdateAsync(existingUser);
 
-        // 4. Trả về kết quả
         return _mapper.Map<UserDto>(existingUser);
     }
 }

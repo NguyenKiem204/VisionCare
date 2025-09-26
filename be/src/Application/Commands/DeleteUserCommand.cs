@@ -19,16 +19,13 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, bool>
 
     public async Task<bool> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
-        // 1. Kiểm tra user có tồn tại không
         var existingUser = await _userRepository.GetByIdAsync(request.Id);
         if (existingUser == null)
         {
-            return false; // User không tồn tại
+            return false;
         }
-
-        // 2. Xóa user
         await _userRepository.DeleteAsync(request.Id);
-        
-        return true; // Xóa thành công
+
+        return true;
     }
 }

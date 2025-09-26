@@ -5,11 +5,11 @@ namespace VisionCare.Infrastructure.Models;
 
 public partial class Customerrank
 {
-    public int Rankid { get; set; }
+    public int RankId { get; set; }
 
-    public string? Rankname { get; set; }
+    public string RankName { get; set; } = null!;
 
-    public double? Minamount { get; set; }
+    public decimal MinAmount { get; set; }
 
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
 

@@ -1,7 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using MediatR;
 using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace VisionCare.Application;
 
@@ -11,7 +11,7 @@ public static class DependencyInjection
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddMediatR(typeof(DependencyInjection));
-        
+
         // Add FluentValidation
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 

@@ -5,17 +5,19 @@ namespace VisionCare.Infrastructure.Models;
 
 public partial class Discount
 {
-    public int Discountid { get; set; }
+    public int DiscountId { get; set; }
 
-    public string? Discountname { get; set; }
+    public string DiscountName { get; set; } = null!;
 
-    public int? Percent { get; set; }
+    public decimal DiscountPercent { get; set; }
 
-    public int? Rankid { get; set; }
+    public int? RankId { get; set; }
 
-    public DateOnly? Enddate { get; set; }
+    public DateOnly? StartDate { get; set; }
 
-    public bool? Status { get; set; }
+    public DateOnly? EndDate { get; set; }
+
+    public string? Status { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 

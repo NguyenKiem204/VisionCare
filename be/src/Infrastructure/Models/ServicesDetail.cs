@@ -3,19 +3,19 @@ using System.Collections.Generic;
 
 namespace VisionCare.Infrastructure.Models;
 
-public partial class ServicesDetail
+public partial class Servicesdetail
 {
     public int ServiceDetailId { get; set; }
 
-    public int? ServiceTypeId { get; set; }
+    public int ServiceId { get; set; }
 
-    public int? ServiceId { get; set; }
+    public int ServiceTypeId { get; set; }
 
     public decimal Cost { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
-    public virtual Service? Service { get; set; }
+    public virtual Service Service { get; set; } = null!;
 
-    public virtual ServicesType? ServiceType { get; set; }
+    public virtual Servicestype ServiceType { get; set; } = null!;
 }

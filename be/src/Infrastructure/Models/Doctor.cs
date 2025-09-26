@@ -5,19 +5,19 @@ namespace VisionCare.Infrastructure.Models;
 
 public partial class Doctor
 {
-    public int DoctorId { get; set; }
+    public int AccountId { get; set; }
 
-    public int? AccountId { get; set; }
+    public string FullName { get; set; } = null!;
 
-    public string DoctorName { get; set; } = null!;
+    public string? Phone { get; set; }
 
-    public int? ExperienceYears { get; set; }
+    public short? ExperienceYears { get; set; }
 
-    public int? SpecializationId { get; set; }
+    public int SpecializationId { get; set; }
 
-    public string? ProfileImage { get; set; }
+    public string? Avatar { get; set; }
 
-    public double? Rating { get; set; }
+    public decimal? Rating { get; set; }
 
     public string? Gender { get; set; }
 
@@ -25,17 +25,17 @@ public partial class Doctor
 
     public string? Address { get; set; }
 
-    public string? DoctorStatus { get; set; }
+    public string? Status { get; set; }
 
-    public virtual Account? Account { get; set; }
+    public virtual Account Account { get; set; } = null!;
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
-    public virtual ICollection<CertificateDoctor> CertificateDoctors { get; set; } = new List<CertificateDoctor>();
+    public virtual ICollection<Certificatedoctor> Certificatedoctors { get; set; } = new List<Certificatedoctor>();
 
-    public virtual ICollection<DegreeDoctor> DegreeDoctors { get; set; } = new List<DegreeDoctor>();
+    public virtual ICollection<Degreedoctor> Degreedoctors { get; set; } = new List<Degreedoctor>();
 
     public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
-    public virtual Specialization? Specialization { get; set; }
+    public virtual Specialization Specialization { get; set; } = null!;
 }

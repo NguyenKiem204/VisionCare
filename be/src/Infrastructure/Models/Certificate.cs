@@ -7,7 +7,7 @@ public partial class Certificate
 {
     public int CertificateId { get; set; }
 
-    public string? CertificateName { get; set; }
+    public string Name { get; set; } = null!;
 
-    public virtual ICollection<CertificateDoctor> CertificateDoctors { get; set; } = new List<CertificateDoctor>();
+    public virtual ICollection<Certificatedoctor> Certificatedoctors { get; set; } = new List<Certificatedoctor>();
 }

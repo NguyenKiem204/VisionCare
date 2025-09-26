@@ -7,17 +7,19 @@ public partial class Checkout
 {
     public int CheckoutId { get; set; }
 
-    public int? AppointmentId { get; set; }
+    public int AppointmentId { get; set; }
 
     public string? TransactionType { get; set; }
 
     public string? TransactionStatus { get; set; }
 
-    public decimal? TotalBill { get; set; }
+    public decimal TotalAmount { get; set; }
 
-    public string? CheckoutCode { get; set; }
+    public string? TransactionCode { get; set; }
 
-    public DateTime? CheckoutTime { get; set; }
+    public DateTime? PaymentDate { get; set; }
 
-    public virtual Appointment? Appointment { get; set; }
+    public string? Notes { get; set; }
+
+    public virtual Appointment Appointment { get; set; } = null!;
 }

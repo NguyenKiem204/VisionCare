@@ -1,14 +1,15 @@
 using VisionCare.Domain.Entities;
 using VisionCare.Infrastructure.Models;
+using Bcrypt = BCrypt.Net.BCrypt;
 using DomainRole = VisionCare.Domain.Entities.Role;
 
 namespace VisionCare.Infrastructure.Mappings;
 
 public static class UserMapper
 {
-    /// <summary>
-    /// Maps Infrastructure Account to Domain User
-    /// </summary>
+    private static DateTime? ToUnspecified(DateTime? value) =>
+        value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Unspecified) : null;
+
     public static User ToDomain(Account account)
     {
         if (account == null)
@@ -19,7 +20,7 @@ public static class UserMapper
             Id = account.AccountId,
             Email = account.Email,
             Username = account.Username,
-            Password = account.PasswordHash, // Map password hash to password for domain
+            Password = account.PasswordHash,
             CreatedDate = account.CreatedAt,
             RoleId = account.RoleId,
             GoogleId = account.GoogleId,
@@ -33,9 +34,6 @@ public static class UserMapper
         };
     }
 
-    /// <summary>
-    /// Maps Domain User to Infrastructure Account
-    /// </summary>
     public static Account ToInfrastructure(User user)
     {
         if (user == null)
@@ -46,20 +44,21 @@ public static class UserMapper
             AccountId = user.Id,
             Email = user.Email,
             Username = user.Username,
-            PasswordHash = user.Password,
+            PasswordHash = string.IsNullOrWhiteSpace(user.Password)
+                ? null
+                : Bcrypt.HashPassword(user.Password),
             EmailConfirmed = user.FirstConfirm == "Confirmed",
-            CreatedAt = user.CreatedDate ?? DateTime.UtcNow,
-            RoleId = user.RoleId ?? 1, // Default role if null
+            CreatedAt =
+                ToUnspecified(user.CreatedDate)
+                ?? DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified),
+            RoleId = user.RoleId ?? 1,
             GoogleId = user.GoogleId,
             FacebookId = user.FacebookId,
             Status = user.StatusAccount,
-            UpdatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified),
         };
     }
 
-    /// <summary>
-    /// Updates existing Account with User data
-    /// </summary>
     public static void UpdateAccount(Account account, User user)
     {
         if (account == null || user == null)
@@ -67,12 +66,19 @@ public static class UserMapper
 
         account.Email = user.Email;
         account.Username = user.Username;
-        account.PasswordHash = user.Password;
+        if (!string.IsNullOrWhiteSpace(user.Password))
+        {
+            account.PasswordHash = Bcrypt.HashPassword(user.Password);
+        }
         account.EmailConfirmed = user.FirstConfirm == "Confirmed";
         account.RoleId = user.RoleId ?? 1;
         account.GoogleId = user.GoogleId;
         account.FacebookId = user.FacebookId;
         account.Status = user.StatusAccount;
-        account.UpdatedAt = DateTime.UtcNow;
+        account.LastLogin = ToUnspecified(user.CreatedDate); // set if you pass it via domain
+        account.LastPasswordChange = ToUnspecified(account.LastPasswordChange);
+        account.LockoutEnd = ToUnspecified(account.LockoutEnd);
+        account.PasswordResetExpires = ToUnspecified(account.PasswordResetExpires);
+        account.UpdatedAt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
     }
 }

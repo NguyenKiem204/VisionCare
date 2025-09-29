@@ -1,10 +1,10 @@
 using AutoMapper;
 using MediatR;
-using VisionCare.Application.DTOs;
+using VisionCare.Application.DTOs.User;
 using VisionCare.Application.Exceptions;
 using VisionCare.Application.Interfaces;
 
-namespace VisionCare.Application.Queries;
+namespace VisionCare.Application.Queries.Users;
 
 public class GetUserByIdQuery : IRequest<UserDto>
 {
@@ -33,3 +33,5 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
         return _mapper.Map<UserDto>(user);
     }
 }
+
+

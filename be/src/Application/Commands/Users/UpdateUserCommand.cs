@@ -1,10 +1,10 @@
 using AutoMapper;
 using MediatR;
-using VisionCare.Application.DTOs;
+using VisionCare.Application.DTOs.User;
 using VisionCare.Application.Interfaces;
 using VisionCare.Domain.Entities;
 
-namespace VisionCare.Application.Commands;
+namespace VisionCare.Application.Commands.Users;
 
 public class UpdateUserCommand : IRequest<UserDto>
 {
@@ -48,3 +48,5 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
         return _mapper.Map<UserDto>(existingUser);
     }
 }
+
+

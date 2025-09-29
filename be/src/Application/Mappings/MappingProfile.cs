@@ -1,5 +1,6 @@
 using AutoMapper;
 using VisionCare.Application.DTOs;
+using VisionCare.Application.DTOs.User;
 using VisionCare.Domain.Entities;
 
 namespace VisionCare.Application.Mappings;

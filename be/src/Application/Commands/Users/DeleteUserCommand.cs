@@ -1,7 +1,7 @@
 using MediatR;
 using VisionCare.Application.Interfaces;
 
-namespace VisionCare.Application.Commands;
+namespace VisionCare.Application.Commands.Users;
 
 public class DeleteUserCommand : IRequest<bool>
 {
@@ -29,3 +29,5 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, bool>
         return true;
     }
 }
+
+

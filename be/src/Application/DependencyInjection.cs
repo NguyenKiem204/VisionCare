@@ -11,8 +11,6 @@ public static class DependencyInjection
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddMediatR(typeof(DependencyInjection));
-
-        // Add FluentValidation
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;

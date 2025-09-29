@@ -1,4 +1,5 @@
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using VisionCare.WebAPI.Filters;
 using VisionCare.WebAPI.Middleware;
@@ -28,6 +29,10 @@ public static class ServiceExtensions
 
         services.AddScoped<ValidationFilter>();
 
+        services.Configure<MvcOptions>(options =>
+        {
+            options.Filters.AddService<ValidationFilter>(order: int.MinValue);
+        });
 
         return services;
     }

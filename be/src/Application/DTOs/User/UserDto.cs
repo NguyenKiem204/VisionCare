@@ -1,4 +1,4 @@
-namespace VisionCare.Application.DTOs;
+namespace VisionCare.Application.DTOs.User;
 
 public class UserDto
 {
@@ -8,3 +8,5 @@ public class UserDto
     public string? RoleName { get; set; }
     public string? StatusAccount { get; set; }
 }
+
+

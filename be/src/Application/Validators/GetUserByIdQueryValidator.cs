@@ -1,5 +1,5 @@
 using FluentValidation;
-using VisionCare.Application.Queries;
+using VisionCare.Application.Queries.Users;
 
 namespace VisionCare.Application.Validators;
 

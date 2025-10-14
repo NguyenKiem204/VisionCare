@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VisionCare.Application.Commands.Users;
 using VisionCare.Application.Queries.Users;
@@ -18,6 +19,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetAllUsers()
     {
         var query = new GetAllUsersQuery();
@@ -54,6 +56,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "OwnProfileOrAdmin")]
     public async Task<IActionResult> GetUserById(int id)
     {
         var query = new GetUserByIdQuery { Id = id };
@@ -73,6 +76,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserCommand command)
     {
         command.Id = id;
@@ -81,6 +85,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteUser(int id)
     {
         var command = new DeleteUserCommand { Id = id };

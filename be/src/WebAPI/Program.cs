@@ -1,35 +1,37 @@
 using VisionCare.Application;
 using VisionCare.Infrastructure;
 using VisionCare.WebAPI.Extensions;
+using DbSeeder = VisionCare.Infrastructure.Services.DbSeeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 
-// Add Application services
 builder.Services.AddApplication();
 
-// Add Infrastructure services
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Add WebAPI services (includes Swagger, FluentValidation, etc.)
 builder.Services.AddWebAPIServices();
+
+builder.Services.AddAuthenticationServices(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Add custom middleware
 app.UseWebAPIMiddleware();
 
 app.UseHttpsRedirection();
+app.UseCors("DefaultCors");
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<VisionCare.WebAPI.Middleware.AuthenticationMiddleware>();
 app.MapControllers();
+
+await DbSeeder.SeedAdminAsync(app.Services);
 
 app.Run();

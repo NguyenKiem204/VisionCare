@@ -1,14 +1,12 @@
 using FluentValidation;
-using VisionCare.Application.Commands.Users;
+using VisionCare.Application.DTOs.User;
 
 namespace VisionCare.Application.Validators;
 
-public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
+public class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
 {
-    public UpdateUserCommandValidator()
+    public UpdateUserRequestValidator()
     {
-        RuleFor(x => x.Id).GreaterThan(0).WithMessage("User ID must be greater than 0");
-
         RuleFor(x => x.Username)
             .NotEmpty()
             .WithMessage("Username is required")

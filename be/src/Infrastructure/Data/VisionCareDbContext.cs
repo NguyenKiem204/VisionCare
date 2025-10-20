@@ -70,11 +70,11 @@ public partial class VisionCareDbContext : DbContext
 
     public virtual DbSet<Schedule> Schedules { get; set; }
 
-    public virtual DbSet<Service> Services { get; set; }
+    public virtual DbSet<VisionCare.Infrastructure.Models.Service> Services { get; set; }
 
-    public virtual DbSet<Servicesdetail> Servicesdetails { get; set; }
+    public virtual DbSet<VisionCare.Infrastructure.Models.Servicesdetail> Servicesdetails { get; set; }
 
-    public virtual DbSet<Servicestype> Servicestypes { get; set; }
+    public virtual DbSet<VisionCare.Infrastructure.Models.Servicestype> Servicestypes { get; set; }
 
     public virtual DbSet<Slot> Slots { get; set; }
 

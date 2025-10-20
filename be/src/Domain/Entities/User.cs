@@ -14,11 +14,13 @@ public class User : BaseEntity
     public string? FirstConfirm { get; set; }
     public string? StatusAccount { get; set; }
 
+    // Navigation properties
     public Role? Role { get; set; }
     public Doctor? Doctor { get; set; }
     public Customer? Customer { get; set; }
     public Staff? Staff { get; set; }
 
+    // Domain methods
     public void ConfirmEmail()
     {
         FirstConfirm = "Confirmed";
@@ -32,5 +34,17 @@ public class User : BaseEntity
     public void DeactivateAccount()
     {
         StatusAccount = "Inactive";
+    }
+
+    public void ChangePassword(string newPassword)
+    {
+        Password = newPassword;
+        LastModified = DateTime.UtcNow;
+    }
+
+    public void UpdateRole(int roleId)
+    {
+        RoleId = roleId;
+        LastModified = DateTime.UtcNow;
     }
 }

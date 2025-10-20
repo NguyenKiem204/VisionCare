@@ -30,22 +30,25 @@ const Services = () => {
       }, 16);
     };
 
-    animateCount(15, (val) => setStats(prev => ({ ...prev, services: val })));
-    animateCount(4, (val) => setStats(prev => ({ ...prev, doctors: val })));
-    animateCount(20, (val) => setStats(prev => ({ ...prev, years: val })));
+    animateCount(15, (val) => setStats((prev) => ({ ...prev, services: val })));
+    animateCount(4, (val) => setStats((prev) => ({ ...prev, doctors: val })));
+    animateCount(20, (val) => setStats((prev) => ({ ...prev, years: val })));
   }, []);
 
   useEffect(() => {
     let filtered = services;
 
     if (selectedCategory !== "Tất cả dịch vụ") {
-      filtered = filtered.filter(service => service.category === selectedCategory);
+      filtered = filtered.filter(
+        (service) => service.category === selectedCategory
+      );
     }
 
     if (searchTerm) {
-      filtered = filtered.filter(service =>
-        service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.description.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (service) =>
+          service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          service.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -95,8 +98,10 @@ const Services = () => {
           <div className="text-white max-w-4xl">
             {/* Breadcrumb */}
             <nav className="text-sm mb-6 opacity-90">
-              <a href="/" className="hover:text-blue-200 transition-colors">Home</a>
-              <span className="mx-2">></span>
+              <a href="/" className="hover:text-blue-200 transition-colors">
+                Home
+              </a>
+              <span className="mx-2">&gt;</span>
               <span className="text-gray-200">Dịch Vụ</span>
             </nav>
 
@@ -105,9 +110,10 @@ const Services = () => {
               Dịch Vụ Chuyên Khoa
               <span className="block text-green-300">Toàn Diện</span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-2xl">
-              Từ khám tổng quát đến phẫu thuật chuyên sâu với công nghệ tiên tiến nhất
+              Từ khám tổng quát đến phẫu thuật chuyên sâu với công nghệ tiên
+              tiến nhất
             </p>
 
             {/* Stats Bar */}

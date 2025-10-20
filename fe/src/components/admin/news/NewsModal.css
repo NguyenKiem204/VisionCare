@@ -1,0 +1,109 @@
+/* ReactQuill Dark Mode Styles */
+.ql-editor {
+  min-height: 200px;
+  color: inherit;
+  padding: 0.75rem 1rem;
+}
+
+.ql-toolbar {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #d1d5db;
+  border-bottom: none;
+  background-color: #f9fafb;
+}
+
+.ql-container {
+  border-radius: 0.5rem;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #d1d5db;
+  min-height: 300px;
+  max-height: 1000px;
+  overflow-y: auto;
+  background-color: white;
+  resize: vertical;
+}
+
+/* Dark mode styles */
+.dark .ql-toolbar {
+  border-color: #374151;
+  background-color: #1f2937;
+}
+
+.dark .ql-container {
+  border-color: #374151;
+  background-color: #111827;
+}
+
+.dark .ql-editor {
+  color: #f9fafb;
+}
+
+.dark .ql-editor.ql-blank::before {
+  color: #9ca3af;
+}
+
+/* Toolbar button styles */
+.ql-toolbar button {
+  color: #374151;
+}
+
+.dark .ql-toolbar button {
+  color: #e5e9f0 !important;
+}
+
+.ql-toolbar button:hover {
+  color: #1f2937;
+}
+
+.dark .ql-toolbar button:hover {
+  color: #81a1c1 !important;
+}
+
+/* Dropdown styles */
+.ql-picker {
+  color: #374151;
+}
+
+.dark .ql-picker {
+  color: #e5e9f0 !important;
+}
+
+.ql-picker-options {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .ql-picker-options {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+}
+
+/* Link input styles */
+.ql-link-editor input[type="text"] {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.dark .ql-link-editor input[type="text"] {
+  background-color: #111827;
+  border: 1px solid #374151;
+  color: #f9fafb;
+}
+
+/* Image input styles */
+.ql-image-editor input[type="text"] {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.dark .ql-image-editor input[type="text"] {
+  background-color: #111827;
+  border: 1px solid #374151;
+  color: #f9fafb;
+}

@@ -28,6 +28,25 @@ public static class ServiceExtensions
                     Description = "VisionCare API for managing users, doctors, and appointments",
                 }
             );
+
+            var securityScheme = new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Description = "Enter 'Bearer {token}'",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = JwtBearerDefaults.AuthenticationScheme,
+                BearerFormat = "JWT",
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme,
+                },
+            };
+            c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, securityScheme);
+            c.AddSecurityRequirement(
+                new OpenApiSecurityRequirement { { securityScheme, Array.Empty<string>() } }
+            );
         });
 
         services.AddFluentValidationAutoValidation();
@@ -40,7 +59,6 @@ public static class ServiceExtensions
             options.Filters.AddService<ValidationFilter>(order: int.MinValue);
         });
 
-        // Centralized CORS policy
         services.AddCors(options =>
         {
             options.AddPolicy(
@@ -68,7 +86,6 @@ public static class ServiceExtensions
             );
         });
 
-        // Authorization policies centralized here
         services.AddAuthorization(options =>
         {
             options.FallbackPolicy = new AuthorizationPolicyBuilder()

@@ -7,4 +7,11 @@ public class Role : BaseEntity
     public string RoleName { get; set; } = string.Empty;
 
     public ICollection<User> Users { get; set; } = new List<User>();
+
+    // Domain methods
+    public void UpdateName(string newName)
+    {
+        RoleName = newName;
+        LastModified = DateTime.UtcNow;
+    }
 }

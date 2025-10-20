@@ -32,6 +32,12 @@ public class ApiResponse<T>
         };
 }
 
+public static class ApiResponse
+{
+    public static ApiResponse<T> Success<T>(T? data, string? message = null) =>
+        ApiResponse<T>.Ok(data, message);
+}
+
 public class PagedResponse<TItem>
 {
     public bool Success { get; set; }

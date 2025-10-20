@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -58,6 +59,7 @@ public class JwtTokenService : IJwtTokenService
 
     public string Hash(string value)
     {
-        return BCrypt.Net.BCrypt.HashPassword(value);
+        // Use BCrypt for security (with optimized work factor)
+        return BCrypt.Net.BCrypt.HashPassword(value, 10); // Work factor 10 (faster than default 12)
     }
 }

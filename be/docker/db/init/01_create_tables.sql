@@ -498,6 +498,33 @@ CREATE INDEX idx_appointments_status ON Appointment(status);
 CREATE INDEX idx_schedules_doctor_date ON Schedules(doctor_id, schedule_date);
 CREATE INDEX idx_medical_history_appointment ON MedicalHistory(appointment_id);
 
+-- Performance indexes for refresh tokens (SHA256 + salt optimization)
+-- These indexes are optimized for the new SHA256 hash system instead of BCrypt
+CREATE INDEX idx_refreshtokens_valid 
+ON refreshtokens (revoked_at, expires_at) 
+WHERE revoked_at IS NULL;
+
+CREATE INDEX idx_refreshtokens_account_lookup 
+ON refreshtokens (account_id) 
+WHERE revoked_at IS NULL;
+
+CREATE INDEX idx_refreshtokens_hash 
+ON refreshtokens (token_hash) 
+WHERE revoked_at IS NULL;
+
+CREATE INDEX idx_refreshtokens_cleanup 
+ON refreshtokens (expires_at) 
+WHERE revoked_at IS NULL;
+
+-- Additional performance indexes
+CREATE INDEX idx_accounts_email_lookup 
+ON accounts (email) 
+WHERE status = 'Active';
+
+CREATE INDEX idx_accounts_role_lookup 
+ON accounts (role_id) 
+WHERE status = 'Active';
+
 -- Content indexes
 CREATE INDEX idx_blog_author ON Blog(author_id);
 CREATE INDEX idx_blog_status_published ON Blog(status, published_at);

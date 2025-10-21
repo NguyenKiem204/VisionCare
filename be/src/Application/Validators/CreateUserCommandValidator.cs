@@ -1,11 +1,11 @@
 using FluentValidation;
-using VisionCare.Application.Commands;
+using VisionCare.Application.DTOs.User;
 
 namespace VisionCare.Application.Validators;
 
-public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
+public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
 {
-    public CreateUserCommandValidator()
+    public CreateUserRequestValidator()
     {
         RuleFor(x => x.Username)
             .NotEmpty()

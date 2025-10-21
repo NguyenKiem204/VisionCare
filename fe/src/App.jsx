@@ -1,33 +1,60 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Header from "./components/common/Header";
-import Footer from "./components/common/Footer";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import PublicLayout from "./layouts/PublicLayout";
 import Home from "./pages/Home";
 import Services from "./pages/Services";
 import Equipment from "./pages/Equipment";
+import Contact from "./pages/Contact";
 import Booking from "./pages/Booking";
+import Profile from "./pages/Profile";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import AdminRoutes from "./routes/AdminRoutes";
+import DoctorRoutes from "./routes/DoctorRoutes";
+import StaffRoutes from "./routes/StaffRoutes";
 import "./index.css";
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen">
-        <Header />
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/equipment" element={<Equipment />} />
-            <Route path="/booking" element={<Booking />} />
-            <Route
-              path="/contact"
-              element={<div className="pt-20">Contact Page</div>}
-            />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/*" element={<PublicLayout />}>
+            <Route index element={<Home />} />
+            <Route path="services" element={<Services />} />
+            <Route path="equipment" element={<Equipment />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="booking" element={<Booking />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+
+          {/* Auth Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          {/* Admin Routes */}
+          <Route path="/admin/*" element={<AdminRoutes />} />
+
+          {/* Doctor Routes */}
+          <Route path="/doctor/*" element={<DoctorRoutes />} />
+
+          {/* Staff Routes */}
+          <Route path="/staff/*" element={<StaffRoutes />} />
+
+          {/* Redirects */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

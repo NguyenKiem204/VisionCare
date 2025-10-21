@@ -35,4 +35,16 @@ public class User : BaseEntity
     {
         StatusAccount = "Inactive";
     }
+
+    public void ChangePassword(string newPassword)
+    {
+        Password = newPassword;
+        LastModified = DateTime.UtcNow;
+    }
+
+    public void UpdateRole(int roleId)
+    {
+        RoleId = roleId;
+        LastModified = DateTime.UtcNow;
+    }
 }

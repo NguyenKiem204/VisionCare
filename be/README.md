@@ -3,6 +3,7 @@
 ## Run with Docker
 
 - Build and start (from backend root):
+- docker-compose down && docker-compose build api && docker-compose up -d
 
 ```
 docker compose up --build -d

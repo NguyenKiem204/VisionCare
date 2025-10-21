@@ -1,46 +1,16 @@
 import React from "react";
 import Button from "../common/Button";
-import { api } from "../../utils/api";
 
-const Confirmation = ({ data, back }) => {
-  const [loading, setLoading] = React.useState(false);
-  const [result, setResult] = React.useState(null);
-
-  const submit = async () => {
-    setLoading(true);
-    const res = await api.createBooking(data);
-    setResult(res);
-    setLoading(false);
+const Confirmation = ({ data, back, onSubmit, isSubmitting, submitError }) => {
+  const handleSubmit = async () => {
+    try {
+      await onSubmit();
+    } catch (error) {
+      // Error is handled by the hook
+    }
   };
 
-  if (result?.ok) {
-    return (
-      <div className="text-center">
-        <div className="mx-auto w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
-          <svg
-            className="w-8 h-8"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
-        <h3 className="text-2xl font-semibold mb-2">Đặt lịch thành công!</h3>
-        <p className="text-gray-700 mb-4">
-          Mã đặt lịch: <span className="font-semibold">{result.code}</span>
-        </p>
-        <a href="/" className="underline text-blue-600">
-          Về trang chủ
-        </a>
-      </div>
-    );
-  }
+  // This component is for confirmation step, success is handled in Success component
 
   return (
     <div>
@@ -67,12 +37,18 @@ const Confirmation = ({ data, back }) => {
         </div>
       </div>
 
+      {submitError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {submitError}
+        </div>
+      )}
+
       <div className="flex justify-between">
         <Button variant="secondary" onClick={back}>
           Quay lại
         </Button>
-        <Button variant="accent" onClick={submit} disabled={loading}>
-          {loading ? "Đang gửi..." : "Xác nhận & đặt lịch"}
+        <Button variant="accent" onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? "Đang gửi..." : "Xác nhận & đặt lịch"}
         </Button>
       </div>
     </div>

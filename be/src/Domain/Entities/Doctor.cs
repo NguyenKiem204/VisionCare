@@ -19,4 +19,17 @@ public class Doctor : BaseEntity
     public User? Account { get; set; }
     public Specialization? Specialization { get; set; }
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+
+    // Domain methods
+    public void UpdateRating(double newRating)
+    {
+        Rating = newRating;
+        LastModified = DateTime.UtcNow;
+    }
+
+    public void UpdateStatus(string status)
+    {
+        DoctorStatus = status;
+        LastModified = DateTime.UtcNow;
+    }
 }

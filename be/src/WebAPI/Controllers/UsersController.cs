@@ -1,7 +1,8 @@
-using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VisionCare.Application.Commands;
-using VisionCare.Application.Queries;
+using VisionCare.Application.DTOs.User;
+using VisionCare.Application.Interfaces.Users;
+using VisionCare.WebAPI.Responses;
 
 namespace VisionCare.WebAPI.Controllers;
 
@@ -9,60 +10,222 @@ namespace VisionCare.WebAPI.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    private readonly IUserService _userService;
 
-    public UsersController(IMediator mediator)
+    public UsersController(IUserService userService)
     {
-        _mediator = mediator;
+        _userService = userService;
     }
 
-    // GET: api/users
     [HttpGet]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetAllUsers()
     {
-        var query = new GetAllUsersQuery();
-        var result = await _mediator.Send(query);
-        return Ok(result);
+        var users = await _userService.GetAllUsersAsync();
+        return Ok(ApiResponse<IEnumerable<UserDto>>.Ok(users));
     }
 
-    // GET: api/users/5
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchUsers(
+        [FromQuery] string? keyword,
+        [FromQuery] int? roleId,
+        [FromQuery] string? status,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool desc = false
+    )
+    {
+        var result = await _userService.SearchUsersAsync(
+            keyword,
+            roleId,
+            status,
+            page,
+            pageSize,
+            sortBy,
+            desc
+        );
+        return Ok(PagedResponse<UserDto>.Ok(result.items, result.totalCount, page, pageSize));
+    }
+
     [HttpGet("{id}")]
+    [Authorize(Policy = "OwnProfileOrAdmin")]
     public async Task<IActionResult> GetUserById(int id)
     {
-        var query = new GetUserByIdQuery { Id = id };
-        var result = await _mediator.Send(query);
-        return Ok(result);
+        var user = await _userService.GetUserByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound(ApiResponse<UserDto>.Fail($"User with ID {id} not found."));
+        }
+        return Ok(ApiResponse<UserDto>.Ok(user));
     }
 
-    // POST: api/users
     [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command)
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
     {
-        var result = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetUserById), new { id = result.Id }, result);
+        var user = await _userService.CreateUserAsync(request);
+        return CreatedAtAction(
+            nameof(GetUserById),
+            new { id = user.Id },
+            ApiResponse<UserDto>.Ok(user)
+        );
     }
 
-    // PUT: api/users/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserCommand command)
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
     {
-        command.Id = id; // Đảm bảo ID từ URL được set vào command
-        var result = await _mediator.Send(command);
-        return Ok(result);
+        var user = await _userService.UpdateUserAsync(id, request);
+        return Ok(ApiResponse<UserDto>.Ok(user));
     }
 
-    // DELETE: api/users/5
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        var command = new DeleteUserCommand { Id = id };
-        var result = await _mediator.Send(command);
-
+        var result = await _userService.DeleteUserAsync(id);
         if (!result)
         {
-            return NotFound($"User with ID {id} not found.");
+            return NotFound(ApiResponse<UserDto>.Fail($"User with ID {id} not found."));
         }
+        return Ok(ApiResponse<UserDto>.Ok(null, "User deleted successfully"));
+    }
 
-        return NoContent();
+    /// <summary>
+    /// Get user by email
+    /// </summary>
+    [HttpGet("email/{email}")]
+    [Authorize(Policy = "StaffOrAdmin")]
+    public async Task<IActionResult> GetUserByEmail(string email)
+    {
+        var user = await _userService.GetUserByEmailAsync(email);
+        if (user == null)
+        {
+            return NotFound(ApiResponse<UserDto>.Fail($"User with email {email} not found."));
+        }
+        return Ok(ApiResponse<UserDto>.Ok(user));
+    }
+
+    /// <summary>
+    /// Get user by username
+    /// </summary>
+    [HttpGet("username/{username}")]
+    [Authorize(Policy = "StaffOrAdmin")]
+    public async Task<IActionResult> GetUserByUsername(string username)
+    {
+        var user = await _userService.GetUserByUsernameAsync(username);
+        if (user == null)
+        {
+            return NotFound(ApiResponse<UserDto>.Fail($"User with username {username} not found."));
+        }
+        return Ok(ApiResponse<UserDto>.Ok(user));
+    }
+
+    /// <summary>
+    /// Activate user
+    /// </summary>
+    [HttpPut("{id}/activate")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> ActivateUser(int id)
+    {
+        var user = await _userService.ActivateUserAsync(id);
+        return Ok(ApiResponse<UserDto>.Ok(user));
+    }
+
+    /// <summary>
+    /// Deactivate user
+    /// </summary>
+    [HttpPut("{id}/deactivate")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> DeactivateUser(int id)
+    {
+        var user = await _userService.DeactivateUserAsync(id);
+        return Ok(ApiResponse<UserDto>.Ok(user));
+    }
+
+    /// <summary>
+    /// Change user password
+    /// </summary>
+    [HttpPut("{id}/password")]
+    [Authorize(Policy = "OwnProfileOrAdmin")]
+    public async Task<IActionResult> ChangePassword(
+        int id,
+        [FromBody] ChangePasswordRequest request
+    )
+    {
+        var user = await _userService.ChangePasswordAsync(id, request.NewPassword);
+        return Ok(ApiResponse<UserDto>.Ok(user));
+    }
+
+    /// <summary>
+    /// Update user role
+    /// </summary>
+    [HttpPut("{id}/role")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> UpdateUserRole(
+        int id,
+        [FromBody] UpdateUserRoleRequest request
+    )
+    {
+        var user = await _userService.UpdateUserRoleAsync(id, request.RoleId);
+        return Ok(ApiResponse<UserDto>.Ok(user));
+    }
+
+    /// <summary>
+    /// Get users by role
+    /// </summary>
+    [HttpGet("role/{roleId}")]
+    [Authorize(Policy = "StaffOrAdmin")]
+    public async Task<IActionResult> GetUsersByRole(int roleId)
+    {
+        var users = await _userService.GetUsersByRoleAsync(roleId);
+        return Ok(ApiResponse<IEnumerable<UserDto>>.Ok(users));
+    }
+
+    /// <summary>
+    /// Get active users
+    /// </summary>
+    [HttpGet("active")]
+    [Authorize(Policy = "StaffOrAdmin")]
+    public async Task<IActionResult> GetActiveUsers()
+    {
+        var users = await _userService.GetActiveUsersAsync();
+        return Ok(ApiResponse<IEnumerable<UserDto>>.Ok(users));
+    }
+
+    /// <summary>
+    /// Get inactive users
+    /// </summary>
+    [HttpGet("inactive")]
+    [Authorize(Policy = "StaffOrAdmin")]
+    public async Task<IActionResult> GetInactiveUsers()
+    {
+        var users = await _userService.GetInactiveUsersAsync();
+        return Ok(ApiResponse<IEnumerable<UserDto>>.Ok(users));
+    }
+
+    /// <summary>
+    /// Get user statistics
+    /// </summary>
+    [HttpGet("statistics")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> GetUserStatistics()
+    {
+        var totalCount = await _userService.GetTotalUsersCountAsync();
+        var activeCount = await _userService.GetActiveUsersCountAsync();
+        var roleStats = await _userService.GetUsersByRoleStatsAsync();
+        var statusStats = await _userService.GetUsersByStatusStatsAsync();
+
+        return Ok(
+            ApiResponse<object>.Ok(
+                new
+                {
+                    TotalCount = totalCount,
+                    ActiveCount = activeCount,
+                    RoleStats = roleStats,
+                    StatusStats = statusStats,
+                }
+            )
+        );
     }
 }

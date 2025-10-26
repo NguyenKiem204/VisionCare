@@ -54,8 +54,8 @@ public class SpecializationRepository : ISpecializationRepository
 
         if (existingSpecialization != null)
         {
-            existingSpecialization.Name = specialization.SpecializationName;
-            existingSpecialization.Status = specialization.SpecializationStatus;
+            existingSpecialization.Name = specialization.SpecializationName ?? string.Empty;
+            existingSpecialization.Status = specialization.SpecializationStatus ?? "Active";
 
             await _context.SaveChangesAsync();
         }
@@ -128,8 +128,8 @@ public class SpecializationRepository : ISpecializationRepository
         return new VisionCare.Infrastructure.Models.Specialization
         {
             SpecializationId = domain.Id,
-            Name = domain.SpecializationName,
-            Status = domain.SpecializationStatus ?? "Active",
+            Name = domain.SpecializationName ?? string.Empty,
+            Status = domain.SpecializationStatus!
         };
     }
 }

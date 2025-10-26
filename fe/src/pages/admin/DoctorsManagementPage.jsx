@@ -45,7 +45,7 @@ const DoctorsManagementPage = () => {
           keyword: search,
           specializationId: specializationFilter || null,
           minRating: minRatingFilter || null,
-          page: pagination.page,
+          page: pagination.page + 1, // Backend uses 1-based pagination
           pageSize: pagination.size,
           sortBy: sort.sortBy,
           desc: sort.sortDir === "desc",
@@ -59,11 +59,21 @@ const DoctorsManagementPage = () => {
       }
 
       if (res.data) {
-        setDoctors(res.data);
-        setPagination((prev) => ({
-          ...prev,
-          total: res.data.length, // For now, use array length
-        }));
+        // Handle PagedResponse for search results
+        if (res.data.items && res.data.totalCount !== undefined) {
+          setDoctors(res.data.items);
+          setPagination((prev) => ({
+            ...prev,
+            total: res.data.totalCount,
+          }));
+        } else {
+          // Handle regular array response for fetchDoctors
+          setDoctors(res.data);
+          setPagination((prev) => ({
+            ...prev,
+            total: res.data.length,
+          }));
+        }
       }
     } catch (error) {
       console.error("Failed to load doctors:", error);

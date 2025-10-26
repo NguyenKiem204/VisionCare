@@ -2,15 +2,23 @@ import React, { useState, useEffect } from "react";
 
 const UserModal = ({ open, user, onClose, onSave }) => {
   const [form, setForm] = useState({
+    username: "",
     email: "",
-    role: "",
-    status: "",
-    residentId: "",
+    password: "",
+    roleId: "",
   });
 
   useEffect(() => {
-    if (user) setForm(user);
-    else setForm({ email: "", role: "", status: "", residentId: "" });
+    if (user) {
+      setForm({
+        username: user.username || "",
+        email: user.email || "",
+        password: "",
+        roleId: user.roleId || "",
+      });
+    } else {
+      setForm({ username: "", email: "", password: "", roleId: "" });
+    }
   }, [user]);
 
   if (!open) return null;
@@ -23,35 +31,36 @@ const UserModal = ({ open, user, onClose, onSave }) => {
         </h2>
         <input
           className="border px-2 py-1 mb-2 w-full"
-          value={form.email}
-          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-          placeholder="Email"
+          value={form.username}
+          onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
+          placeholder="Username"
+          required
         />
         <input
           className="border px-2 py-1 mb-2 w-full"
-          value={form.residentId}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, residentId: e.target.value }))
-          }
-          placeholder="Resident ID"
+          value={form.email}
+          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+          placeholder="Email"
+          type="email"
+          required
+        />
+        <input
+          className="border px-2 py-1 mb-2 w-full"
+          value={form.password}
+          onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+          placeholder={user ? "Mật khẩu mới (để trống nếu không đổi)" : "Mật khẩu"}
+          type="password"
+          required={!user}
         />
         <select
           className="border px-2 py-1 mb-2 w-full"
-          value={form.role}
-          onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
+          value={form.roleId}
+          onChange={(e) => setForm((f) => ({ ...f, roleId: e.target.value }))}
+          required
         >
           <option value="">Chọn role</option>
-          <option value="ADMIN">ADMIN</option>
-          <option value="USER">USER</option>
-        </select>
-        <select
-          className="border px-2 py-1 mb-2 w-full"
-          value={form.status}
-          onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-        >
-          <option value="">Chọn status</option>
-          <option value="ACTIVE">ACTIVE</option>
-          <option value="INACTIVE">INACTIVE</option>
+          <option value="1">ADMIN</option>
+          <option value="2">USER</option>
         </select>
         <div className="flex justify-end gap-2 mt-2">
           <button

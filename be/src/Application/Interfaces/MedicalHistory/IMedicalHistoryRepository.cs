@@ -9,12 +9,17 @@ public interface IMedicalHistoryRepository
     Task<Domain.Entities.MedicalHistory?> GetByAppointmentIdAsync(int appointmentId);
     Task<IEnumerable<Domain.Entities.MedicalHistory>> GetByPatientIdAsync(int patientId);
     Task<IEnumerable<Domain.Entities.MedicalHistory>> GetByDoctorIdAsync(int doctorId);
-    Task<IEnumerable<Domain.Entities.MedicalHistory>> SearchAsync(
+    Task<(IEnumerable<Domain.Entities.MedicalHistory> items, int totalCount)> SearchAsync(
+        string? keyword,
         int? patientId,
         int? doctorId,
         DateTime? fromDate,
         DateTime? toDate,
-        string? diagnosis
+        string? diagnosis,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
     );
     Task<Domain.Entities.MedicalHistory> AddAsync(Domain.Entities.MedicalHistory medicalHistory);
     Task UpdateAsync(Domain.Entities.MedicalHistory medicalHistory);

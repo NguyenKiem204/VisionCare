@@ -11,6 +11,7 @@ public static class DoctorMapper
             Id = model.AccountId,
             AccountId = model.AccountId,
             DoctorName = model.FullName,
+            Phone = model.Phone,
             ExperienceYears = model.ExperienceYears,
             SpecializationId = model.SpecializationId,
             ProfileImage = model.Avatar,
@@ -47,6 +48,7 @@ public static class DoctorMapper
         {
             AccountId = domain.AccountId ?? 0,
             FullName = domain.DoctorName,
+            Phone = domain.Phone,
             ExperienceYears = domain.ExperienceYears.HasValue
                 ? (short?)domain.ExperienceYears.Value
                 : null,

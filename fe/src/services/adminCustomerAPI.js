@@ -22,7 +22,7 @@ export const searchCustomers = async (params = {}) => {
     gender = null,
     fromDob = null,
     toDob = null,
-    page = 0,
+    page = 1,
     pageSize = 10,
     sortBy = "id",
     desc = false,

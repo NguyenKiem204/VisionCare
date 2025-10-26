@@ -21,7 +21,7 @@ export const searchUsers = async (params = {}) => {
     keyword = "",
     roleId = null,
     status = null,
-    page = 0,
+    page = 1,
     pageSize = 10,
     sortBy = "id",
     desc = false,

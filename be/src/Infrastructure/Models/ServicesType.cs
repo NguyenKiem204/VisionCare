@@ -11,6 +11,10 @@ public partial class Servicestype
 
     public short DurationMinutes { get; set; }
 
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
     public virtual ICollection<Servicesdetail> Servicesdetails { get; set; } = new List<Servicesdetail>();
 
     public virtual ICollection<Slot> Slots { get; set; } = new List<Slot>();

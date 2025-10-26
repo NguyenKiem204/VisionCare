@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VisionCare.Application.DTOs.DoctorDto;
 using VisionCare.Application.Interfaces.Doctors;
+using VisionCare.WebAPI.Responses;
 
 namespace VisionCare.WebAPI.Controllers;
 
@@ -68,14 +69,35 @@ public class DoctorsController : ControllerBase
     }
 
     [HttpGet("search")]
-    public async Task<ActionResult<IEnumerable<DoctorDto>>> SearchDoctors(
+    public async Task<ActionResult<PagedResponse<DoctorDto>>> SearchDoctors(
         [FromQuery] string? keyword,
         [FromQuery] int? specializationId,
-        [FromQuery] double? minRating
+        [FromQuery] double? minRating,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "id",
+        [FromQuery] bool desc = false
     )
     {
-        var doctors = await _doctorService.SearchDoctorsAsync(keyword, specializationId, minRating);
-        return Ok(doctors);
+        var (doctors, totalCount) = await _doctorService.SearchDoctorsAsync(
+            keyword ?? string.Empty, 
+            specializationId, 
+            minRating, 
+            page, 
+            pageSize, 
+            sortBy, 
+            desc
+        );
+        
+        var response = new PagedResponse<DoctorDto>
+        {
+            Items = doctors,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+        
+        return Ok(response);
     }
 
     [HttpGet("available")]

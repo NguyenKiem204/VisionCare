@@ -276,4 +276,33 @@ public class AppointmentService : IAppointmentService
         var appointments = await _appointmentRepository.GetOverdueAsync();
         return _mapper.Map<IEnumerable<AppointmentDto>>(appointments);
     }
+
+    public async Task<(IEnumerable<AppointmentDto> items, int totalCount)> SearchAppointmentsAsync(
+        string? keyword,
+        string? status,
+        int? doctorId,
+        int? customerId,
+        DateTime? startDate,
+        DateTime? endDate,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
+    )
+    {
+        var result = await _appointmentRepository.SearchAppointmentsAsync(
+            keyword,
+            status,
+            doctorId,
+            customerId,
+            startDate,
+            endDate,
+            page,
+            pageSize,
+            sortBy,
+            desc
+        );
+        var appointmentDtos = _mapper.Map<IEnumerable<AppointmentDto>>(result.items);
+        return (appointmentDtos, result.totalCount);
+    }
 }

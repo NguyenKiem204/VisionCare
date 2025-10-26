@@ -92,20 +92,29 @@ public class CustomerService : ICustomerService
         return true;
     }
 
-    public async Task<IEnumerable<CustomerDto>> SearchCustomersAsync(
+    public async Task<(IEnumerable<CustomerDto> items, int totalCount)> SearchCustomersAsync(
         string keyword,
         string? gender,
         DateOnly? fromDob,
-        DateOnly? toDob
+        DateOnly? toDob,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
     )
     {
-        var customers = await _customerRepository.SearchCustomersAsync(
+        var result = await _customerRepository.SearchCustomersAsync(
             keyword,
             gender,
             fromDob,
-            toDob
+            toDob,
+            page,
+            pageSize,
+            sortBy,
+            desc
         );
-        return _mapper.Map<IEnumerable<CustomerDto>>(customers);
+        var customerDtos = _mapper.Map<IEnumerable<CustomerDto>>(result.items);
+        return (customerDtos, result.totalCount);
     }
 
     public async Task<IEnumerable<CustomerDto>> GetCustomersByGenderAsync(string gender)

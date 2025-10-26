@@ -271,5 +271,77 @@ public class AppointmentRepository : IAppointmentRepository
             .ToDictionaryAsync(g => g.Key ?? "Unknown", g => g.Count());
     }
 
+    public async Task<(IEnumerable<DomainAppointment> items, int totalCount)> SearchAppointmentsAsync(
+        string? keyword,
+        string? status,
+        int? doctorId,
+        int? customerId,
+        DateTime? startDate,
+        DateTime? endDate,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
+    )
+    {
+        var query = _context
+            .Appointments.Include(a => a.Doctor)
+            .ThenInclude(d => d.Specialization)
+            .Include(a => a.Patient)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            var loweredKeyword = keyword.Trim().ToLower();
+            query = query.Where(a => 
+                (a.Doctor.FullName != null && a.Doctor.FullName.ToLower().Contains(loweredKeyword)) ||
+                (a.Patient.FullName != null && a.Patient.FullName.ToLower().Contains(loweredKeyword)) ||
+                (a.Status != null && a.Status.ToLower().Contains(loweredKeyword))
+            );
+        }
+
+        if (!string.IsNullOrEmpty(status))
+        {
+            query = query.Where(a => a.Status == status);
+        }
+
+        if (doctorId.HasValue)
+        {
+            query = query.Where(a => a.DoctorId == doctorId.Value);
+        }
+
+        if (customerId.HasValue)
+        {
+            query = query.Where(a => a.PatientId == customerId.Value);
+        }
+
+        if (startDate.HasValue)
+        {
+            query = query.Where(a => a.AppointmentDatetime >= startDate.Value);
+        }
+
+        if (endDate.HasValue)
+        {
+            query = query.Where(a => a.AppointmentDatetime <= endDate.Value);
+        }
+
+        // Sorting
+        query = (sortBy?.ToLower()) switch
+        {
+            "appointmentdate" => desc ? query.OrderByDescending(a => a.AppointmentDatetime) : query.OrderBy(a => a.AppointmentDatetime),
+            "appointmentstatus" => desc ? query.OrderByDescending(a => a.Status) : query.OrderBy(a => a.Status),
+            "patientname" => desc ? query.OrderByDescending(a => a.Patient.FullName) : query.OrderBy(a => a.Patient.FullName),
+            "doctorname" => desc ? query.OrderByDescending(a => a.Doctor.FullName) : query.OrderBy(a => a.Doctor.FullName),
+            _ => desc ? query.OrderByDescending(a => a.AppointmentId) : query.OrderBy(a => a.AppointmentId),
+        };
+
+        var totalCount = await query.CountAsync();
+
+        var skip = (Math.Max(page, 1) - 1) * Math.Max(pageSize, 1);
+        var appointments = await query.Skip(skip).Take(Math.Max(pageSize, 1)).ToListAsync();
+        
+        return (appointments.Select(AppointmentMapper.ToDomain), totalCount);
+    }
+
     // Mapping moved to AppointmentMapper
 }

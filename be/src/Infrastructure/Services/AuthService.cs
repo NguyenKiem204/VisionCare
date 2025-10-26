@@ -72,7 +72,7 @@ public class AuthService : IAuthService
             .FirstAsync(a => a.AccountId == tokenMatch.AccountId);
 
         // revoke old token
-        token.RevokedAt = DateTime.Now;
+        token!.RevokedAt = DateTime.Now;
 
         // Clean up old expired tokens (keep only last 50 per account)
         var oldTokens = await _db
@@ -108,8 +108,11 @@ public class AuthService : IAuthService
         if (tokenMatch != null)
         {
             var token = await _db.Refreshtokens.FindAsync(tokenMatch.TokenId);
-            token.RevokedAt = DateTime.Now;
-            await _db.SaveChangesAsync();
+            if (token != null)
+            {
+                token.RevokedAt = DateTime.Now;
+                await _db.SaveChangesAsync();
+            }
         }
     }
 

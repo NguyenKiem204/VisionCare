@@ -44,34 +44,24 @@ const AppointmentsManagementPage = () => {
   const loadAppointments = useCallback(async () => {
     setLoading(true);
     try {
-      let res;
-      if (search && search.trim() !== "") {
-        res = await searchAppointments({
-          keyword: search,
-          status: statusFilter || null,
-          startDate: dateRangeFilter.startDate || null,
-          endDate: dateRangeFilter.endDate || null,
-          page: pagination.page,
-          pageSize: pagination.size,
-          sortBy: sort.sortBy,
-          desc: sort.sortDir === "desc",
-        });
-      } else {
-        res = await fetchAppointments({
-          page: pagination.page,
-          size: pagination.size,
-          ...sort,
-        });
-      }
+      // Always use search API for consistency and pagination support
+      const res = await searchAppointments({
+        keyword: search || "",
+        status: statusFilter || null,
+        startDate: dateRangeFilter.startDate || null,
+        endDate: dateRangeFilter.endDate || null,
+        page: pagination.page + 1, // Backend uses 1-based pagination
+        pageSize: pagination.size,
+        sortBy: sort.sortBy,
+        desc: sort.sortDir === "desc",
+      });
 
-      console.log("API Response:", res);
-      
-      // Backend trả về array trực tiếp trong res.data
-      if (res.data && Array.isArray(res.data)) {
-        setAppointments(res.data);
+      // Backend returns PagedResponse structure
+      if (res.data.success) {
+        setAppointments(res.data.items || []);
         setPagination((prev) => ({
           ...prev,
-          total: res.data.length,
+          total: res.data.totalCount || 0,
         }));
       } else {
         console.warn("No appointments data found:", res);

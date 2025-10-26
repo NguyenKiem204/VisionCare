@@ -9,6 +9,12 @@ import {
   ChevronsLeft,
   ChevronsRight,
   UserCheck,
+  Wrench,
+  MessageSquare,
+  CalendarCheck,
+  FileText,
+  History,
+  ListChecks,
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 
@@ -20,8 +26,17 @@ const adminMenu = [
   { to: "/admin/doctors", label: "Bác sĩ", icon: UserCheck },
   { to: "/admin/staff", label: "Nhân viên", icon: Users },
   { to: "/admin/services", label: "Dịch vụ", icon: Stethoscope },
+  { to: "/admin/service-types", label: "Loại dịch vụ", icon: ListChecks },
   { to: "/admin/appointments", label: "Lịch hẹn", icon: Calendar },
+  { to: "/admin/weekly-schedule", label: "Lịch tuần", icon: CalendarCheck },
   { to: "/admin/users", label: "Người dùng", icon: UserCheck },
+  { group: "MEDICAL RECORDS" },
+  { to: "/admin/medical-history", label: "Lịch sử khám", icon: History },
+  { to: "/admin/medical-records", label: "Hồ sơ y tế", icon: FileText },
+  { to: "/admin/follow-up", label: "Theo dõi", icon: CalendarCheck },
+  { group: "OTHER" },
+  { to: "/admin/equipment", label: "Thiết bị", icon: Wrench },
+  { to: "/admin/feedback", label: "Phản hồi", icon: MessageSquare },
   { to: "/admin/settings", label: "Cài đặt", icon: Settings },
 ];
 

@@ -12,7 +12,7 @@ public interface IMedicalHistoryService
     Task<MedicalHistoryDto> CreateMedicalHistoryAsync(CreateMedicalHistoryRequest request);
     Task<MedicalHistoryDto> UpdateMedicalHistoryAsync(int id, UpdateMedicalHistoryRequest request);
     Task<bool> DeleteMedicalHistoryAsync(int id);
-    Task<IEnumerable<MedicalHistoryDto>> SearchMedicalHistoriesAsync(
+    Task<(IEnumerable<MedicalHistoryDto> items, int totalCount)> SearchMedicalHistoriesAsync(
         MedicalHistorySearchRequest request
     );
     Task<int> GetTotalMedicalHistoriesCountAsync();

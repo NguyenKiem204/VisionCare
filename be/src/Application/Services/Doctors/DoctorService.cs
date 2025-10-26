@@ -100,18 +100,26 @@ public class DoctorService : IDoctorService
         return _mapper.Map<IEnumerable<DoctorDto>>(doctors);
     }
 
-    public async Task<IEnumerable<DoctorDto>> SearchDoctorsAsync(
+    public async Task<(IEnumerable<DoctorDto> items, int totalCount)> SearchDoctorsAsync(
         string keyword,
         int? specializationId,
-        double? minRating
+        double? minRating,
+        int page = 1,
+        int pageSize = 10,
+        string sortBy = "id",
+        bool desc = false
     )
     {
-        var doctors = await _doctorRepository.SearchDoctorsAsync(
+        var (doctors, totalCount) = await _doctorRepository.SearchDoctorsAsync(
             keyword,
             specializationId,
-            minRating
+            minRating,
+            page,
+            pageSize,
+            sortBy,
+            desc
         );
-        return _mapper.Map<IEnumerable<DoctorDto>>(doctors);
+        return (_mapper.Map<IEnumerable<DoctorDto>>(doctors), totalCount);
     }
 
     public async Task<DoctorDto> UpdateDoctorRatingAsync(int doctorId, double newRating)

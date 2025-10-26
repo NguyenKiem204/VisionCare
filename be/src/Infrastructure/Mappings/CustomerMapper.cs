@@ -34,7 +34,7 @@ public static class CustomerMapper
         return new VisionCare.Infrastructure.Models.Customer
         {
             AccountId = domain.AccountId ?? 0,
-            FullName = domain.CustomerName,
+            FullName = domain.CustomerName ?? string.Empty,
             Gender = domain.Gender,
             Dob = domain.Dob,
             Address = domain.Address,

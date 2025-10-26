@@ -17,10 +17,14 @@ public interface IDoctorService
     // Business operations
     Task<IEnumerable<DoctorDto>> GetDoctorsBySpecializationAsync(int specializationId);
     Task<IEnumerable<DoctorDto>> GetAvailableDoctorsAsync(DateTime date);
-    Task<IEnumerable<DoctorDto>> SearchDoctorsAsync(
+    Task<(IEnumerable<DoctorDto> items, int totalCount)> SearchDoctorsAsync(
         string keyword,
         int? specializationId,
-        double? minRating
+        double? minRating,
+        int page = 1,
+        int pageSize = 10,
+        string sortBy = "id",
+        bool desc = false
     );
     Task<DoctorDto> UpdateDoctorRatingAsync(int doctorId, double newRating);
     Task<DoctorDto> UpdateDoctorStatusAsync(int doctorId, string status);

@@ -39,39 +39,32 @@ const CustomersManagementPage = () => {
   const loadCustomers = useCallback(async () => {
     setLoading(true);
     try {
-      let res;
-      if (search && search.trim() !== "") {
-        res = await searchCustomers({
-          keyword: search,
-          gender: genderFilter || null,
-          fromDob: ageRangeFilter.minAge
-            ? new Date().getFullYear() -
-              parseInt(ageRangeFilter.maxAge) +
-              "-01-01"
-            : null,
-          toDob: ageRangeFilter.maxAge
-            ? new Date().getFullYear() -
-              parseInt(ageRangeFilter.minAge) +
-              "-12-31"
-            : null,
-          page: pagination.page,
-          pageSize: pagination.size,
-          sortBy: sort.sortBy,
-          desc: sort.sortDir === "desc",
-        });
-      } else {
-        res = await fetchCustomers({
-          page: pagination.page,
-          size: pagination.size,
-          ...sort,
-        });
-      }
+      // Always use search API for consistency and pagination support
+      const res = await searchCustomers({
+        keyword: search || "",
+        gender: genderFilter || null,
+        fromDob: ageRangeFilter.minAge
+          ? new Date().getFullYear() -
+            parseInt(ageRangeFilter.maxAge) +
+            "-01-01"
+          : null,
+        toDob: ageRangeFilter.maxAge
+          ? new Date().getFullYear() -
+            parseInt(ageRangeFilter.minAge) +
+            "-12-31"
+          : null,
+        page: pagination.page + 1, // Backend uses 1-based pagination
+        pageSize: pagination.size,
+        sortBy: sort.sortBy,
+        desc: sort.sortDir === "desc",
+      });
 
-      if (res.data) {
-        setCustomers(res.data);
+      // Backend returns PagedResponse structure
+      if (res.data.success) {
+        setCustomers(res.data.items || []);
         setPagination((prev) => ({
           ...prev,
-          total: res.data.length, // For now, use array length
+          total: res.data.totalCount || 0,
         }));
       }
     } catch (error) {

@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VisionCare.Application.DTOs.AppointmentDto;
 using VisionCare.Application.Interfaces.Appointments;
+using VisionCare.WebAPI.Responses;
 
 namespace VisionCare.WebAPI.Controllers;
 
@@ -19,10 +21,44 @@ public class AppointmentsController : ControllerBase
     /// Get all appointments
     /// </summary>
     [HttpGet]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments()
     {
         var appointments = await _appointmentService.GetAllAppointmentsAsync();
-        return Ok(appointments);
+        return Ok(ApiResponse<IEnumerable<AppointmentDto>>.Ok(appointments));
+    }
+
+    /// <summary>
+    /// Search appointments with filters
+    /// </summary>
+    [HttpGet("search")]
+    [Authorize(Policy = "StaffOrAdmin")]
+    public async Task<ActionResult<IEnumerable<AppointmentDto>>> SearchAppointments(
+        [FromQuery] string? keyword,
+        [FromQuery] string? status,
+        [FromQuery] int? doctorId,
+        [FromQuery] int? customerId,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool desc = false
+    )
+    {
+        var result = await _appointmentService.SearchAppointmentsAsync(
+            keyword,
+            status,
+            doctorId,
+            customerId,
+            startDate,
+            endDate,
+            page,
+            pageSize,
+            sortBy,
+            desc
+        );
+        return Ok(PagedResponse<AppointmentDto>.Ok(result.items, result.totalCount, page, pageSize));
     }
 
     /// <summary>

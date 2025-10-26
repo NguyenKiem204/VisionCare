@@ -23,8 +23,8 @@ public static class SpecializationMapper
         return new VisionCare.Infrastructure.Models.Specialization
         {
             SpecializationId = domain.Id,
-            Name = domain.SpecializationName,
-            Status = domain.SpecializationStatus ?? "Active",
+            Name = domain.SpecializationName ?? string.Empty,
+            Status = domain.SpecializationStatus!
         };
     }
 }

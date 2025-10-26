@@ -56,7 +56,7 @@ public class CustomerRepository : ICustomerRepository
 
         if (existingCustomer != null)
         {
-            existingCustomer.FullName = customer.CustomerName;
+            existingCustomer.FullName = customer.CustomerName ?? string.Empty;
             existingCustomer.Gender = customer.Gender;
             existingCustomer.Dob = customer.Dob;
             existingCustomer.Address = customer.Address;
@@ -77,18 +77,27 @@ public class CustomerRepository : ICustomerRepository
         }
     }
 
-    public async Task<IEnumerable<Customer>> SearchCustomersAsync(
+    public async Task<(IEnumerable<Customer> items, int totalCount)> SearchCustomersAsync(
         string keyword,
         string? gender,
         DateOnly? fromDob,
-        DateOnly? toDob
+        DateOnly? toDob,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
     )
     {
         var query = _context.Customers.Include(c => c.Account).AsQueryable();
 
         if (!string.IsNullOrEmpty(keyword))
         {
-            query = query.Where(c => c.FullName.Contains(keyword));
+            var loweredKeyword = keyword.Trim().ToLower();
+            query = query.Where(c => 
+                c.FullName.ToLower().Contains(loweredKeyword) ||
+                c.Account.Email.ToLower().Contains(loweredKeyword) ||
+                (c.Phone != null && c.Phone.ToLower().Contains(loweredKeyword))
+            );
         }
 
         if (!string.IsNullOrEmpty(gender))
@@ -106,8 +115,22 @@ public class CustomerRepository : ICustomerRepository
             query = query.Where(c => c.Dob <= toDob.Value);
         }
 
-        var customers = await query.ToListAsync();
-        return customers.Select(CustomerMapper.ToDomain);
+        // Sorting
+        query = (sortBy?.ToLower()) switch
+        {
+            "fullname" => desc ? query.OrderByDescending(c => c.FullName) : query.OrderBy(c => c.FullName),
+            "email" => desc ? query.OrderByDescending(c => c.Account.Email) : query.OrderBy(c => c.Account.Email),
+            "gender" => desc ? query.OrderByDescending(c => c.Gender) : query.OrderBy(c => c.Gender),
+            "dateofbirth" => desc ? query.OrderByDescending(c => c.Dob) : query.OrderBy(c => c.Dob),
+            _ => desc ? query.OrderByDescending(c => c.AccountId) : query.OrderBy(c => c.AccountId),
+        };
+
+        var totalCount = await query.CountAsync();
+
+        var skip = (Math.Max(page, 1) - 1) * Math.Max(pageSize, 1);
+        var customers = await query.Skip(skip).Take(Math.Max(pageSize, 1)).ToListAsync();
+        
+        return (customers.Select(CustomerMapper.ToDomain), totalCount);
     }
 
     public async Task<IEnumerable<Customer>> GetByGenderAsync(string gender)

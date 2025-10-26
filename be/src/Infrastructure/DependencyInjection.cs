@@ -3,11 +3,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VisionCare.Application.Interfaces;
 using VisionCare.Application.Interfaces.Auth;
+using VisionCare.Application.Interfaces.Equipment;
 using VisionCare.Application.Interfaces.Feedback;
+using VisionCare.Application.Interfaces.FollowUp;
 using VisionCare.Application.Interfaces.MedicalHistory;
 using VisionCare.Application.Interfaces.Reporting;
 using VisionCare.Application.Interfaces.Scheduling;
 using VisionCare.Application.Interfaces.Services;
+using VisionCare.Application.Interfaces.ServiceTypes;
 using VisionCare.Infrastructure.Data;
 using VisionCare.Infrastructure.Repositories;
 using VisionCare.Infrastructure.Services;
@@ -40,6 +43,9 @@ public static class DependencyInjection
         services.AddScoped<IFeedbackDoctorRepository, FeedbackDoctorRepository>();
         services.AddScoped<IFeedbackServiceRepository, FeedbackServiceRepository>();
         services.AddScoped<IReportingRepository, ReportingRepository>();
+        services.AddScoped<IEquipmentRepository, EquipmentRepository>();
+        services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
+        services.AddScoped<IFollowUpRepository, FollowUpRepository>();
 
         // Cross-cutting infrastructure services
         services.AddSingleton<IJwtTokenService, JwtTokenService>();

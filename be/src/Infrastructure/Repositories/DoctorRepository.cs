@@ -100,10 +100,14 @@ public class DoctorRepository : IDoctorRepository
         return doctors.Select(DoctorMapper.ToDomain);
     }
 
-    public async Task<IEnumerable<Doctor>> SearchDoctorsAsync(
+    public async Task<(IEnumerable<Doctor> items, int totalCount)> SearchDoctorsAsync(
         string keyword,
         int? specializationId,
-        double? minRating
+        double? minRating,
+        int page = 1,
+        int pageSize = 10,
+        string sortBy = "id",
+        bool desc = false
     )
     {
         var query = _context
@@ -113,7 +117,12 @@ public class DoctorRepository : IDoctorRepository
 
         if (!string.IsNullOrEmpty(keyword))
         {
-            query = query.Where(d => d.FullName.Contains(keyword));
+            query = query.Where(d =>
+                (d.FullName != null && d.FullName.Contains(keyword))
+                || (d.Account.Email != null && d.Account.Email.Contains(keyword))
+                || (d.Specialization != null && d.Specialization.Name != null && d.Specialization.Name.Contains(keyword))
+                || (d.Phone != null && d.Phone.Contains(keyword))
+            );
         }
 
         if (specializationId.HasValue)
@@ -127,8 +136,34 @@ public class DoctorRepository : IDoctorRepository
             query = query.Where(d => d.Rating >= min);
         }
 
-        var doctors = await query.ToListAsync();
-        return doctors.Select(DoctorMapper.ToDomain);
+        // Get total count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Apply sorting
+        query = sortBy.ToLower() switch
+        {
+            "fullname" => desc
+                ? query.OrderByDescending(d => d.FullName)
+                : query.OrderBy(d => d.FullName),
+            "email" => desc
+                ? query.OrderByDescending(d => d.Account.Email)
+                : query.OrderBy(d => d.Account.Email),
+            "specializationid" => desc
+                ? query.OrderByDescending(d => d.SpecializationId)
+                : query.OrderBy(d => d.SpecializationId),
+            "rating" => desc
+                ? query.OrderByDescending(d => d.Rating)
+                : query.OrderBy(d => d.Rating),
+            "experience" => desc
+                ? query.OrderByDescending(d => d.ExperienceYears)
+                : query.OrderBy(d => d.ExperienceYears),
+            _ => desc ? query.OrderByDescending(d => d.AccountId) : query.OrderBy(d => d.AccountId),
+        };
+
+        // Apply pagination
+        var doctors = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return (doctors.Select(DoctorMapper.ToDomain), totalCount);
     }
 
     public async Task<int> GetTotalCountAsync()

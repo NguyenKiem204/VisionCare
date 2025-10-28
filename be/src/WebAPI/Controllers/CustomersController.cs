@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VisionCare.Application.DTOs.CustomerDto;
 using VisionCare.Application.Interfaces.Customers;
+using VisionCare.WebAPI.Responses;
 
 namespace VisionCare.WebAPI.Controllers;
 
@@ -16,10 +18,11 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomers()
     {
         var customers = await _customerService.GetAllCustomersAsync();
-        return Ok(customers);
+        return Ok(ApiResponse<IEnumerable<CustomerDto>>.Ok(customers));
     }
 
     [HttpGet("{id}")]
@@ -73,20 +76,29 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet("search")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<ActionResult<IEnumerable<CustomerDto>>> SearchCustomers(
         [FromQuery] string? keyword,
         [FromQuery] string? gender,
         [FromQuery] DateOnly? fromDob,
-        [FromQuery] DateOnly? toDob
+        [FromQuery] DateOnly? toDob,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool desc = false
     )
     {
-        var customers = await _customerService.SearchCustomersAsync(
-            keyword,
+        var result = await _customerService.SearchCustomersAsync(
+            keyword ?? string.Empty,
             gender,
             fromDob,
-            toDob
+            toDob,
+            page,
+            pageSize,
+            sortBy,
+            desc
         );
-        return Ok(customers);
+        return Ok(PagedResponse<CustomerDto>.Ok(result.items, result.totalCount, page, pageSize));
     }
 
     [HttpGet("gender/{gender}")]

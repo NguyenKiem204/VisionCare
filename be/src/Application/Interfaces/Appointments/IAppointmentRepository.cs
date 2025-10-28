@@ -27,6 +27,20 @@ public interface IAppointmentRepository
         int? excludeAppointmentId = null
     );
 
+    // Search and filtering
+    Task<(IEnumerable<Appointment> items, int totalCount)> SearchAppointmentsAsync(
+        string? keyword,
+        string? status,
+        int? doctorId,
+        int? customerId,
+        DateTime? startDate,
+        DateTime? endDate,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
+    );
+
     // Statistics
     Task<int> GetTotalCountAsync();
     Task<Dictionary<string, int>> GetStatusStatsAsync();

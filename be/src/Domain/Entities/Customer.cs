@@ -13,4 +13,5 @@ public class Customer : BaseEntity
 
     // Navigation properties
     public User? Account { get; set; }
+    public ICollection<FollowUp> FollowUps { get; set; } = new List<FollowUp>();
 }

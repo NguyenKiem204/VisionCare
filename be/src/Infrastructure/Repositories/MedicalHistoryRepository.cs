@@ -77,12 +77,17 @@ public class MedicalHistoryRepository : IMedicalHistoryRepository
         return medicalHistories.Select(ConvertToDomainEntity).ToList();
     }
 
-    public async Task<IEnumerable<MedicalHistory>> SearchAsync(
+    public async Task<(IEnumerable<MedicalHistory> items, int totalCount)> SearchAsync(
+        string? keyword,
         int? patientId,
         int? doctorId,
         DateTime? fromDate,
         DateTime? toDate,
-        string? diagnosis
+        string? diagnosis,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
     )
     {
         var query = _context
@@ -117,8 +122,35 @@ public class MedicalHistoryRepository : IMedicalHistoryRepository
             query = query.Where(mh => mh.Diagnosis != null && mh.Diagnosis.Contains(diagnosis));
         }
 
-        var medicalHistories = await query.ToListAsync();
-        return medicalHistories.Select(ConvertToDomainEntity).ToList();
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            var loweredKeyword = keyword.Trim().ToLower();
+            query = query.Where(mh =>
+                (mh.Diagnosis != null && mh.Diagnosis.ToLower().Contains(loweredKeyword)) ||
+                (mh.Symptoms != null && mh.Symptoms.ToLower().Contains(loweredKeyword)) ||
+                (mh.Treatment != null && mh.Treatment.ToLower().Contains(loweredKeyword)) ||
+                (mh.Appointment.Patient != null && mh.Appointment.Patient.FullName.ToLower().Contains(loweredKeyword)) ||
+                (mh.Appointment.Doctor != null && mh.Appointment.Doctor.FullName.ToLower().Contains(loweredKeyword))
+            );
+        }
+
+        // Sorting
+        query = sortBy?.ToLower() switch
+        {
+            "patientname" => desc ? query.OrderByDescending(mh => mh.Appointment.Patient.FullName) : query.OrderBy(mh => mh.Appointment.Patient.FullName),
+            "doctorname" => desc ? query.OrderByDescending(mh => mh.Appointment.Doctor.FullName) : query.OrderBy(mh => mh.Appointment.Doctor.FullName),
+            "appointmentdate" => desc ? query.OrderByDescending(mh => mh.Appointment.AppointmentDatetime) : query.OrderBy(mh => mh.Appointment.AppointmentDatetime),
+            "diagnosis" => desc ? query.OrderByDescending(mh => mh.Diagnosis) : query.OrderBy(mh => mh.Diagnosis),
+            _ => desc ? query.OrderByDescending(mh => mh.MedicalHistoryId) : query.OrderBy(mh => mh.MedicalHistoryId)
+        };
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items.Select(ConvertToDomainEntity), totalCount);
     }
 
     public async Task<MedicalHistory> AddAsync(MedicalHistory medicalHistory)
@@ -198,6 +230,21 @@ public class MedicalHistoryRepository : IMedicalHistoryRepository
             Notes = model.Notes,
             Created = model.CreatedAt ?? DateTime.UtcNow,
             LastModified = model.UpdatedAt,
+            Appointment = model.Appointment != null ? new Domain.Entities.Appointment
+            {
+                Id = model.Appointment.AppointmentId,
+                AppointmentDate = model.Appointment.AppointmentDatetime,
+                Doctor = model.Appointment.Doctor != null ? new Domain.Entities.Doctor
+                {
+                    Id = model.Appointment.Doctor.AccountId,
+                    DoctorName = model.Appointment.Doctor.FullName
+                } : null,
+                Patient = model.Appointment.Patient != null ? new Domain.Entities.Customer
+                {
+                    Id = model.Appointment.Patient.AccountId,
+                    CustomerName = model.Appointment.Patient.FullName
+                } : null
+            } : null
         };
     }
 

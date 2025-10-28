@@ -87,9 +87,8 @@ INSERT INTO Discount (discount_name, discount_percent, rank_id, start_date, end_
 ('New Year Special', 25.00, NULL, '2025-01-01', '2025-01-31', 'Active'),
 ('Spring Promotion', 15.00, NULL, '2025-03-01', '2025-05-31', 'Active');
 
--- 7. Insert Accounts
+-- 7. Insert Accounts and get their IDs
 INSERT INTO Accounts (email, username, password_hash, email_confirmed, role_id, status) VALUES 
-('admin@visioncare.com', 'admin01', '$2a$10$N.zmdr9k7uOCQb0V8.5VV.E3HEGNzHYF5lEFpz5qOqvJ0gN7LnTf6', TRUE, 1, 'Active'),
 ('dr.nguyen@visioncare.com', 'doctor01', '$2a$10$N.zmdr9k7uOCQb0V8.5VV.E3HEGNzHYF5lEFpz5qOqvJ0gN7LnTf6', TRUE, 2, 'Active'),
 ('dr.tran@visioncare.com', 'doctor02', '$2a$10$N.zmdr9k7uOCQb0V8.5VV.E3HEGNzHYF5lEFpz5qOqvJ0gN7LnTf6', TRUE, 2, 'Active'),
 ('dr.le@visioncare.com', 'doctor03', '$2a$10$N.zmdr9k7uOCQb0V8.5VV.E3HEGNzHYF5lEFpz5qOqvJ0gN7LnTf6', TRUE, 2, 'Active'),
@@ -121,52 +120,52 @@ INSERT INTO Certificate (name) VALUES
 
 -- 10. Insert Doctors
 INSERT INTO Doctors (account_id, full_name, phone, experience_years, specialization_id, avatar, rating, gender, dob, address, status) VALUES 
-(2, 'BS. Nguyễn Văn Nam', '0902345678', 15, 1, 'doctor01.jpg', 4.8, 'Nam', '1978-05-15', '123 Lê Lợi, Q.1, TP.HCM', 'Active'),
-(3, 'BS. CKI Trần Thị Mai', '0903456789', 12, 2, 'doctor02.jpg', 4.7, 'Nữ', '1982-08-20', '456 Nguyễn Huệ, Q.1, TP.HCM', 'Active'),
-(4, 'BS. CKII Lê Minh Tuấn', '0904567890', 20, 3, 'doctor03.jpg', 4.9, 'Nam', '1975-12-10', '789 Hai Bà Trưng, Q.3, TP.HCM', 'Active'),
-(5, 'BS. CKI Phạm Thị Lan', '0905678901', 8, 4, 'doctor04.jpg', 4.6, 'Nữ', '1985-03-25', '321 Pasteur, Q.3, TP.HCM', 'Active');
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 'BS. Nguyễn Văn Nam', '0902345678', 15, 1, 'doctor01.jpg', 4.8, 'Nam', '1978-05-15', '123 Lê Lợi, Q.1, TP.HCM', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 'BS. CKI Trần Thị Mai', '0903456789', 12, 2, 'doctor02.jpg', 4.7, 'Nữ', '1982-08-20', '456 Nguyễn Huệ, Q.1, TP.HCM', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 'BS. CKII Lê Minh Tuấn', '0904567890', 20, 3, 'doctor03.jpg', 4.9, 'Nam', '1975-12-10', '789 Hai Bà Trưng, Q.3, TP.HCM', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 'BS. CKI Phạm Thị Lan', '0905678901', 8, 4, 'doctor04.jpg', 4.6, 'Nữ', '1985-03-25', '321 Pasteur, Q.3, TP.HCM', 'Active');
 
 -- 11. Insert Degree-Doctor relationships
 INSERT INTO DegreeDoctor (doctor_id, degree_id, issued_date, issued_by, certificate_image, status) VALUES 
-(2, 1, '2005-06-15', 'Đại học Y Dược TP.HCM', 'degree_doctor01_1.jpg', 'Active'),
-(2, 4, '2010-08-20', 'Bộ Y tế', 'degree_doctor01_2.jpg', 'Active'),
-(3, 1, '2008-07-10', 'Đại học Y Hà Nội', 'degree_doctor02_1.jpg', 'Active'),
-(3, 2, '2012-09-15', 'Đại học Y Hà Nội', 'degree_doctor02_2.jpg', 'Active'),
-(4, 1, '2002-06-20', 'Đại học Y Dược TP.HCM', 'degree_doctor03_1.jpg', 'Active'),
-(4, 5, '2008-12-15', 'Bộ Y tế', 'degree_doctor03_2.jpg', 'Active'),
-(5, 1, '2012-06-15', 'Đại học Y Dược TP.HCM', 'degree_doctor04_1.jpg', 'Active'),
-(5, 4, '2018-08-20', 'Bộ Y tế', 'degree_doctor04_2.jpg', 'Active');
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, '2005-06-15', 'Đại học Y Dược TP.HCM', 'degree_doctor01_1.jpg', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 4, '2010-08-20', 'Bộ Y tế', 'degree_doctor01_2.jpg', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 1, '2008-07-10', 'Đại học Y Hà Nội', 'degree_doctor02_1.jpg', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, '2012-09-15', 'Đại học Y Hà Nội', 'degree_doctor02_2.jpg', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, '2002-06-20', 'Đại học Y Dược TP.HCM', 'degree_doctor03_1.jpg', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 5, '2008-12-15', 'Bộ Y tế', 'degree_doctor03_2.jpg', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 1, '2012-06-15', 'Đại học Y Dược TP.HCM', 'degree_doctor04_1.jpg', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 4, '2018-08-20', 'Bộ Y tế', 'degree_doctor04_2.jpg', 'Active');
 
 -- 12. Insert Certificate-Doctor relationships
 INSERT INTO CertificateDoctor (doctor_id, certificate_id, issued_date, issued_by, certificate_image, expiry_date, status) VALUES 
-(2, 4, '2010-03-15', 'Hội Nhãn khoa Việt Nam', 'cert_doctor01_1.jpg', '2027-03-15', 'Active'),
-(3, 2, '2012-05-20', 'Hội Nhãn khoa Việt Nam', 'cert_doctor02_1.jpg', '2027-05-20', 'Active'),
-(4, 1, '2008-08-10', 'Hội Nhãn khoa Việt Nam', 'cert_doctor03_1.jpg', '2026-08-10', 'Active'),
-(4, 3, '2010-11-25', 'Hội Nhãn khoa Việt Nam', 'cert_doctor03_2.jpg', '2027-11-25', 'Active'),
-(5, 1, '2018-06-15', 'Hội Nhãn khoa Việt Nam', 'cert_doctor04_1.jpg', '2028-06-15', 'Active'),
-(5, 6, '2020-09-10', 'Hội Nhãn khoa Việt Nam', 'cert_doctor04_2.jpg', '2027-09-10', 'Active');
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 4, '2010-03-15', 'Hội Nhãn khoa Việt Nam', 'cert_doctor01_1.jpg', '2027-03-15', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, '2012-05-20', 'Hội Nhãn khoa Việt Nam', 'cert_doctor02_1.jpg', '2027-05-20', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, '2008-08-10', 'Hội Nhãn khoa Việt Nam', 'cert_doctor03_1.jpg', '2026-08-10', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 3, '2010-11-25', 'Hội Nhãn khoa Việt Nam', 'cert_doctor03_2.jpg', '2027-11-25', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 1, '2018-06-15', 'Hội Nhãn khoa Việt Nam', 'cert_doctor04_1.jpg', '2028-06-15', 'Active'),
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 6, '2020-09-10', 'Hội Nhãn khoa Việt Nam', 'cert_doctor04_2.jpg', '2027-09-10', 'Active');
 
 -- 13. Insert Customers
 INSERT INTO Customers (account_id, full_name, phone, address, dob, gender, rank_id, avatar) VALUES 
-(8, 'Nguyễn Văn A', '0907890123', '12 Trần Hưng Đạo, Q.5, TP.HCM', '1985-03-15', 'Nam', 2, 'customer01.jpg'),
-(9, 'Trần Thị B', '0908901234', '34 Lý Tự Trọng, Q.1, TP.HCM', '1990-07-22', 'Nữ', 1, 'customer02.jpg'),
-(10, 'Lê Văn C', '0909012345', '56 Pasteur, Q.3, TP.HCM', '1988-11-08', 'Nam', 3, 'customer03.jpg'),
-(11, 'Phạm Thị D', '0910123456', '78 Võ Văn Tần, Q.3, TP.HCM', '1992-04-18', 'Nữ', 1, 'customer04.jpg'),
-(12, 'Hoàng Văn E', '0911234567', '90 Nguyễn Trãi, Q.5, TP.HCM', '1987-09-30', 'Nam', 4, 'customer05.jpg');
+((SELECT account_id FROM accounts WHERE email = 'nguyen.van.a@gmail.com'), 'Nguyễn Văn A', '0907890123', '12 Trần Hưng Đạo, Q.5, TP.HCM', '1985-03-15', 'Nam', 2, 'customer01.jpg'),
+((SELECT account_id FROM accounts WHERE email = 'tran.thi.b@gmail.com'), 'Trần Thị B', '0908901234', '34 Lý Tự Trọng, Q.1, TP.HCM', '1990-07-22', 'Nữ', 1, 'customer02.jpg'),
+((SELECT account_id FROM accounts WHERE email = 'le.van.c@gmail.com'), 'Lê Văn C', '0909012345', '56 Pasteur, Q.3, TP.HCM', '1988-11-08', 'Nam', 3, 'customer03.jpg'),
+((SELECT account_id FROM accounts WHERE email = 'pham.thi.d@gmail.com'), 'Phạm Thị D', '0910123456', '78 Võ Văn Tần, Q.3, TP.HCM', '1992-04-18', 'Nữ', 1, 'customer04.jpg'),
+((SELECT account_id FROM accounts WHERE email = 'hoang.van.e@gmail.com'), 'Hoàng Văn E', '0911234567', '90 Nguyễn Trãi, Q.5, TP.HCM', '1987-09-30', 'Nam', 4, 'customer05.jpg');
 
 -- 14. Insert Staff
 INSERT INTO Staff (account_id, full_name, phone, address, dob, gender, avatar, hired_date, salary) VALUES 
-(6, 'Nguyễn Thị Lan', '0905678901', '100 Nguyễn Thị Minh Khai, Q.1, TP.HCM', '1987-09-12', 'Nữ', 'staff01.jpg', '2020-01-15', 15000000),
-(7, 'Trần Văn Hưng', '0906789012', '200 Cách Mạng Tháng 8, Q.10, TP.HCM', '1985-02-28', 'Nam', 'staff02.jpg', '2019-03-20', 18000000);
+((SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com'), 'Nguyễn Thị Lan', '0905678901', '100 Nguyễn Thị Minh Khai, Q.1, TP.HCM', '1987-09-12', 'Nữ', 'staff01.jpg', '2020-01-15', 15000000),
+((SELECT account_id FROM accounts WHERE email = 'staff02@visioncare.com'), 'Trần Văn Hưng', '0906789012', '200 Cách Mạng Tháng 8, Q.10, TP.HCM', '1985-02-28', 'Nam', 'staff02.jpg', '2019-03-20', 18000000);
 
 -- 15. Insert Services Types
-INSERT INTO ServicesType (name, duration_minutes) VALUES 
-('Khám cơ bản', 30),
-('Khám chuyên sâu', 45),
-('Phẫu thuật nhỏ', 60),
-('Phẫu thuật lớn', 120),
-('Tái khám', 15),
-('Xét nghiệm', 20);
+INSERT INTO ServicesType (name, duration_minutes, created_at, updated_at) VALUES 
+('Khám cơ bản', 30, '2024-01-01 08:00:00', '2024-01-01 08:00:00'),
+('Khám chuyên sâu', 45, '2024-01-01 08:00:00', '2024-01-01 08:00:00'),
+('Phẫu thuật nhỏ', 60, '2024-01-01 08:00:00', '2024-01-01 08:00:00'),
+('Phẫu thuật lớn', 120, '2024-01-01 08:00:00', '2024-01-01 08:00:00'),
+('Tái khám', 15, '2024-01-01 08:00:00', '2024-01-01 08:00:00'),
+('Xét nghiệm', 20, '2024-01-01 08:00:00', '2024-01-01 08:00:00');
 
 -- 16. Insert Services
 INSERT INTO Services (name, description, benefits, status, specialization_id) VALUES 
@@ -229,30 +228,30 @@ INSERT INTO Slots (start_time, end_time, service_type_id) VALUES
 -- 20. Insert Schedules
 INSERT INTO Schedules (doctor_id, slot_id, schedule_date, status) VALUES 
 -- Doctor 1 (Nguyễn Văn Nam) - Khúc xạ
-(2, 1, '2025-09-26', 'Available'),
-(2, 2, '2025-09-26', 'Booked'),
-(2, 3, '2025-09-26', 'Available'),
-(2, 7, '2025-09-26', 'Available'),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, '2025-09-26', 'Available'),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 2, '2025-09-26', 'Booked'),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, '2025-09-26', 'Available'),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 7, '2025-09-26', 'Available'),
 -- Doctor 2 (Trần Thị Mai) - Bệnh võng mạc  
-(3, 4, '2025-09-26', 'Available'),
-(3, 5, '2025-09-26', 'Available'),
-(3, 8, '2025-09-26', 'Booked'),
-(3, 9, '2025-09-26', 'Available'),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, '2025-09-26', 'Available'),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 5, '2025-09-26', 'Available'),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 8, '2025-09-26', 'Booked'),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 9, '2025-09-26', 'Available'),
 -- Doctor 3 (Lê Minh Tuấn) - Glaucoma
-(4, 11, '2025-09-27', 'Available'),
-(4, 12, '2025-09-27', 'Available'),
-(4, 16, '2025-09-27', 'Booked'),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 11, '2025-09-27', 'Available'),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 12, '2025-09-27', 'Available'),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 16, '2025-09-27', 'Booked'),
 -- Doctor 4 (Phạm Thị Lan) - Phẫu thuật
-(5, 17, '2025-09-28', 'Available'),
-(5, 18, '2025-09-28', 'Available');
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 17, '2025-09-28', 'Available'),
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 18, '2025-09-28', 'Available');
 
 -- 21. Insert Appointments
 INSERT INTO Appointment (patient_id, doctor_id, service_detail_id, discount_id, appointment_datetime, status, actual_cost, notes, created_by) VALUES 
-(8, 2, 1, 2, '2025-09-26 08:30:00', 'Completed', 270000, 'Khám định kỳ', 6),
-(9, 3, 9, NULL, '2025-09-26 15:00:00', 'Completed', 1500000, 'Điều trị võng mạc tiểu đường', 6),
-(10, 4, 5, 3, '2025-09-27 13:00:00', 'Scheduled', 680000, 'Điều trị glaucoma', 7),
-(11, 2, 3, NULL, '2025-09-27 09:00:00', 'Scheduled', 200000, 'Đo khúc xạ', 6),
-(12, 5, 15, 4, '2025-09-28 09:00:00', 'Scheduled', 22400000, 'Phẫu thuật Laser cận thị', 7);
+((SELECT account_id FROM accounts WHERE email = 'nguyen.van.a@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 2, '2025-09-26 08:30:00', 'Completed', 270000, 'Khám định kỳ', (SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com')),
+((SELECT account_id FROM accounts WHERE email = 'tran.thi.b@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 9, NULL, '2025-09-26 15:00:00', 'Completed', 1500000, 'Điều trị võng mạc tiểu đường', (SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com')),
+((SELECT account_id FROM accounts WHERE email = 'le.van.c@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 5, 3, '2025-09-27 13:00:00', 'Scheduled', 680000, 'Điều trị glaucoma', (SELECT account_id FROM accounts WHERE email = 'staff02@visioncare.com')),
+((SELECT account_id FROM accounts WHERE email = 'pham.thi.d@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, NULL, '2025-09-27 09:00:00', 'Scheduled', 200000, 'Đo khúc xạ', (SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com')),
+((SELECT account_id FROM accounts WHERE email = 'hoang.van.e@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 15, 4, '2025-09-28 09:00:00', 'Scheduled', 22400000, 'Phẫu thuật Laser cận thị', (SELECT account_id FROM accounts WHERE email = 'staff02@visioncare.com'));
 
 -- 22. Insert Medical History
 INSERT INTO MedicalHistory (appointment_id, diagnosis, symptoms, treatment, prescription, vision_left, vision_right, additional_tests, notes) VALUES 
@@ -378,48 +377,55 @@ LASIK (Laser-Assisted in Situ Keratomileusis) là kỹ thuật sử dụng tia l
 
 -- 31. Insert Blog Comments
 INSERT INTO CommentBlog (blog_id, author_id, parent_comment_id, comment_text, status) VALUES 
-(1, 8, NULL, 'Bài viết rất hữu ích! Tôi làm việc với máy tính 8 tiếng mỗi ngày và thường xuyên bị mỏi mắt. Sẽ áp dụng quy tắc 20-20-20 ngay.', 'Active'),
-(1, 9, NULL, 'Cảm ơn bác sĩ đã chia sẻ. Cho tôi hỏi kính chống ánh sáng xanh có thực sự hiệu quả không ạ?', 'Active'),
-(1, 1, 2, 'Kính chống ánh sáng xanh có thể giúp giảm một phần ánh sáng xanh từ màn hình, tuy nhiên hiệu quả có thể khác nhau tùy từng người. Quan trọng nhất vẫn là nghỉ ngơi mắt đều đặn.', 'Active'),
-(2, 10, NULL, 'Tôi đã phẫu thuật LASIK tại VisionCare năm ngoái và kết quả rất tốt. Giờ không cần đeo kính nữa, rất thuận tiện!', 'Active'),
-(2, 11, NULL, 'Em 19 tuổi, cận thị -4.5D có thể làm LASIK được không ạ?', 'Active'),
-(2, 2, 5, 'Với độ cận -4.5D và tuổi 19, bạn có thể cân nhắc phẫu thuật LASIK. Tuy nhiên cần khám chi tiết để đánh giá độ dày giác mạc và các yếu tố khác. Bạn có thể đặt lịch khám tư vấn để được tư vấn cụ thể nhé.', 'Active'),
-(3, 12, NULL, 'Bố tôi bị tiểu đường 10 năm rồi, gần đây thấy mắt mờ. Có phải là bệnh võng mạc tiểu đường không ạ?', 'Active'),
-(3, 3, 7, 'Với tiền sử tiểu đường 10 năm và triệu chứng mờ mắt, rất có khả năng là bệnh võng mạc tiểu đường. Bạn nên đưa bố đến khám ngay để được chẩn đoán và điều trị kịp thời. Việc phát hiện sớm rất quan trọng để ngăn ngừa các biến chứng nghiêm trọng.', 'Active');
+(1, (SELECT account_id FROM accounts WHERE email = 'nguyen.van.a@gmail.com'), NULL, 'Bài viết rất hữu ích! Tôi làm việc với máy tính 8 tiếng mỗi ngày và thường xuyên bị mỏi mắt. Sẽ áp dụng quy tắc 20-20-20 ngay.', 'Active'),
+(1, (SELECT account_id FROM accounts WHERE email = 'tran.thi.b@gmail.com'), NULL, 'Cảm ơn bác sĩ đã chia sẻ. Cho tôi hỏi kính chống ánh sáng xanh có thực sự hiệu quả không ạ?', 'Active'),
+(1, (SELECT account_id FROM accounts WHERE email = 'admin@visioncare.com'), 2, 'Kính chống ánh sáng xanh có thể giúp giảm một phần ánh sáng xanh từ màn hình, tuy nhiên hiệu quả có thể khác nhau tùy từng người. Quan trọng nhất vẫn là nghỉ ngơi mắt đều đặn.', 'Active'),
+(2, (SELECT account_id FROM accounts WHERE email = 'le.van.c@gmail.com'), NULL, 'Tôi đã phẫu thuật LASIK tại VisionCare năm ngoái và kết quả rất tốt. Giờ không cần đeo kính nữa, rất thuận tiện!', 'Active'),
+(2, (SELECT account_id FROM accounts WHERE email = 'pham.thi.d@gmail.com'), NULL, 'Em 19 tuổi, cận thị -4.5D có thể làm LASIK được không ạ?', 'Active'),
+(2, (SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 'Với độ cận -4.5D và tuổi 19, bạn có thể cân nhắc phẫu thuật LASIK. Tuy nhiên cần khám chi tiết để đánh giá độ dày giác mạc và các yếu tố khác. Bạn có thể đặt lịch khám tư vấn để được tư vấn cụ thể nhé.', 'Active'),
+(3, (SELECT account_id FROM accounts WHERE email = 'hoang.van.e@gmail.com'), NULL, 'Bố tôi bị tiểu đường 10 năm rồi, gần đây thấy mắt mờ. Có phải là bệnh võng mạc tiểu đường không ạ?', 'Active'),
+(3, (SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 7, 'Với tiền sử tiểu đường 10 năm và triệu chứng mờ mắt, rất có khả năng là bệnh võng mạc tiểu đường. Bạn nên đưa bố đến khám ngay để được chẩn đoán và điều trị kịp thời. Việc phát hiện sớm rất quan trọng để ngăn ngừa các biến chứng nghiêm trọng.', 'Active');
 
 -- 32. Insert OTP Services (for testing)
 INSERT INTO OTPServices (account_id, otp_hash, otp_type, expires_at, attempts) VALUES 
-(8, '$2a$10$abcdefghijklmnopqrstuvwxyz123456', 'LOGIN', '2025-09-26 09:00:00', 0),
-(9, '$2a$10$zyxwvutsrqponmlkjihgfedcba654321', 'PASSWORD_RESET', '2025-09-26 10:00:00', 1);
+((SELECT account_id FROM accounts WHERE email = 'nguyen.van.a@gmail.com'), '$2a$10$abcdefghijklmnopqrstuvwxyz123456', 'LOGIN', '2025-09-26 09:00:00', 0),
+((SELECT account_id FROM accounts WHERE email = 'tran.thi.b@gmail.com'), '$2a$10$zyxwvutsrqponmlkjihgfedcba654321', 'PASSWORD_RESET', '2025-09-26 10:00:00', 1);
 
 -- 33. Insert Refresh Tokens (for testing)
 INSERT INTO RefreshTokens (token_hash, account_id, expires_at, created_by_ip) VALUES 
-('$2a$10$refreshtoken1234567890abcdef', 8, '2025-10-26 08:00:00', '192.168.1.100'),
-('$2a$10$refreshtoken0987654321fedcba', 9, '2025-10-26 09:00:00', '192.168.1.101');
+('$2a$10$refreshtoken1234567890abcdef', (SELECT account_id FROM accounts WHERE email = 'nguyen.van.a@gmail.com'), '2025-10-26 08:00:00', '192.168.1.100'),
+('$2a$10$refreshtoken0987654321fedcba', (SELECT account_id FROM accounts WHERE email = 'tran.thi.b@gmail.com'), '2025-10-26 09:00:00', '192.168.1.101');
 
--- 34. Insert Claims
-INSERT INTO Claims (account_id, claim_type, claim_value, expires_at) VALUES 
-(1, 'permission', 'manage_system', NULL),
-(1, 'permission', 'view_all_records', NULL),
-(2, 'specialization', 'Khúc xạ', NULL),
-(3, 'specialization', 'Bệnh võng mạc', NULL),
-(8, 'membership', 'Silver', '2026-09-26 00:00:00');
+-- 34. Insert Claims (skipped - admin account created by DbSeeder, not in sample data)
 
 -- 35. Insert Audit Logs
 INSERT INTO AuditLogs (account_id, action, resource, resource_id, ip_address, success, details) VALUES 
-(1, 'LOGIN', 'accounts', 1, '192.168.1.10', TRUE, '{"browser": "Chrome", "os": "Windows"}'),
-(6, 'CREATE_APPOINTMENT', 'appointments', 1, '192.168.1.20', TRUE, '{"patient_id": 8, "doctor_id": 2}'),
-(2, 'UPDATE_MEDICAL_HISTORY', 'medical_history', 1, '192.168.1.30', TRUE, '{"appointment_id": 1}'),
-(8, 'LOGIN', 'accounts', 8, '192.168.1.100', TRUE, '{"browser": "Safari", "os": "iOS"}'),
-(9, 'VIEW_APPOINTMENT', 'appointments', 2, '192.168.1.101', TRUE, '{"appointment_id": 2}');
+((SELECT account_id FROM accounts WHERE email = 'admin@visioncare.com'), 'LOGIN', 'accounts', (SELECT account_id FROM accounts WHERE email = 'admin@visioncare.com'), '192.168.1.10', TRUE, '{"browser": "Chrome", "os": "Windows"}'),
+((SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com'), 'CREATE_APPOINTMENT', 'appointments', 1, '192.168.1.20', TRUE, '{"patient_id": 8, "doctor_id": 2}'),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 'UPDATE_MEDICAL_HISTORY', 'medical_history', 1, '192.168.1.30', TRUE, '{"appointment_id": 1}'),
+((SELECT account_id FROM accounts WHERE email = 'nguyen.van.a@gmail.com'), 'LOGIN', 'accounts', (SELECT account_id FROM accounts WHERE email = 'nguyen.van.a@gmail.com'), '192.168.1.100', TRUE, '{"browser": "Safari", "os": "iOS"}'),
+((SELECT account_id FROM accounts WHERE email = 'tran.thi.b@gmail.com'), 'VIEW_APPOINTMENT', 'appointments', 2, '192.168.1.101', TRUE, '{"appointment_id": 2}');
 
 -- 36. Update last login times for accounts
-UPDATE Accounts SET last_login = CURRENT_TIMESTAMP WHERE account_id IN (1, 2, 6, 8, 9);
+UPDATE Accounts SET last_login = CURRENT_TIMESTAMP WHERE email IN ('admin@visioncare.com', 'dr.nguyen@visioncare.com', 'staff01@visioncare.com', 'nguyen.van.a@gmail.com', 'tran.thi.b@gmail.com');
 
 -- 37. Update view counts for blogs
 UPDATE Blog SET view_count = view_count + FLOOR(RANDOM() * 100) + 50;
 
--- 38. Final verification queries (optional - for testing)
+-- 38. Insert Equipment Sample Data
+INSERT INTO Equipment (name, model, serial_number, manufacturer, purchase_date, last_maintenance_date, status, location, notes, created_at, updated_at) VALUES 
+('Máy đo thị lực tự động', 'Topcon RM-800', 'TP-2024-001', 'Topcon Corporation', '2024-01-15', '2024-09-15', 'Active', 'Phòng khám 1', 'Máy đo thị lực tự động cao cấp', '2024-01-15 08:00:00', '2024-09-15 10:30:00'),
+('Máy đo nhãn áp', 'Icare IC200', 'IC-2024-002', 'Icare Finland Oy', '2024-02-20', '2024-08-20', 'Active', 'Phòng khám 2', 'Máy đo nhãn áp không tiếp xúc', '2024-02-20 09:15:00', '2024-08-20 14:20:00'),
+('Máy chụp võng mạc', 'Canon CR-2', 'CR-2024-003', 'Canon Medical Systems', '2024-03-10', '2024-07-10', 'Maintenance', 'Phòng chụp X-quang', 'Đang bảo trì định kỳ', '2024-03-10 10:00:00', '2024-07-10 16:45:00'),
+('Máy đo độ dày giác mạc', 'Tomey SP-3000P', 'TM-2024-004', 'Tomey Corporation', '2024-04-05', '2024-06-05', 'Active', 'Phòng khám 3', 'Máy đo độ dày giác mạc chính xác', '2024-04-05 11:30:00', '2024-06-05 09:15:00'),
+('Máy đo trường thị giác', 'Humphrey Field Analyzer', 'HF-2024-005', 'Carl Zeiss Meditec', '2024-05-12', '2024-05-12', 'Active', 'Phòng khám 4', 'Máy đo trường thị giác tự động', '2024-05-12 13:20:00', '2024-05-12 13:20:00'),
+('Máy siêu âm mắt', 'Aviso S', 'AS-2024-006', 'Quantel Medical', '2024-06-18', '2024-12-18', 'Active', 'Phòng siêu âm', 'Máy siêu âm mắt A/B scan', '2024-06-18 14:00:00', '2024-12-18 11:30:00'),
+('Máy đo độ cong giác mạc', 'Topcon KR-1', 'KR-2024-007', 'Topcon Corporation', '2024-07-25', '2024-01-25', 'Broken', 'Kho thiết bị', 'Cần sửa chữa - lỗi phần mềm', '2024-07-25 15:45:00', '2024-01-25 08:30:00'),
+('Máy đo áp lực nội nhãn', 'Reichert 7CR', 'RC-2024-008', 'Reichert Technologies', '2024-08-30', '2024-08-30', 'Active', 'Phòng khám 5', 'Máy đo áp lực nội nhãn không tiếp xúc', '2024-08-30 12:15:00', '2024-08-30 12:15:00'),
+('Máy chụp OCT', 'Cirrus HD-OCT', 'CO-2024-009', 'Carl Zeiss Meditec', '2024-09-15', '2024-03-15', 'Active', 'Phòng chụp OCT', 'Máy chụp OCT võng mạc cao cấp', '2024-09-15 16:30:00', '2024-03-15 10:45:00'),
+('Máy đo độ dày giác mạc', 'Pachymeter SP-3000', 'PC-2024-010', 'Tomey Corporation', '2024-10-20', '2024-10-20', 'Active', 'Phòng khám 6', 'Máy đo độ dày giác mạc di động', '2024-10-20 17:00:00', '2024-10-20 17:00:00');
+
+-- 39. Final verification queries (optional - for testing)
 -- SELECT 'Roles' as table_name, COUNT(*) as count FROM Role
 -- UNION ALL SELECT 'Accounts', COUNT(*) FROM Accounts
 -- UNION ALL SELECT 'Doctors', COUNT(*) FROM Doctors  
@@ -427,4 +433,5 @@ UPDATE Blog SET view_count = view_count + FLOOR(RANDOM() * 100) + 50;
 -- UNION ALL SELECT 'Services', COUNT(*) FROM Services
 -- UNION ALL SELECT 'Appointments', COUNT(*) FROM Appointment
 -- UNION ALL SELECT 'Blog Posts', COUNT(*) FROM Blog
--- UNION ALL SELECT 'Comments', COUNT(*) FROM CommentBlog;
+-- UNION ALL SELECT 'Comments', COUNT(*) FROM CommentBlog
+-- UNION ALL SELECT 'Equipment', COUNT(*) FROM Equipment;

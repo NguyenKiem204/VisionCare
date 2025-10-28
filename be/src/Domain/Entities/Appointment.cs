@@ -13,6 +13,7 @@ public class Appointment : BaseEntity
     // Navigation properties
     public Doctor? Doctor { get; set; }
     public Customer? Patient { get; set; }
+    public ICollection<FollowUp> FollowUps { get; set; } = new List<FollowUp>();
 
     // Domain methods
     public void Confirm()

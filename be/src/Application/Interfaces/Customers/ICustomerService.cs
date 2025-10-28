@@ -14,11 +14,15 @@ public interface ICustomerService
     Task<bool> DeleteCustomerAsync(int id);
 
     // Business operations
-    Task<IEnumerable<CustomerDto>> SearchCustomersAsync(
+    Task<(IEnumerable<CustomerDto> items, int totalCount)> SearchCustomersAsync(
         string keyword,
         string? gender,
         DateOnly? fromDob,
-        DateOnly? toDob
+        DateOnly? toDob,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
     );
     Task<IEnumerable<CustomerDto>> GetCustomersByGenderAsync(string gender);
     Task<IEnumerable<CustomerDto>> GetCustomersByAgeRangeAsync(int minAge, int maxAge);

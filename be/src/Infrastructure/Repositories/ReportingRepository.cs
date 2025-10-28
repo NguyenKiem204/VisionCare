@@ -92,7 +92,7 @@ public class ReportingRepository : IReportingRepository
         return data;
     }
 
-    public async Task<IReadOnlyList<TimeSeriesPointDto>> GetRevenueSeriesAsync(
+    public Task<IReadOnlyList<TimeSeriesPointDto>> GetRevenueSeriesAsync(
         DateTime fromUtc,
         DateTime toUtc,
         string bucket,
@@ -101,10 +101,10 @@ public class ReportingRepository : IReportingRepository
     )
     {
         // Placeholder: return empty until Checkout is modeled
-        return new List<TimeSeriesPointDto>();
+        return Task.FromResult<IReadOnlyList<TimeSeriesPointDto>>(new List<TimeSeriesPointDto>());
     }
 
-    public async Task<IReadOnlyList<TopServiceDto>> GetTopServicesAsync(
+    public Task<IReadOnlyList<TopServiceDto>> GetTopServicesAsync(
         DateTime fromUtc,
         DateTime toUtc,
         int topN,
@@ -113,7 +113,7 @@ public class ReportingRepository : IReportingRepository
     {
         // TODO: Implement when Service relationship is added to Appointment
         var data = new List<TopServiceDto>();
-        return data;
+        return Task.FromResult<IReadOnlyList<TopServiceDto>>(data);
     }
 
     public async Task<IReadOnlyList<DoctorKpiDto>> GetDoctorKpisAsync(

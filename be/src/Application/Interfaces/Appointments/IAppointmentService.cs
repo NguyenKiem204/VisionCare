@@ -48,6 +48,20 @@ public interface IAppointmentService
         int? excludeAppointmentId = null
     );
 
+    // Search and filtering
+    Task<(IEnumerable<AppointmentDto> items, int totalCount)> SearchAppointmentsAsync(
+        string? keyword,
+        string? status,
+        int? doctorId,
+        int? customerId,
+        DateTime? startDate,
+        DateTime? endDate,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
+    );
+
     // Statistics and reporting
     Task<int> GetTotalAppointmentsCountAsync();
     Task<Dictionary<string, int>> GetAppointmentsByStatusStatsAsync();

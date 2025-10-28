@@ -142,7 +142,7 @@ public class StaffRepository : IStaffRepository
         return new VisionCare.Infrastructure.Models.Staff
         {
             AccountId = domain.AccountId ?? 0,
-            FullName = domain.StaffName,
+            FullName = domain.StaffName ?? string.Empty,
             Gender = domain.Gender,
             Dob = domain.Dob,
             Address = domain.Address,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import DoctorQualifications from "./DoctorQualifications";
 
 const DoctorModal = ({ open, doctor, onClose, onSave }) => {
   const [form, setForm] = useState({
@@ -16,6 +17,7 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
     doctorStatus: "",
     accountId: "",
   });
+  const [activeTab, setActiveTab] = useState("basic");
 
   useEffect(() => {
     if (doctor) {
@@ -61,12 +63,39 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-[800px] max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">
           {doctor ? "Sửa thông tin bác sĩ" : "Tạo bác sĩ mới"}
         </h2>
 
-        <div className="space-y-4">
+        {/* Tabs */}
+        <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
+          <button
+            onClick={() => setActiveTab("basic")}
+            className={`px-4 py-2 text-sm font-medium ${
+              activeTab === "basic"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            }`}
+          >
+            Thông tin cơ bản
+          </button>
+          {doctor && (
+            <button
+              onClick={() => setActiveTab("qualifications")}
+              className={`px-4 py-2 text-sm font-medium ${
+                activeTab === "qualifications"
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              }`}
+            >
+              Bằng cấp & Chứng chỉ
+            </button>
+          )}
+        </div>
+
+        {activeTab === "basic" && (
+          <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -126,6 +155,7 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, gender: e.target.value }))
                 }
+                required={!doctor} // Chỉ bắt buộc khi tạo mới
               >
                 <option value="">Chọn giới tính</option>
                 <option value="Male">Nam</option>
@@ -271,6 +301,11 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
             </div>
           </div>
         </div>
+        )}
+
+        {activeTab === "qualifications" && doctor && (
+          <DoctorQualifications doctorId={doctor.id} doctorName={doctor.doctorName || doctor.fullName} />
+        )}
 
         <div className="flex justify-end gap-2 mt-6">
           <button

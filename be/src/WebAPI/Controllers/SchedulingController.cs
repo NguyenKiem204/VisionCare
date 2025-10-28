@@ -24,7 +24,7 @@ public class SchedulingController : ControllerBase
     /// Get all time slots
     /// </summary>
     [HttpGet("slots")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetAllSlots()
     {
         var slots = await _scheduleService.GetAllSlotsAsync();
@@ -35,7 +35,7 @@ public class SchedulingController : ControllerBase
     /// Get slot by ID
     /// </summary>
     [HttpGet("slots/{id}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetSlotById(int id)
     {
         var slot = await _scheduleService.GetSlotByIdAsync(id);
@@ -50,7 +50,7 @@ public class SchedulingController : ControllerBase
     /// Get slots by service type
     /// </summary>
     [HttpGet("slots/service-type/{serviceTypeId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetSlotsByServiceType(int serviceTypeId)
     {
         var slots = await _scheduleService.GetSlotsByServiceTypeAsync(serviceTypeId);
@@ -106,7 +106,7 @@ public class SchedulingController : ControllerBase
     /// Get all schedules
     /// </summary>
     [HttpGet("schedules")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetAllSchedules()
     {
         var schedules = await _scheduleService.GetAllSchedulesAsync();
@@ -117,7 +117,7 @@ public class SchedulingController : ControllerBase
     /// Get schedule by ID
     /// </summary>
     [HttpGet("schedules/{id}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetScheduleById(int id)
     {
         var schedule = await _scheduleService.GetScheduleByIdAsync(id);
@@ -132,7 +132,7 @@ public class SchedulingController : ControllerBase
     /// Get doctor's schedules
     /// </summary>
     [HttpGet("schedules/doctor/{doctorId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetSchedulesByDoctor(int doctorId)
     {
         var schedules = await _scheduleService.GetSchedulesByDoctorAsync(doctorId);
@@ -143,7 +143,7 @@ public class SchedulingController : ControllerBase
     /// Get doctor's schedule for specific date
     /// </summary>
     [HttpGet("schedules/doctor/{doctorId}/date/{scheduleDate:datetime}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetSchedulesByDoctorAndDate(
         int doctorId,
         DateTime scheduleDate
@@ -160,7 +160,7 @@ public class SchedulingController : ControllerBase
     /// Create a new schedule
     /// </summary>
     [HttpPost("schedules")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleRequest request)
     {
         var schedule = await _scheduleService.CreateScheduleAsync(request);
@@ -175,7 +175,7 @@ public class SchedulingController : ControllerBase
     /// Update schedule
     /// </summary>
     [HttpPut("schedules/{id}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> UpdateSchedule(
         int id,
         [FromBody] UpdateScheduleRequest request
@@ -208,7 +208,7 @@ public class SchedulingController : ControllerBase
     /// Get available slots for a doctor on a specific date
     /// </summary>
     [HttpPost("available-slots")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetAvailableSlots([FromBody] AvailableSlotsRequest request)
     {
         var slots = await _scheduleService.GetAvailableSlotsAsync(request);
@@ -219,7 +219,7 @@ public class SchedulingController : ControllerBase
     /// Check if a slot is available
     /// </summary>
     [HttpGet("available-slots/check")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> IsSlotAvailable(
         int doctorId,
         int slotId,
@@ -238,7 +238,7 @@ public class SchedulingController : ControllerBase
     /// Book a slot
     /// </summary>
     [HttpPost("book-slot")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> BookSlot(int doctorId, int slotId, DateTime scheduleDate)
     {
         var schedule = await _scheduleService.BookSlotAsync(
@@ -253,7 +253,7 @@ public class SchedulingController : ControllerBase
     /// Block a slot
     /// </summary>
     [HttpPost("block-slot")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> BlockSlot(
         int doctorId,
         int slotId,
@@ -274,7 +274,7 @@ public class SchedulingController : ControllerBase
     /// Unblock a slot
     /// </summary>
     [HttpPost("unblock-slot")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> UnblockSlot(int doctorId, int slotId, DateTime scheduleDate)
     {
         var schedule = await _scheduleService.UnblockSlotAsync(
@@ -293,7 +293,7 @@ public class SchedulingController : ControllerBase
     /// Search schedules
     /// </summary>
     [HttpPost("schedules/search")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> SearchSchedules([FromBody] ScheduleSearchRequest request)
     {
         var schedules = await _scheduleService.SearchSchedulesAsync(request);
@@ -304,7 +304,7 @@ public class SchedulingController : ControllerBase
     /// Get total schedules count
     /// </summary>
     [HttpGet("schedules/count")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetTotalSchedulesCount()
     {
         var count = await _scheduleService.GetTotalSchedulesCountAsync();

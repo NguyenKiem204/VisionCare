@@ -18,7 +18,7 @@ public class MedicalRecordsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetAllMedicalHistories()
     {
         var medicalHistories = await _medicalHistoryService.GetAllMedicalHistoriesAsync();
@@ -26,7 +26,7 @@ public class MedicalRecordsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetMedicalHistoryById(int id)
     {
         var medicalHistory = await _medicalHistoryService.GetMedicalHistoryByIdAsync(id);
@@ -40,7 +40,7 @@ public class MedicalRecordsController : ControllerBase
     }
 
     [HttpGet("appointment/{appointmentId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetMedicalHistoryByAppointmentId(int appointmentId)
     {
         var medicalHistory = await _medicalHistoryService.GetMedicalHistoryByAppointmentIdAsync(
@@ -58,7 +58,7 @@ public class MedicalRecordsController : ControllerBase
     }
 
     [HttpGet("patient/{patientId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetMedicalHistoriesByPatientId(int patientId)
     {
         var medicalHistories = await _medicalHistoryService.GetMedicalHistoriesByPatientIdAsync(
@@ -68,7 +68,7 @@ public class MedicalRecordsController : ControllerBase
     }
 
     [HttpGet("doctor/{doctorId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetMedicalHistoriesByDoctorId(int doctorId)
     {
         var medicalHistories = await _medicalHistoryService.GetMedicalHistoriesByDoctorIdAsync(
@@ -117,17 +117,17 @@ public class MedicalRecordsController : ControllerBase
     }
 
     [HttpPost("search")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> SearchMedicalHistories(
         [FromBody] MedicalHistorySearchRequest request
     )
     {
-        var medicalHistories = await _medicalHistoryService.SearchMedicalHistoriesAsync(request);
-        return Ok(ApiResponse<IEnumerable<MedicalHistoryDto>>.Ok(medicalHistories));
+        var result = await _medicalHistoryService.SearchMedicalHistoriesAsync(request);
+        return Ok(PagedResponse<MedicalHistoryDto>.Ok(result.items, result.totalCount, request.Page, request.PageSize));
     }
 
     [HttpGet("count")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetTotalMedicalHistoriesCount()
     {
         var count = await _medicalHistoryService.GetTotalMedicalHistoriesCountAsync();

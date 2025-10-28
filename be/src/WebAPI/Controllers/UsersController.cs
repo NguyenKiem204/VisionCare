@@ -26,6 +26,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("search")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> SearchUsers(
         [FromQuery] string? keyword,
         [FromQuery] int? roleId,

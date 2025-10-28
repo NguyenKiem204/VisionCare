@@ -46,6 +46,8 @@ public partial class VisionCareDbContext : DbContext
 
     public virtual DbSet<Doctor> Doctors { get; set; }
 
+    public virtual DbSet<Equipment> Equipment { get; set; }
+
     public virtual DbSet<Feedbackdoctor> Feedbackdoctors { get; set; }
 
     public virtual DbSet<Feedbackservice> Feedbackservices { get; set; }
@@ -70,11 +72,11 @@ public partial class VisionCareDbContext : DbContext
 
     public virtual DbSet<Schedule> Schedules { get; set; }
 
-    public virtual DbSet<VisionCare.Infrastructure.Models.Service> Services { get; set; }
+    public virtual DbSet<Service> Services { get; set; }
 
-    public virtual DbSet<VisionCare.Infrastructure.Models.Servicesdetail> Servicesdetails { get; set; }
+    public virtual DbSet<Servicesdetail> Servicesdetails { get; set; }
 
-    public virtual DbSet<VisionCare.Infrastructure.Models.Servicestype> Servicestypes { get; set; }
+    public virtual DbSet<Servicestype> Servicestypes { get; set; }
 
     public virtual DbSet<Slot> Slots { get; set; }
 
@@ -84,8 +86,10 @@ public partial class VisionCareDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Connection string is configured in Program.cs via dependency injection
-        // No need to configure here when using DI
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseNpgsql("Name=DefaultConnection");
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -107,6 +111,10 @@ public partial class VisionCareDbContext : DbContext
             entity.HasIndex(e => e.Email, "idx_accounts_email");
 
             entity
+                .HasIndex(e => e.Email, "idx_accounts_email_lookup")
+                .HasFilter("((status)::text = 'Active'::text)");
+
+            entity
                 .HasIndex(e => e.FacebookId, "idx_accounts_facebook_id")
                 .HasFilter("(facebook_id IS NOT NULL)");
 
@@ -115,6 +123,10 @@ public partial class VisionCareDbContext : DbContext
                 .HasFilter("(google_id IS NOT NULL)");
 
             entity.HasIndex(e => e.RoleId, "idx_accounts_role");
+
+            entity
+                .HasIndex(e => e.RoleId, "idx_accounts_role_lookup")
+                .HasFilter("((status)::text = 'Active'::text)");
 
             entity.HasIndex(e => e.Status, "idx_accounts_status");
 
@@ -709,6 +721,45 @@ public partial class VisionCareDbContext : DbContext
                 .HasConstraintName("doctors_specialization_id_fkey");
         });
 
+        modelBuilder.Entity<Equipment>(entity =>
+        {
+            entity.HasKey(e => e.EquipmentId).HasName("equipment_pkey");
+
+            entity.ToTable("equipment");
+
+            entity.HasIndex(e => e.Location, "idx_equipment_location");
+
+            entity.HasIndex(e => e.Manufacturer, "idx_equipment_manufacturer");
+
+            entity.HasIndex(e => e.Name, "idx_equipment_name");
+
+            entity.HasIndex(e => e.Status, "idx_equipment_status");
+
+            entity.Property(e => e.EquipmentId).HasColumnName("equipment_id");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.LastMaintenanceDate).HasColumnName("last_maintenance_date");
+            entity.Property(e => e.Location).HasMaxLength(255).HasColumnName("location");
+            entity.Property(e => e.Manufacturer).HasMaxLength(255).HasColumnName("manufacturer");
+            entity.Property(e => e.Model).HasMaxLength(255).HasColumnName("model");
+            entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
+            entity.Property(e => e.Notes).HasColumnName("notes");
+            entity.Property(e => e.PurchaseDate).HasColumnName("purchase_date");
+            entity.Property(e => e.SerialNumber).HasMaxLength(255).HasColumnName("serial_number");
+            entity
+                .Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'Active'::character varying")
+                .HasColumnName("status");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+        });
+
         modelBuilder.Entity<Feedbackdoctor>(entity =>
         {
             entity.HasKey(e => e.FeedbackId).HasName("feedbackdoctor_pkey");
@@ -980,6 +1031,22 @@ public partial class VisionCareDbContext : DbContext
                 .HasIndex(e => e.ExpiresAt, "idx_refresh_tokens_expires")
                 .HasFilter("(revoked_at IS NULL)");
 
+            entity
+                .HasIndex(e => e.AccountId, "idx_refreshtokens_account_lookup")
+                .HasFilter("(revoked_at IS NULL)");
+
+            entity
+                .HasIndex(e => e.ExpiresAt, "idx_refreshtokens_cleanup")
+                .HasFilter("(revoked_at IS NULL)");
+
+            entity
+                .HasIndex(e => e.TokenHash, "idx_refreshtokens_hash")
+                .HasFilter("(revoked_at IS NULL)");
+
+            entity
+                .HasIndex(e => new { e.RevokedAt, e.ExpiresAt }, "idx_refreshtokens_valid")
+                .HasFilter("(revoked_at IS NULL)");
+
             entity.HasIndex(e => e.TokenHash, "refreshtokens_token_hash_key").IsUnique();
 
             entity.Property(e => e.TokenId).HasColumnName("token_id");
@@ -1125,8 +1192,17 @@ public partial class VisionCareDbContext : DbContext
             entity.ToTable("servicestype");
 
             entity.Property(e => e.ServiceTypeId).HasColumnName("service_type_id");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
             entity.Property(e => e.DurationMinutes).HasColumnName("duration_minutes");
             entity.Property(e => e.Name).HasMaxLength(100).HasColumnName("name");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
         });
 
         modelBuilder.Entity<Slot>(entity =>

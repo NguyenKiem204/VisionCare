@@ -99,19 +99,24 @@ public class MedicalHistoryService : IMedicalHistoryService
         return true;
     }
 
-    public async Task<IEnumerable<MedicalHistoryDto>> SearchMedicalHistoriesAsync(
+    public async Task<(IEnumerable<MedicalHistoryDto> items, int totalCount)> SearchMedicalHistoriesAsync(
         MedicalHistorySearchRequest request
     )
     {
-        var medicalHistories = await _medicalHistoryRepository.SearchAsync(
+        var result = await _medicalHistoryRepository.SearchAsync(
+            request.Keyword,
             request.PatientId,
             request.DoctorId,
             request.FromDate,
             request.ToDate,
-            request.Diagnosis
+            request.Diagnosis,
+            request.Page,
+            request.PageSize,
+            request.SortBy,
+            request.Desc
         );
 
-        return _mapper.Map<IEnumerable<MedicalHistoryDto>>(medicalHistories);
+        return (_mapper.Map<IEnumerable<MedicalHistoryDto>>(result.items), result.totalCount);
     }
 
     public async Task<int> GetTotalMedicalHistoriesCountAsync()

@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS Blog CASCADE;
 DROP TABLE IF EXISTS ImagesService CASCADE;
 DROP TABLE IF EXISTS Banner CASCADE;
 DROP TABLE IF EXISTS Machine CASCADE;
+DROP TABLE IF EXISTS Equipment CASCADE;
 DROP TABLE IF EXISTS ContentStories CASCADE;
 DROP TABLE IF EXISTS CheckOut CASCADE;
 DROP TABLE IF EXISTS Discount CASCADE;
@@ -260,7 +261,9 @@ CREATE TABLE CertificateDoctor (
 CREATE TABLE ServicesType (
     service_type_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    duration_minutes SMALLINT NOT NULL
+    duration_minutes SMALLINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE Services (
@@ -473,6 +476,22 @@ CREATE TABLE Machine (
     status VARCHAR(20) DEFAULT 'Active'
 );
 
+-- Equipment Management
+CREATE TABLE Equipment (
+    equipment_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    model VARCHAR(255),
+    serial_number VARCHAR(255),
+    manufacturer VARCHAR(255),
+    purchase_date DATE,
+    last_maintenance_date DATE,
+    status VARCHAR(50) DEFAULT 'Active', -- Active, Maintenance, Broken
+    location VARCHAR(255),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
 -- ===== PERFORMANCE INDEXES =====
 
 -- Authentication indexes
@@ -542,3 +561,9 @@ CREATE INDEX idx_checkout_status ON CheckOut(transaction_status);
 CREATE INDEX idx_audit_account ON AuditLogs(account_id);
 CREATE INDEX idx_audit_timestamp ON AuditLogs(timestamp);
 CREATE INDEX idx_audit_resource ON AuditLogs(resource, resource_id);
+
+-- Equipment indexes
+CREATE INDEX idx_equipment_name ON Equipment(name);
+CREATE INDEX idx_equipment_status ON Equipment(status);
+CREATE INDEX idx_equipment_location ON Equipment(location);
+CREATE INDEX idx_equipment_manufacturer ON Equipment(manufacturer);

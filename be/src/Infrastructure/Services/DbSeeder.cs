@@ -39,7 +39,7 @@ public static class DbSeeder
                 logger.LogInformation("Created {RoleName} role.", roleName);
             }
 
-            var admin = await db.Accounts.FirstOrDefaultAsync(a => a.Username == username);
+            var admin = await db.Accounts.FirstOrDefaultAsync(a => a.Email == email || a.Username == username);
             if (admin == null)
             {
                 admin = new Account
@@ -64,7 +64,8 @@ public static class DbSeeder
             else
             {
                 logger.LogInformation(
-                    "Admin user already exists with username: {Username}",
+                    "Admin user already exists with email: {Email} or username: {Username}",
+                    email,
                     username
                 );
             }

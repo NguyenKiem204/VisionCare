@@ -8,6 +8,7 @@ public class DoctorDto
     public int Id { get; set; }
     public int? AccountId { get; set; }
     public string DoctorName { get; set; } = string.Empty;
+    public string? Phone { get; set; }
     public int? ExperienceYears { get; set; }
     public int? SpecializationId { get; set; }
     public string? SpecializationName { get; set; }
@@ -27,6 +28,7 @@ public class CreateDoctorRequest
 {
     public int AccountId { get; set; }
     public string DoctorName { get; set; } = string.Empty;
+    public string? Phone { get; set; }
     public int? ExperienceYears { get; set; }
     public int? SpecializationId { get; set; }
     public string? ProfileImage { get; set; }
@@ -38,6 +40,7 @@ public class CreateDoctorRequest
 public class UpdateDoctorRequest
 {
     public string DoctorName { get; set; } = string.Empty;
+    public string? Phone { get; set; }
     public int? ExperienceYears { get; set; }
     public int? SpecializationId { get; set; }
     public string? ProfileImage { get; set; }

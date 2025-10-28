@@ -24,7 +24,7 @@ export const searchAppointments = async (params = {}) => {
     customerId = null,
     startDate = null,
     endDate = null,
-    page = 0,
+    page = 1,
     pageSize = 10,
     sortBy = "id",
     desc = false,

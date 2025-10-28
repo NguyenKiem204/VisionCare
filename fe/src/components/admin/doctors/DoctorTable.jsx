@@ -22,13 +22,16 @@ const DoctorTable = ({
           Email
         </th>
         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
-          Chuyên khoa
+          Số điện thoại
         </th>
         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
           Đánh giá
         </th>
         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
           Kinh nghiệm
+        </th>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+          Giới tính
         </th>
         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
           Trạng thái
@@ -41,13 +44,13 @@ const DoctorTable = ({
     <tbody>
       {loading ? (
         <tr>
-          <td colSpan="8" className="text-center py-6">
+          <td colSpan="9" className="text-center py-6">
             Đang tải...
           </td>
         </tr>
       ) : doctors.length === 0 ? (
         <tr>
-          <td colSpan="8" className="text-center py-6 text-gray-400">
+          <td colSpan="9" className="text-center py-6 text-gray-400">
             Không có dữ liệu
           </td>
         </tr>
@@ -71,31 +74,12 @@ const DoctorTable = ({
               {doctor.email}
             </td>
             <td className="px-4 py-2 text-gray-800 dark:text-gray-100">
-              {doctor.specializationName || "Chưa có chuyên khoa"}
+              {doctor.phone || "Chưa có"}
             </td>
             <td className="px-4 py-2 text-gray-800 dark:text-gray-100">
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 text-yellow-500 fill-current" />
                 <span className="font-medium">{doctor.rating || 0}</span>
-                <button
-                  className="ml-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-xs"
-                  onClick={() => {
-                    const newRating = prompt(
-                      "Nhập đánh giá mới (0-5):",
-                      doctor.rating || 0
-                    );
-                    if (
-                      newRating !== null &&
-                      !isNaN(newRating) &&
-                      newRating >= 0 &&
-                      newRating <= 5
-                    ) {
-                      onUpdateRating(doctor.id, parseFloat(newRating));
-                    }
-                  }}
-                >
-                  Sửa
-                </button>
               </div>
             </td>
             <td className="px-4 py-2 text-gray-800 dark:text-gray-100">
@@ -105,6 +89,23 @@ const DoctorTable = ({
                   {doctor.experienceYears || doctor.experience || 0} năm
                 </span>
               </div>
+            </td>
+            <td className="px-4 py-2 text-gray-800 dark:text-gray-100">
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  doctor.gender === "Male"
+                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                    : doctor.gender === "Female"
+                    ? "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200"
+                    : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                }`}
+              >
+                {doctor.gender === "Male"
+                  ? "Nam"
+                  : doctor.gender === "Female"
+                  ? "Nữ"
+                  : doctor.gender || "Chưa có"}
+              </span>
             </td>
             <td className="px-4 py-2 text-gray-800 dark:text-gray-100">
               <span

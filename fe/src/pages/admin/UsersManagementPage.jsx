@@ -35,28 +35,21 @@ const UsersManagementPage = () => {
   const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
-      let res;
-      if (search && search.trim() !== "") {
-        res = await searchUsers({
-          keyword: search,
-          page: pagination.page,
-          size: pagination.size,
-          sortBy: sort.sortBy,
-          sortDir: sort.sortDir,
-        });
-      } else {
-        res = await fetchUsers({
-          page: pagination.page,
-          size: pagination.size,
-          ...sort,
-        });
-      }
-      // Backend returns data in different structure
+      // Always use search API for consistency and pagination support
+      const res = await searchUsers({
+        keyword: search || "",
+        page: pagination.page + 1, // Backend uses 1-based pagination
+        pageSize: pagination.size,
+        sortBy: sort.sortBy,
+        desc: sort.sortDir === "desc",
+      });
+      
+      // Backend returns PagedResponse structure
       if (res.data.success) {
-        setUsers(res.data.data);
+        setUsers(res.data.items || []);
         setPagination((prev) => ({
           ...prev,
-          total: res.data.data.length, // For now, use array length
+          total: res.data.totalCount || 0,
         }));
       }
     } catch (error) {
@@ -70,10 +63,26 @@ const UsersManagementPage = () => {
   }, [loadUsers]);
 
   const handleSave = async (data) => {
-    if (selectedUser) await updateUser(selectedUser.id, data);
-    else await createUser(data);
-    setModalOpen(false);
-    loadUsers();
+    try {
+      // Convert roleId to integer
+      const userData = {
+        ...data,
+        roleId: data.roleId ? parseInt(data.roleId) : null,
+        // Remove password if empty for update
+        ...(selectedUser && !data.password ? { password: undefined } : {})
+      };
+
+      if (selectedUser) {
+        await updateUser(selectedUser.id, userData);
+      } else {
+        await createUser(userData);
+      }
+      setModalOpen(false);
+      loadUsers();
+    } catch (error) {
+      console.error("Failed to save user:", error);
+      alert("Có lỗi xảy ra khi lưu user. Vui lòng thử lại.");
+    }
   };
 
   const handleDelete = async (id) => {

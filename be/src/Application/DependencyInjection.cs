@@ -6,12 +6,15 @@ using VisionCare.Application.Interfaces.Appointments;
 using VisionCare.Application.Interfaces.Auth;
 using VisionCare.Application.Interfaces.Customers;
 using VisionCare.Application.Interfaces.Doctors;
+using VisionCare.Application.Interfaces.Equipment;
 using VisionCare.Application.Interfaces.Feedback;
+using VisionCare.Application.Interfaces.FollowUp;
 using VisionCare.Application.Interfaces.MedicalHistory;
 using VisionCare.Application.Interfaces.Reporting;
 using VisionCare.Application.Interfaces.Roles;
 using VisionCare.Application.Interfaces.Scheduling;
 using VisionCare.Application.Interfaces.Services;
+using VisionCare.Application.Interfaces.ServiceTypes;
 using VisionCare.Application.Interfaces.Specializations;
 using VisionCare.Application.Interfaces.Staff;
 using VisionCare.Application.Interfaces.Users;
@@ -19,11 +22,14 @@ using VisionCare.Application.Services.Appointments;
 using VisionCare.Application.Services.Customers;
 using VisionCare.Application.Services.Dashboard;
 using VisionCare.Application.Services.Doctors;
+using VisionCare.Application.Services.Equipment;
 using VisionCare.Application.Services.Feedback;
+using VisionCare.Application.Services.FollowUp;
 using VisionCare.Application.Services.MedicalHistory;
 using VisionCare.Application.Services.Roles;
 using VisionCare.Application.Services.Scheduling;
 using VisionCare.Application.Services.Services;
+using VisionCare.Application.Services.ServiceTypes;
 using VisionCare.Application.Services.Specializations;
 using VisionCare.Application.Services.Staff;
 using VisionCare.Application.Services.Users;
@@ -58,6 +64,15 @@ public static class DependencyInjection
 
         // Register Feedback Services
         services.AddScoped<IFeedbackService, FeedbackService>();
+
+        // Register Equipment Services
+        services.AddScoped<IEquipmentService, EquipmentService>();
+
+        // Register Service Types Services
+        services.AddScoped<IServiceTypeService, ServiceTypeService>();
+
+        // Register Follow-up Services
+        services.AddScoped<IFollowUpService, FollowUpService>();
 
         // Dashboard & Reporting
         services.AddMemoryCache();

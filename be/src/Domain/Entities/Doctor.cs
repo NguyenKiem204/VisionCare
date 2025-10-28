@@ -6,6 +6,7 @@ public class Doctor : BaseEntity
 {
     public int? AccountId { get; set; }
     public string DoctorName { get; set; } = string.Empty;
+    public string? Phone { get; set; }
     public int? ExperienceYears { get; set; }
     public int? SpecializationId { get; set; }
     public string? ProfileImage { get; set; }
@@ -19,6 +20,7 @@ public class Doctor : BaseEntity
     public User? Account { get; set; }
     public Specialization? Specialization { get; set; }
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    public ICollection<FollowUp> FollowUps { get; set; } = new List<FollowUp>();
 
     // Domain methods
     public void UpdateRating(double newRating)

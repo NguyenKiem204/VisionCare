@@ -12,11 +12,15 @@ public interface ICustomerRepository
     Task DeleteAsync(int id);
 
     // Additional operations for CustomerManager
-    Task<IEnumerable<Customer>> SearchCustomersAsync(
+    Task<(IEnumerable<Customer> items, int totalCount)> SearchCustomersAsync(
         string keyword,
         string? gender,
         DateOnly? fromDob,
-        DateOnly? toDob
+        DateOnly? toDob,
+        int page = 1,
+        int pageSize = 10,
+        string? sortBy = null,
+        bool desc = false
     );
     Task<IEnumerable<Customer>> GetByGenderAsync(string gender);
     Task<IEnumerable<Customer>> GetByAgeRangeAsync(int minAge, int maxAge);

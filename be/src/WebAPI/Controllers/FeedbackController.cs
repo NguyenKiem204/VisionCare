@@ -19,7 +19,7 @@ public class FeedbackController : ControllerBase
 
     #region Doctor Feedback Management
     [HttpGet("doctors")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetAllDoctorFeedbacks()
     {
         var feedbacks = await _feedbackService.GetAllDoctorFeedbacksAsync();
@@ -27,7 +27,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("doctors/{id}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetDoctorFeedbackById(int id)
     {
         var feedback = await _feedbackService.GetDoctorFeedbackByIdAsync(id);
@@ -41,7 +41,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("doctors/appointment/{appointmentId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetDoctorFeedbackByAppointmentId(int appointmentId)
     {
         var feedback = await _feedbackService.GetDoctorFeedbackByAppointmentIdAsync(appointmentId);
@@ -57,7 +57,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("doctors/doctor/{doctorId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetDoctorFeedbacksByDoctorId(int doctorId)
     {
         var feedbacks = await _feedbackService.GetDoctorFeedbacksByDoctorIdAsync(doctorId);
@@ -65,7 +65,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("doctors/patient/{patientId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetDoctorFeedbacksByPatientId(int patientId)
     {
         var feedbacks = await _feedbackService.GetDoctorFeedbacksByPatientIdAsync(patientId);
@@ -98,7 +98,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpPost("doctors/{id}/respond")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> RespondToDoctorFeedback(
         int id,
         [FromBody] RespondToFeedbackRequest request
@@ -126,7 +126,7 @@ public class FeedbackController : ControllerBase
 
     #region Service Feedback Management
     [HttpGet("services")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetAllServiceFeedbacks()
     {
         var feedbacks = await _feedbackService.GetAllServiceFeedbacksAsync();
@@ -134,7 +134,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("services/{id}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetServiceFeedbackById(int id)
     {
         var feedback = await _feedbackService.GetServiceFeedbackByIdAsync(id);
@@ -148,7 +148,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("services/appointment/{appointmentId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetServiceFeedbackByAppointmentId(int appointmentId)
     {
         var feedback = await _feedbackService.GetServiceFeedbackByAppointmentIdAsync(appointmentId);
@@ -164,7 +164,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("services/service/{serviceId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetServiceFeedbacksByServiceId(int serviceId)
     {
         var feedbacks = await _feedbackService.GetServiceFeedbacksByServiceIdAsync(serviceId);
@@ -172,7 +172,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("services/patient/{patientId}")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetServiceFeedbacksByPatientId(int patientId)
     {
         var feedbacks = await _feedbackService.GetServiceFeedbacksByPatientIdAsync(patientId);
@@ -205,7 +205,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpPost("services/{id}/respond")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> RespondToServiceFeedback(
         int id,
         [FromBody] RespondToServiceFeedbackRequest request
@@ -235,7 +235,7 @@ public class FeedbackController : ControllerBase
 
     #region Analytics and Search
     [HttpPost("doctors/search")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> SearchDoctorFeedbacks([FromBody] FeedbackSearchRequest request)
     {
         var feedbacks = await _feedbackService.SearchDoctorFeedbacksAsync(request);
@@ -243,7 +243,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpPost("services/search")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> SearchServiceFeedbacks(
         [FromBody] ServiceFeedbackSearchRequest request
     )
@@ -253,7 +253,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("doctors/{doctorId}/average-rating")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetDoctorAverageRating(int doctorId)
     {
         var averageRating = await _feedbackService.GetDoctorAverageRatingAsync(doctorId);
@@ -261,7 +261,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("services/{serviceId}/average-rating")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetServiceAverageRating(int serviceId)
     {
         var averageRating = await _feedbackService.GetServiceAverageRatingAsync(serviceId);
@@ -269,7 +269,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("doctors/unresponded")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetUnrespondedDoctorFeedbacks()
     {
         var feedbacks = await _feedbackService.GetUnrespondedDoctorFeedbacksAsync();
@@ -277,7 +277,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("services/unresponded")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetUnrespondedServiceFeedbacks()
     {
         var feedbacks = await _feedbackService.GetUnrespondedServiceFeedbacksAsync();
@@ -285,7 +285,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("doctors/count")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetTotalDoctorFeedbacksCount()
     {
         var count = await _feedbackService.GetTotalDoctorFeedbacksCountAsync();
@@ -293,7 +293,7 @@ public class FeedbackController : ControllerBase
     }
 
     [HttpGet("services/count")]
-    [Authorize(Policy = "AdminOrStaff")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetTotalServiceFeedbacksCount()
     {
         var count = await _feedbackService.GetTotalServiceFeedbacksCountAsync();

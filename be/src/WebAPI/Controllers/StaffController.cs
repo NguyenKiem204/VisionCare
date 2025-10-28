@@ -96,7 +96,7 @@ public class StaffController : ControllerBase
         [FromQuery] string? gender
     )
     {
-        var staff = await _staffService.SearchStaffAsync(keyword, gender);
+        var staff = await _staffService.SearchStaffAsync(keyword ?? string.Empty, gender);
         return Ok(staff);
     }
 

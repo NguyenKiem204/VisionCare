@@ -3,12 +3,15 @@ using VisionCare.Application.DTOs;
 using VisionCare.Application.DTOs.AppointmentDto;
 using VisionCare.Application.DTOs.CustomerDto;
 using VisionCare.Application.DTOs.DoctorDto;
+using VisionCare.Application.DTOs.EquipmentDto;
 using VisionCare.Application.DTOs.FeedbackDto;
+using VisionCare.Application.DTOs.FollowUpDto;
 using VisionCare.Application.DTOs.MedicalHistoryDto;
 using VisionCare.Application.DTOs.RoleDto;
 using VisionCare.Application.DTOs.ScheduleDto;
 using VisionCare.Application.DTOs.ServiceDetailDto;
 using VisionCare.Application.DTOs.ServiceDto;
+using VisionCare.Application.DTOs.ServiceTypeDto;
 using VisionCare.Application.DTOs.SlotDto;
 using VisionCare.Application.DTOs.SpecializationDto;
 using VisionCare.Application.DTOs.StaffDto;
@@ -199,6 +202,35 @@ public class MappingProfile : Profile
         // DTO to Entity mappings for Services
         CreateMap<CreateServiceRequest, Service>();
         CreateMap<UpdateServiceRequest, Service>();
+
+        // Equipment mappings
+        CreateMap<Domain.Entities.Equipment, EquipmentDto>();
+        CreateMap<CreateEquipmentRequest, Domain.Entities.Equipment>();
+        CreateMap<UpdateEquipmentRequest, Domain.Entities.Equipment>();
+
+        // ServiceType mappings
+        CreateMap<Domain.Entities.ServiceType, ServiceTypeDto>();
+        CreateMap<CreateServiceTypeRequest, Domain.Entities.ServiceType>();
+        CreateMap<UpdateServiceTypeRequest, Domain.Entities.ServiceType>();
+
+        // FollowUp mappings
+        CreateMap<Domain.Entities.FollowUp, FollowUpDto>()
+            .ForMember(
+                dest => dest.PatientName,
+                opt => opt.MapFrom(src => src.Appointment != null && src.Appointment.Patient != null
+                    ? src.Appointment.Patient.CustomerName : null)
+            )
+            .ForMember(
+                dest => dest.DoctorName,
+                opt => opt.MapFrom(src => src.Appointment != null && src.Appointment.Doctor != null
+                    ? src.Appointment.Doctor.DoctorName : null)
+            )
+            .ForMember(
+                dest => dest.OriginalAppointmentDate,
+                opt => opt.MapFrom(src => src.Appointment != null ? src.Appointment.AppointmentDate : null)
+            );
+        CreateMap<CreateFollowUpRequest, Domain.Entities.FollowUp>();
+        CreateMap<UpdateFollowUpRequest, Domain.Entities.FollowUp>();
 
         // Infrastructure mappings are defined in Infrastructure layer
 

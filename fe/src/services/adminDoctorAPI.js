@@ -21,7 +21,7 @@ export const searchDoctors = async (params = {}) => {
     keyword = "",
     specializationId = null,
     minRating = null,
-    page = 0,
+    page = 1,
     pageSize = 10,
     sortBy = "id",
     desc = false,

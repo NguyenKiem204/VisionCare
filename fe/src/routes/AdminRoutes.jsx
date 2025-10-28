@@ -13,6 +13,13 @@ import AdminStaff from "../pages/admin/StaffManagementPage";
 import AdminServices from "../pages/admin/ServicesManagementPage";
 import AdminAppointments from "../pages/admin/AppointmentsManagementPage";
 import AdminSettings from "../pages/admin/Settings";
+import AdminEquipment from "../pages/admin/EquipmentManagementPage";
+import AdminServiceTypes from "../pages/admin/ServiceTypesManagementPage";
+import AdminFeedback from "../pages/admin/FeedbackManagementPage";
+import AdminFollowUp from "../pages/admin/FollowUpManagementPage";
+import AdminMedicalHistory from "../pages/admin/MedicalHistoryManagementPage";
+import AdminMedicalRecords from "../pages/admin/MedicalRecordsManagementPage";
+import AdminWeeklySchedule from "../pages/admin/WeeklyScheduleManagementPage";
 
 const AdminRoutes = () => {
   return (
@@ -56,6 +63,13 @@ const AdminRoutes = () => {
         <Route path="services" element={<AdminServices />} />
         <Route path="appointments" element={<AdminAppointments />} />
         <Route path="users" element={<AdminUsers />} />
+        <Route path="equipment" element={<AdminEquipment />} />
+        <Route path="service-types" element={<AdminServiceTypes />} />
+        <Route path="feedback" element={<AdminFeedback />} />
+        <Route path="follow-up" element={<AdminFollowUp />} />
+        <Route path="medical-history" element={<AdminMedicalHistory />} />
+        <Route path="medical-records" element={<AdminMedicalRecords />} />
+        <Route path="weekly-schedule" element={<AdminWeeklySchedule />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
     </Routes>

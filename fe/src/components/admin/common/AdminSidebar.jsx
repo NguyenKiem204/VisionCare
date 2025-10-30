@@ -15,6 +15,7 @@ import {
   FileText,
   History,
   ListChecks,
+  Images,
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 
@@ -35,6 +36,7 @@ const adminMenu = [
   { to: "/admin/medical-records", label: "Hồ sơ y tế", icon: FileText },
   { to: "/admin/follow-up", label: "Theo dõi", icon: CalendarCheck },
   { group: "OTHER" },
+  { to: "/admin/home-content", label: "Nội dung Home", icon: Images },
   { to: "/admin/equipment", label: "Thiết bị", icon: Wrench },
   { to: "/admin/feedback", label: "Phản hồi", icon: MessageSquare },
   { to: "/admin/settings", label: "Cài đặt", icon: Settings },
@@ -78,7 +80,7 @@ export default function AdminSidebar({ isOpen, setOpen }) {
         )}
       </button>
 
-      <nav className="flex-1 px-4 py-4 space-y-2">
+      <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
         {adminMenu.map((item, index) => {
           if (item.group) {
             return isOpen ? (

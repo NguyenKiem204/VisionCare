@@ -492,6 +492,14 @@ CREATE TABLE Equipment (
     updated_at TIMESTAMP
 );
 
+CREATE TABLE SectionContent (
+    section_key VARCHAR(100) PRIMARY KEY, -- (hero_slider, why_us, about, background_image...)
+    content TEXT,           -- HTML hoặc JSON hoặc text, tùy section
+    image_url VARCHAR(255), -- Dành cho section cần 1 ảnh riêng lẻ
+    more_data JSONB,        -- Dành cho dữ liệu động mở rộng (list slide, v.v.)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ===== PERFORMANCE INDEXES =====
 
 -- Authentication indexes

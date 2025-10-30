@@ -20,6 +20,7 @@ import AdminFollowUp from "../pages/admin/FollowUpManagementPage";
 import AdminMedicalHistory from "../pages/admin/MedicalHistoryManagementPage";
 import AdminMedicalRecords from "../pages/admin/MedicalRecordsManagementPage";
 import AdminWeeklySchedule from "../pages/admin/WeeklyScheduleManagementPage";
+import AdminHomeContent from "../pages/admin/HomeContentManagementPage";
 
 const AdminRoutes = () => {
   return (
@@ -70,6 +71,7 @@ const AdminRoutes = () => {
         <Route path="medical-history" element={<AdminMedicalHistory />} />
         <Route path="medical-records" element={<AdminMedicalRecords />} />
         <Route path="weekly-schedule" element={<AdminWeeklySchedule />} />
+        <Route path="home-content" element={<AdminHomeContent />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
     </Routes>

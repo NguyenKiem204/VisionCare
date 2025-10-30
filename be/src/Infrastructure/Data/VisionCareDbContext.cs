@@ -72,6 +72,8 @@ public partial class VisionCareDbContext : DbContext
 
     public virtual DbSet<Schedule> Schedules { get; set; }
 
+    public virtual DbSet<Sectioncontent> Sectioncontents { get; set; }
+
     public virtual DbSet<Service> Services { get; set; }
 
     public virtual DbSet<Servicesdetail> Servicesdetails { get; set; }
@@ -1134,6 +1136,23 @@ public partial class VisionCareDbContext : DbContext
                 .HasForeignKey(d => d.SlotId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("schedules_slot_id_fkey");
+        });
+
+        modelBuilder.Entity<Sectioncontent>(entity =>
+        {
+            entity.HasKey(e => e.SectionKey).HasName("sectioncontent_pkey");
+
+            entity.ToTable("sectioncontent");
+
+            entity.Property(e => e.SectionKey).HasMaxLength(100).HasColumnName("section_key");
+            entity.Property(e => e.Content).HasColumnName("content");
+            entity.Property(e => e.ImageUrl).HasMaxLength(255).HasColumnName("image_url");
+            entity.Property(e => e.MoreData).HasColumnType("jsonb").HasColumnName("more_data");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
         });
 
         modelBuilder.Entity<Service>(entity =>

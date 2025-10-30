@@ -278,11 +278,11 @@ INSERT INTO FeedbackDoctor (appointment_id, rating, feedback_text, feedback_date
 (1, 5, 'Bác sĩ Nguyễn rất tận tâm, kiên nhẫn giải thích tình trạng bệnh và cách chăm sóc mắt. Rất hài lòng!', '2025-09-26 10:00:00', 'Cảm ơn sự tin tưởng của bệnh nhân. Tôi luôn cố gắng mang lại sự chăm sóc tốt nhất.', '2025-09-26 11:00:00', 6),
 (2, 5, 'Bác sĩ Trần có kinh nghiệm phong phú, điều trị hiệu quả. Tôi cảm thấy yên tâm khi được chị khám.', '2025-09-26 16:30:00', 'Rất cảm ơn lời nhận xét tích cực. Chúc chị sớm hồi phục hoàn toàn.', '2025-09-26 18:00:00', 6);
 
--- 27. Insert Banners
+-- 27. Insert Banners (match FE HeroSlider default)
 INSERT INTO Banner (title, description, image_url, link_url, display_order, status, start_date, end_date) VALUES 
-('Khuyến mãi tháng 10', 'Giảm giá 20% tất cả dịch vụ khám mắt tổng quát', 'banner_october_2025.jpg', '/promotions/october-2025', 1, 'Active', '2025-10-01', '2025-10-31'),
-('Dịch vụ phẫu thuật Laser mới', 'Công nghệ Laser thế hệ mới - An toàn, hiệu quả, phục hồi nhanh', 'banner_laser_surgery.jpg', '/services/laser-surgery', 2, 'Active', '2025-09-01', '2025-12-31'),
-('Chăm sóc mắt trẻ em', 'Tầm soát và phát hiện sớm các vấn đề về mắt ở trẻ em', 'banner_children_eye_care.jpg', '/services/children-eye-care', 3, 'Active', '2025-09-15', '2025-11-15');
+('VisionCare - Chăm Sóc Mắt Chuyên Nghiệp', '20+ năm kinh nghiệm - Công nghệ hiện đại - Đội ngũ chuyên gia', 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=1920&q=80', '/booking', 1, 'Active', '2025-01-01', '2026-12-31'),
+('Công Nghệ Tiên Tiến', 'Máy móc nhập khẩu từ Đức - Chẩn đoán chính xác 99.8%', 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&w=1920&q=80', '/equipment', 2, 'Active', '2025-01-01', '2026-12-31'),
+('Dịch Vụ Toàn Diện', 'Từ khám tổng quát đến phẫu thuật chuyên sâu', 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=1920&q=80', '/services', 3, 'Active', '2025-01-01', '2026-12-31');
 
 -- 28. Insert Content Stories
 INSERT INTO ContentStories (patient_name, patient_image, story_content, display_order, status) VALUES 
@@ -435,3 +435,37 @@ INSERT INTO Equipment (name, model, serial_number, manufacturer, purchase_date, 
 -- UNION ALL SELECT 'Blog Posts', COUNT(*) FROM Blog
 -- UNION ALL SELECT 'Comments', COUNT(*) FROM CommentBlog
 -- UNION ALL SELECT 'Equipment', COUNT(*) FROM Equipment;
+
+-- Sample data for SectionContent
+INSERT INTO SectionContent(section_key, content, image_url, more_data)
+VALUES
+('hero_slider', 'Slider trang chủ VisionCare', NULL, '[{"title": "Bảo vệ mắt của bạn","subtitle": "Chúng tôi luôn đồng hành cùng bạn", "image": "https://images.unsplash.com/photo-hero1.jpg"}, {"title": "Đội ngũ chuyên gia chuyên nghiệp","subtitle": "Uy tín - Chất lượng - Hiện đại", "image": "https://images.unsplash.com/photo-hero2.jpg"}]');
+
+-- Chuẩn hóa why_us theo FE (title/subtitle/bullets/images)
+DELETE FROM SectionContent WHERE section_key = 'why_us';
+INSERT INTO SectionContent(section_key, content, image_url, more_data) VALUES
+('why_us',
+ 'Với hơn 20 năm kinh nghiệm trong lĩnh vực nhãn khoa, VisionCare tự hào là trung tâm chăm sóc mắt hàng đầu với đội ngũ bác sĩ chuyên môn cao, trang thiết bị hiện đại và dịch vụ tận tâm.',
+ NULL,
+ '{
+   "title": "Tại sao VisionCare là sự lựa chọn hàng đầu?",
+   "subtitle": "Với hơn 20 năm kinh nghiệm trong lĩnh vực nhãn khoa, VisionCare tự hào là trung tâm chăm sóc mắt hàng đầu với đội ngũ bác sĩ chuyên môn cao, trang thiết bị hiện đại và dịch vụ tận tâm.",
+   "bullets": [
+     "Đội ngũ bác sĩ giàu kinh nghiệm",
+     "Công nghệ thiết bị hiện đại nhất",
+     "Dịch vụ tận tâm, chu đáo",
+     "Chi phí hợp lý, bảo hiểm y tế"
+   ],
+   "images": [
+     "https://images.unsplash.com/photo-1581091870622-7b5f98d3e4f4?auto=format&fit=crop&w=1200&q=80",
+     "https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=1200&q=80",
+     "https://images.unsplash.com/photo-1527613426441-4da17471b66d?auto=format&fit=crop&w=1200&q=80",
+     "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80"
+   ]
+ }');
+
+-- About & Background image giữ như FE hiện tại
+DELETE FROM SectionContent WHERE section_key IN ('about','background_image');
+INSERT INTO SectionContent(section_key, content, image_url, more_data) VALUES
+('about', 'VisionCare cam kết mang đến trải nghiệm khám mắt chuyên nghiệp với công nghệ hiện đại và đội ngũ bác sĩ giàu kinh nghiệm.', 'https://images.unsplash.com/photo-about.jpg', NULL),
+('background_image', NULL, 'https://plus.unsplash.com/premium_photo-1677333508737-6b6d642bc6d6?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', NULL);

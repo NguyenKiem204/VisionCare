@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Calendar, ArrowRight } from "lucide-react";
+import { getBanners } from "../../services/bannerAPI";
 
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-
-  const slides = [
+  const [slides, setSlides] = useState([
     {
       id: 1,
       title: "VisionCare - Chăm Sóc Mắt Chuyên Nghiệp",
@@ -39,7 +39,36 @@ const HeroSlider = () => {
         secondary: { text: "Tư Vấn Miễn Phí", href: "/contact", icon: ArrowRight }
       }
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await getBanners("home_hero");
+        if (mounted && Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((b, idx) => ({
+            id: b.bannerId || idx + 1,
+            title: b.title,
+            subtitle: b.description,
+            background: "bg-gradient-to-r from-blue-600 to-green-600",
+            image: b.imageUrl,
+            cta: {
+              primary: { text: "Đặt Lịch Ngay", href: "/booking", icon: Calendar },
+              secondary: { text: "Tìm Hiểu Thêm", href: "/services", icon: ArrowRight }
+            }
+          }));
+          setSlides(mapped);
+          setCurrentSlide(0);
+        }
+      } catch (_) {
+        // fallback to default slides
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {

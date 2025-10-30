@@ -14,6 +14,10 @@ using VisionCare.Application.Interfaces.ServiceTypes;
 using VisionCare.Infrastructure.Data;
 using VisionCare.Infrastructure.Repositories;
 using VisionCare.Infrastructure.Services;
+using VisionCare.Application.Interfaces.Content;
+using VisionCare.Application.Interfaces.Banners;
+using VisionCare.Application.Services.Content;
+using VisionCare.Application.Services.Banners;
 
 namespace VisionCare.Infrastructure;
 
@@ -46,10 +50,17 @@ public static class DependencyInjection
         services.AddScoped<IEquipmentRepository, EquipmentRepository>();
         services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
         services.AddScoped<IFollowUpRepository, FollowUpRepository>();
+        services.AddScoped<ISectionContentRepository, SectionContentRepository>();
+        services.AddScoped<IBannerRepository, BannerRepository>();
 
         // Cross-cutting infrastructure services
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ISectionContentService, SectionContentService>();
+        services.AddScoped<IBannerService, BannerService>();
+
+        // Storage
+        services.AddScoped<IS3StorageService, S3StorageService>();
 
         return services;
     }

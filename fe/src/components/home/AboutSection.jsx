@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { CheckCircle, ArrowRight } from "lucide-react";
 
 const AboutSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -27,86 +26,107 @@ const AboutSection = () => {
   }, []);
 
   const features = [
-    "Đội ngũ bác sĩ giàu kinh nghiệm",
-    "Công nghệ thiết bị hiện đại nhất",
-    "Dịch vụ tận tâm, chu đáo",
-    "Chi phí hợp lý, bảo hiểm y tế"
+    {
+      icon: "👨‍⚕️",
+      title: "CHUYÊN GIA HỘI TỤ",
+      description: "Đội ngũ chuyên gia nhãn khoa giàu kinh nghiệm từng công tác tại các bệnh viện lớn tại Việt Nam."
+    },
+    {
+      icon: "⚖️",
+      title: "CÔNG NGHỆ HÀNG ĐẦU",
+      description: "Bệnh viện đầu tiên sử dụng máy chụp ảnh đáy mắt trường siêu rộng và máy chụp cắt lớp võng mạc dạng chùm, ch..."
+    },
+    {
+      icon: "📋",
+      title: "TRÁCH NHIỆM VƯỢT TRỘI",
+      description: "Với không gian hiện đại, thoải mái và quy trình phục vụ chuyên nghiệp, luôn chu đáo luôn sẵn sàng lắng nghe vấ..."
+    },
+    {
+      icon: "🤝",
+      title: "DỊCH VỤ TẬN TÂM",
+      description: "Giải pháp điều trị tối ưu, an toàn và hiệu quả, đáp ứng mọi nhu cầu về chăm sóc sức khỏe thị giác cho cộng đồng."
+    }
   ];
 
   return (
-    <section id="about-section" className="py-20 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Content */}
+    <section id="about-section" className="py-16 bg-white">
+      <div className="container mx-auto px-4 max-w-6xl">
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
+          {/* Left - Image */}
           <div className={`transition-all duration-1000 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
           }`}>
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Tại sao VisionCare là sự lựa chọn hàng đầu?
-            </h2>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Với hơn 20 năm kinh nghiệm trong lĩnh vực nhãn khoa, VisionCare tự hào là trung tâm chăm sóc mắt hàng đầu với đội ngũ bác sĩ chuyên môn cao, trang thiết bị hiện đại và dịch vụ tận tâm.
+            <div className="relative">
+              <img
+                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                alt="Bác sĩ khám mắt"
+                className="w-full h-auto rounded-lg shadow-xl"
+              />
+              {/* Floating Card - Bottom Left */}
+              <div className="absolute -bottom-6 -left-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-5 shadow-2xl">
+                <div className="flex items-center space-x-3">
+                  <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center">
+                    <span className="text-2xl">☎️</span>
+                  </div>
+                  <div className="text-white">
+                    <p className="text-xs font-semibold">Bạn Cần Hỗ Trợ</p>
+                    <p className="text-sm font-normal mb-1">Gọi Ngay: <span className="font-bold text-lg">1800 3369</span></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right - Content */}
+          <div className={`transition-all duration-1000 ${
+            isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
+          }`}>
+            <p className="text-yellow-500 text-xs font-semibold uppercase tracking-wide mb-3">
+              BRIGHT YOUR SIGHT
             </p>
-            <div className="space-y-4 mb-8">
-              {features.map((feature, index) => (
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0c5a8a] mb-5">
+              BỪNG SÁNG TẦM NHÌN
+            </h2>
+            <p className="text-gray-600 text-sm leading-relaxed mb-8">
+              Ứng dụng những thành tựu y khoa và phương pháp quản trị chuyên môn theo tiêu chuẩn nhãn khoa khắt khe bậc nhất, 
+              Bệnh viện Mắt Ánh Dương tự hào là bệnh viện chuyên khoa mắt công nghệ cao hàng đầu tại Việt Nam. 
+              Bệnh viện cam kết chất lượng chuẩn quốc tế từ khâu chẩn đoán, lựa chọn phác đồ điều trị phù hợp, 
+              đến chăm sóc bệnh nhân toàn diện, tận tâm.
+            </p>
+            
+            {/* Feature Grid - 2x2 */}
+            <div className="grid grid-cols-2 gap-6">
+              {features.map((feature, idx) => (
                 <div
-                  key={index}
-                  className={`flex items-center space-x-3 transition-all duration-1000 ${
+                  key={idx}
+                  className={`flex items-start space-x-3 transition-all duration-1000 ${
                     isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                   }`}
-                  style={{ transitionDelay: `${index * 200}ms` }}
+                  style={{ transitionDelay: `${idx * 150}ms` }}
                 >
-                  <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium">{feature}</span>
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <span className="text-2xl">{feature.icon}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-[#0c5a8a] mb-1 uppercase">
+                      {feature.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
-            <a
-              href="/about"
-              className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg"
-            >
-              Tìm hiểu lịch sử VisionCare
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
-          </div>
 
-          {/* Image Gallery */}
-          <div className={`transition-all duration-1000 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="aspect-square bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Phòng khám hiện đại"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="aspect-square bg-gradient-to-br from-green-100 to-green-200 rounded-xl overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Thiết bị y tế"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-              <div className="space-y-4 mt-8">
-                <div className="aspect-square bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Bác sĩ chuyên nghiệp"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="aspect-square bg-gradient-to-br from-blue-100 to-green-100 rounded-xl overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Chăm sóc bệnh nhân"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
+            {/* CTA Button */}
+            <div className="mt-8">
+              <a href="/#doctors-section" className="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white text-sm font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg uppercase">
+                <span>→ XEM THÊM</span>
+              </a>
             </div>
           </div>
         </div>

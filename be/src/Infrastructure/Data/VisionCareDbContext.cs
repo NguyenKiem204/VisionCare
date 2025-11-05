@@ -46,6 +46,12 @@ public partial class VisionCareDbContext : DbContext
 
     public virtual DbSet<Doctor> Doctors { get; set; }
 
+    public virtual DbSet<Doctorabsence> Doctorabsences { get; set; }
+
+    public virtual DbSet<Doctorschedule> Doctorschedules { get; set; }
+
+    public virtual DbSet<Encounter> Encounters { get; set; }
+
     public virtual DbSet<Equipment> Equipment { get; set; }
 
     public virtual DbSet<Feedbackdoctor> Feedbackdoctors { get; set; }
@@ -60,15 +66,23 @@ public partial class VisionCareDbContext : DbContext
 
     public virtual DbSet<Medicalhistory> Medicalhistories { get; set; }
 
+    public virtual DbSet<Order> Orders { get; set; }
+
     public virtual DbSet<Otpservice> Otpservices { get; set; }
 
     public virtual DbSet<Permission> Permissions { get; set; }
 
     public virtual DbSet<Permissionrole> Permissionroles { get; set; }
 
+    public virtual DbSet<Prescription> Prescriptions { get; set; }
+
+    public virtual DbSet<Prescriptionline> Prescriptionlines { get; set; }
+
     public virtual DbSet<Refreshtoken> Refreshtokens { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
+
+    public virtual DbSet<Room> Rooms { get; set; }
 
     public virtual DbSet<Schedule> Schedules { get; set; }
 
@@ -85,6 +99,10 @@ public partial class VisionCareDbContext : DbContext
     public virtual DbSet<Specialization> Specializations { get; set; }
 
     public virtual DbSet<Staff> Staff { get; set; }
+
+    public virtual DbSet<Weeklyschedule> Weeklyschedules { get; set; }
+
+    public virtual DbSet<Workshift> Workshifts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -203,6 +221,10 @@ public partial class VisionCareDbContext : DbContext
 
             entity.ToTable("appointment");
 
+            entity.HasIndex(e => e.AppointmentCode, "appointment_appointment_code_key").IsUnique();
+
+            entity.HasIndex(e => e.AppointmentCode, "idx_appointment_code");
+
             entity.HasIndex(e => e.AppointmentDatetime, "idx_appointments_datetime");
 
             entity.HasIndex(e => e.DoctorId, "idx_appointments_doctor");
@@ -213,6 +235,10 @@ public partial class VisionCareDbContext : DbContext
 
             entity.Property(e => e.AppointmentId).HasColumnName("appointment_id");
             entity.Property(e => e.ActualCost).HasPrecision(10, 2).HasColumnName("actual_cost");
+            entity
+                .Property(e => e.AppointmentCode)
+                .HasMaxLength(20)
+                .HasColumnName("appointment_code");
             entity
                 .Property(e => e.AppointmentDatetime)
                 .HasColumnType("timestamp without time zone")
@@ -227,6 +253,11 @@ public partial class VisionCareDbContext : DbContext
             entity.Property(e => e.DoctorId).HasColumnName("doctor_id");
             entity.Property(e => e.Notes).HasColumnName("notes");
             entity.Property(e => e.PatientId).HasColumnName("patient_id");
+            entity
+                .Property(e => e.PaymentStatus)
+                .HasMaxLength(30)
+                .HasDefaultValueSql("'Unpaid'::character varying")
+                .HasColumnName("payment_status");
             entity.Property(e => e.ServiceDetailId).HasColumnName("service_detail_id");
             entity
                 .Property(e => e.Status)
@@ -429,16 +460,40 @@ public partial class VisionCareDbContext : DbContext
 
             entity.HasIndex(e => e.AppointmentId, "idx_checkout_appointment");
 
+            entity.HasIndex(e => e.GatewayTransactionId, "idx_checkout_gateway_txn");
+
             entity.HasIndex(e => e.TransactionStatus, "idx_checkout_status");
 
             entity.Property(e => e.CheckoutId).HasColumnName("checkout_id");
             entity.Property(e => e.AppointmentId).HasColumnName("appointment_id");
+            entity
+                .Property(e => e.GatewayResponse)
+                .HasColumnType("jsonb")
+                .HasColumnName("gateway_response");
+            entity
+                .Property(e => e.GatewayTransactionId)
+                .HasMaxLength(255)
+                .HasColumnName("gateway_transaction_id");
             entity.Property(e => e.Notes).HasColumnName("notes");
             entity
                 .Property(e => e.PaymentDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("payment_date");
+            entity
+                .Property(e => e.PaymentGateway)
+                .HasMaxLength(50)
+                .HasColumnName("payment_gateway");
+            entity.Property(e => e.RefundAmount).HasPrecision(10, 2).HasColumnName("refund_amount");
+            entity
+                .Property(e => e.RefundCompletedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("refund_completed_at");
+            entity.Property(e => e.RefundReason).HasColumnName("refund_reason");
+            entity
+                .Property(e => e.RefundRequestedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("refund_requested_at");
             entity.Property(e => e.TotalAmount).HasPrecision(10, 2).HasColumnName("total_amount");
             entity
                 .Property(e => e.TransactionCode)
@@ -451,6 +506,7 @@ public partial class VisionCareDbContext : DbContext
             entity
                 .Property(e => e.TransactionType)
                 .HasMaxLength(50)
+                .HasDefaultValueSql("'VNPay'::character varying")
                 .HasColumnName("transaction_type");
 
             entity
@@ -723,6 +779,171 @@ public partial class VisionCareDbContext : DbContext
                 .HasConstraintName("doctors_specialization_id_fkey");
         });
 
+        modelBuilder.Entity<Doctorabsence>(entity =>
+        {
+            entity.HasKey(e => e.AbsenceId).HasName("doctorabsence_pkey");
+
+            entity.ToTable("doctorabsence");
+
+            entity.HasIndex(e => new { e.StartDate, e.EndDate }, "idx_doctor_absence_dates");
+
+            entity.HasIndex(e => e.DoctorId, "idx_doctor_absence_doctor");
+
+            entity.HasIndex(e => e.Status, "idx_doctor_absence_status");
+
+            entity.Property(e => e.AbsenceId).HasColumnName("absence_id");
+            entity
+                .Property(e => e.AbsenceType)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'Leave'::character varying")
+                .HasColumnName("absence_type");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DoctorId).HasColumnName("doctor_id");
+            entity.Property(e => e.EndDate).HasColumnName("end_date");
+            entity.Property(e => e.IsResolved).HasDefaultValue(false).HasColumnName("is_resolved");
+            entity.Property(e => e.Reason).HasColumnName("reason");
+            entity.Property(e => e.StartDate).HasColumnName("start_date");
+            entity
+                .Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValueSql("'Pending'::character varying")
+                .HasColumnName("status");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+
+            entity
+                .HasOne(d => d.Doctor)
+                .WithMany(p => p.Doctorabsences)
+                .HasForeignKey(d => d.DoctorId)
+                .HasConstraintName("doctorabsence_doctor_id_fkey");
+        });
+
+        modelBuilder.Entity<Doctorschedule>(entity =>
+        {
+            entity.HasKey(e => e.DoctorScheduleId).HasName("doctorschedule_pkey");
+
+            entity.ToTable("doctorschedule");
+
+            entity
+                .HasIndex(e => e.IsActive, "idx_doctor_schedules_active")
+                .HasFilter("(is_active = true)");
+
+            entity.HasIndex(e => e.DoctorId, "idx_doctor_schedules_doctor");
+
+            entity.HasIndex(e => e.ShiftId, "idx_doctor_schedules_shift");
+
+            entity.Property(e => e.DoctorScheduleId).HasColumnName("doctor_schedule_id");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DayOfWeek).HasColumnName("day_of_week");
+            entity.Property(e => e.DoctorId).HasColumnName("doctor_id");
+            entity.Property(e => e.EndDate).HasColumnName("end_date");
+            entity.Property(e => e.EquipmentId).HasColumnName("equipment_id");
+            entity.Property(e => e.IsActive).HasDefaultValue(true).HasColumnName("is_active");
+            entity
+                .Property(e => e.RecurrenceRule)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'WEEKLY'::character varying")
+                .HasColumnName("recurrence_rule");
+            entity.Property(e => e.RoomId).HasColumnName("room_id");
+            entity.Property(e => e.ShiftId).HasColumnName("shift_id");
+            entity.Property(e => e.StartDate).HasColumnName("start_date");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+
+            entity
+                .HasOne(d => d.Doctor)
+                .WithMany(p => p.Doctorschedules)
+                .HasForeignKey(d => d.DoctorId)
+                .HasConstraintName("doctorschedule_doctor_id_fkey");
+
+            entity
+                .HasOne(d => d.Equipment)
+                .WithMany(p => p.Doctorschedules)
+                .HasForeignKey(d => d.EquipmentId)
+                .HasConstraintName("doctorschedule_equipment_id_fkey");
+
+            entity
+                .HasOne(d => d.Room)
+                .WithMany(p => p.Doctorschedules)
+                .HasForeignKey(d => d.RoomId)
+                .HasConstraintName("doctorschedule_room_id_fkey");
+
+            entity
+                .HasOne(d => d.Shift)
+                .WithMany(p => p.Doctorschedules)
+                .HasForeignKey(d => d.ShiftId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("doctorschedule_shift_id_fkey");
+        });
+
+        modelBuilder.Entity<Encounter>(entity =>
+        {
+            entity.HasKey(e => e.EncounterId).HasName("encounters_pkey");
+
+            entity.ToTable("encounters");
+
+            entity.HasIndex(e => e.AppointmentId, "idx_encounters_appointment");
+
+            entity.HasIndex(e => e.DoctorId, "idx_encounters_doctor");
+
+            entity.Property(e => e.EncounterId).HasColumnName("encounter_id");
+            entity.Property(e => e.AppointmentId).HasColumnName("appointment_id");
+            entity.Property(e => e.Assessment).HasColumnName("assessment");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.CustomerId).HasColumnName("customer_id");
+            entity.Property(e => e.DoctorId).HasColumnName("doctor_id");
+            entity.Property(e => e.Objective).HasColumnName("objective");
+            entity.Property(e => e.Plan).HasColumnName("plan");
+            entity
+                .Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValueSql("'Draft'::character varying")
+                .HasColumnName("status");
+            entity.Property(e => e.Subjective).HasColumnName("subjective");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+
+            entity
+                .HasOne(d => d.Appointment)
+                .WithMany(p => p.Encounters)
+                .HasForeignKey(d => d.AppointmentId)
+                .HasConstraintName("fk_encounter_appointment");
+
+            entity
+                .HasOne(d => d.Customer)
+                .WithMany(p => p.Encounters)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_encounter_customer");
+
+            entity
+                .HasOne(d => d.Doctor)
+                .WithMany(p => p.Encounters)
+                .HasForeignKey(d => d.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_encounter_doctor");
+        });
+
         modelBuilder.Entity<Equipment>(entity =>
         {
             entity.HasKey(e => e.EquipmentId).HasName("equipment_pkey");
@@ -936,6 +1157,42 @@ public partial class VisionCareDbContext : DbContext
                 .HasConstraintName("medicalhistory_appointment_id_fkey");
         });
 
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("orders_pkey");
+
+            entity.ToTable("orders");
+
+            entity.HasIndex(e => e.EncounterId, "idx_orders_encounter");
+
+            entity.Property(e => e.OrderId).HasColumnName("order_id");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.EncounterId).HasColumnName("encounter_id");
+            entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
+            entity.Property(e => e.Notes).HasColumnName("notes");
+            entity.Property(e => e.OrderType).HasMaxLength(50).HasColumnName("order_type");
+            entity.Property(e => e.ResultUrl).HasColumnName("result_url");
+            entity
+                .Property(e => e.Status)
+                .HasMaxLength(30)
+                .HasDefaultValueSql("'Requested'::character varying")
+                .HasColumnName("status");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+
+            entity
+                .HasOne(d => d.Encounter)
+                .WithMany(p => p.Orders)
+                .HasForeignKey(d => d.EncounterId)
+                .HasConstraintName("fk_order_encounter");
+        });
+
         modelBuilder.Entity<Otpservice>(entity =>
         {
             entity.HasKey(e => e.OtpId).HasName("otpservices_pkey");
@@ -1021,6 +1278,58 @@ public partial class VisionCareDbContext : DbContext
                 .HasConstraintName("permissionrole_role_id_fkey");
         });
 
+        modelBuilder.Entity<Prescription>(entity =>
+        {
+            entity.HasKey(e => e.PrescriptionId).HasName("prescriptions_pkey");
+
+            entity.ToTable("prescriptions");
+
+            entity.HasIndex(e => e.EncounterId, "idx_prescriptions_encounter");
+
+            entity.Property(e => e.PrescriptionId).HasColumnName("prescription_id");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.EncounterId).HasColumnName("encounter_id");
+            entity.Property(e => e.Notes).HasColumnName("notes");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+
+            entity
+                .HasOne(d => d.Encounter)
+                .WithMany(p => p.Prescriptions)
+                .HasForeignKey(d => d.EncounterId)
+                .HasConstraintName("fk_prescription_encounter");
+        });
+
+        modelBuilder.Entity<Prescriptionline>(entity =>
+        {
+            entity.HasKey(e => e.LineId).HasName("prescriptionlines_pkey");
+
+            entity.ToTable("prescriptionlines");
+
+            entity.HasIndex(e => e.PrescriptionId, "idx_lines_prescription");
+
+            entity.Property(e => e.LineId).HasColumnName("line_id");
+            entity.Property(e => e.Dosage).HasMaxLength(100).HasColumnName("dosage");
+            entity.Property(e => e.DrugCode).HasMaxLength(100).HasColumnName("drug_code");
+            entity.Property(e => e.DrugName).HasMaxLength(255).HasColumnName("drug_name");
+            entity.Property(e => e.Duration).HasMaxLength(100).HasColumnName("duration");
+            entity.Property(e => e.Frequency).HasMaxLength(100).HasColumnName("frequency");
+            entity.Property(e => e.Instructions).HasColumnName("instructions");
+            entity.Property(e => e.PrescriptionId).HasColumnName("prescription_id");
+
+            entity
+                .HasOne(d => d.Prescription)
+                .WithMany(p => p.Prescriptionlines)
+                .HasForeignKey(d => d.PrescriptionId)
+                .HasConstraintName("fk_line_prescription");
+        });
+
         modelBuilder.Entity<Refreshtoken>(entity =>
         {
             entity.HasKey(e => e.TokenId).HasName("refreshtokens_pkey");
@@ -1094,13 +1403,59 @@ public partial class VisionCareDbContext : DbContext
             entity.Property(e => e.RoleName).HasMaxLength(50).HasColumnName("role_name");
         });
 
+        modelBuilder.Entity<Room>(entity =>
+        {
+            entity.HasKey(e => e.RoomId).HasName("rooms_pkey");
+
+            entity.ToTable("rooms");
+
+            entity.HasIndex(e => e.Status, "idx_rooms_status");
+
+            entity.HasIndex(e => e.RoomCode, "rooms_room_code_key").IsUnique();
+
+            entity.HasIndex(e => e.RoomName, "rooms_room_name_key").IsUnique();
+
+            entity.Property(e => e.RoomId).HasColumnName("room_id");
+            entity.Property(e => e.Capacity).HasDefaultValue(1).HasColumnName("capacity");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Location).HasMaxLength(255).HasColumnName("location");
+            entity.Property(e => e.Notes).HasColumnName("notes");
+            entity.Property(e => e.RoomCode).HasMaxLength(20).HasColumnName("room_code");
+            entity.Property(e => e.RoomName).HasMaxLength(100).HasColumnName("room_name");
+            entity
+                .Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValueSql("'Active'::character varying")
+                .HasColumnName("status");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+        });
+
         modelBuilder.Entity<Schedule>(entity =>
         {
             entity.HasKey(e => e.ScheduleId).HasName("schedules_pkey");
 
             entity.ToTable("schedules");
 
+            entity.HasIndex(e => e.ScheduleDate, "idx_schedules_date");
+
+            entity.HasIndex(e => e.DoctorId, "idx_schedules_doctor");
+
             entity.HasIndex(e => new { e.DoctorId, e.ScheduleDate }, "idx_schedules_doctor_date");
+
+            entity
+                .HasIndex(e => e.EquipmentId, "idx_schedules_equipment")
+                .HasFilter("(equipment_id IS NOT NULL)");
+
+            entity.HasIndex(e => e.RoomId, "idx_schedules_room").HasFilter("(room_id IS NOT NULL)");
+
+            entity.HasIndex(e => e.Status, "idx_schedules_status");
 
             entity
                 .HasIndex(
@@ -1116,6 +1471,8 @@ public partial class VisionCareDbContext : DbContext
 
             entity.Property(e => e.ScheduleId).HasColumnName("schedule_id");
             entity.Property(e => e.DoctorId).HasColumnName("doctor_id");
+            entity.Property(e => e.EquipmentId).HasColumnName("equipment_id");
+            entity.Property(e => e.RoomId).HasColumnName("room_id");
             entity.Property(e => e.ScheduleDate).HasColumnName("schedule_date");
             entity.Property(e => e.SlotId).HasColumnName("slot_id");
             entity
@@ -1129,6 +1486,18 @@ public partial class VisionCareDbContext : DbContext
                 .WithMany(p => p.Schedules)
                 .HasForeignKey(d => d.DoctorId)
                 .HasConstraintName("schedules_doctor_id_fkey");
+
+            entity
+                .HasOne(d => d.Equipment)
+                .WithMany(p => p.Schedules)
+                .HasForeignKey(d => d.EquipmentId)
+                .HasConstraintName("schedules_equipment_id_fkey");
+
+            entity
+                .HasOne(d => d.Room)
+                .WithMany(p => p.Schedules)
+                .HasForeignKey(d => d.RoomId)
+                .HasConstraintName("schedules_room_id_fkey");
 
             entity
                 .HasOne(d => d.Slot)
@@ -1289,6 +1658,83 @@ public partial class VisionCareDbContext : DbContext
                 .WithOne(p => p.Staff)
                 .HasForeignKey<Staff>(d => d.AccountId)
                 .HasConstraintName("staff_account_id_fkey");
+        });
+
+        modelBuilder.Entity<Weeklyschedule>(entity =>
+        {
+            entity.HasKey(e => e.WeeklyScheduleId).HasName("weeklyschedule_pkey");
+
+            entity.ToTable("weeklyschedule");
+
+            entity.HasIndex(e => e.DoctorId, "idx_weekly_schedules_doctor");
+
+            entity
+                .HasIndex(
+                    e => new
+                    {
+                        e.DoctorId,
+                        e.DayOfWeek,
+                        e.SlotId,
+                    },
+                    "weeklyschedule_doctor_id_day_of_week_slot_id_key"
+                )
+                .IsUnique();
+
+            entity.Property(e => e.WeeklyScheduleId).HasColumnName("weekly_schedule_id");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DayOfWeek).HasColumnName("day_of_week");
+            entity.Property(e => e.DoctorId).HasColumnName("doctor_id");
+            entity.Property(e => e.IsActive).HasDefaultValue(true).HasColumnName("is_active");
+            entity.Property(e => e.SlotId).HasColumnName("slot_id");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+
+            entity
+                .HasOne(d => d.Doctor)
+                .WithMany(p => p.Weeklyschedules)
+                .HasForeignKey(d => d.DoctorId)
+                .HasConstraintName("weeklyschedule_doctor_id_fkey");
+
+            entity
+                .HasOne(d => d.Slot)
+                .WithMany(p => p.Weeklyschedules)
+                .HasForeignKey(d => d.SlotId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("weeklyschedule_slot_id_fkey");
+        });
+
+        modelBuilder.Entity<Workshift>(entity =>
+        {
+            entity.HasKey(e => e.ShiftId).HasName("workshift_pkey");
+
+            entity.ToTable("workshift");
+
+            entity
+                .HasIndex(e => e.IsActive, "idx_work_shift_active")
+                .HasFilter("(is_active = true)");
+
+            entity.Property(e => e.ShiftId).HasColumnName("shift_id");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.EndTime).HasColumnName("end_time");
+            entity.Property(e => e.IsActive).HasDefaultValue(true).HasColumnName("is_active");
+            entity.Property(e => e.ShiftName).HasMaxLength(100).HasColumnName("shift_name");
+            entity.Property(e => e.StartTime).HasColumnName("start_time");
+            entity
+                .Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
         });
 
         OnModelCreatingPartial(modelBuilder);

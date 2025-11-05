@@ -122,7 +122,7 @@ const Header = () => {
                       {user?.email || user?.username}
                     </div>
 
-                    {/* Admin Management Link - Only show for admin users */}
+                    {/* Admin Management Link */}
                     {hasRole && hasRole("admin") && (
                       <Link
                         to="/admin"
@@ -131,6 +131,18 @@ const Header = () => {
                       >
                         <Shield className="w-4 h-4 mr-2 text-blue-600" />
                         <span className="font-medium">Quản lý Admin</span>
+                      </Link>
+                    )}
+
+                    {/* Doctor Management Link */}
+                    {hasRole && hasRole("doctor") && (
+                      <Link
+                        to="/doctor"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-200"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <Shield className="w-4 h-4 mr-2 text-green-600" />
+                        <span className="font-medium">Quản lý Bác sĩ</span>
                       </Link>
                     )}
 
@@ -221,7 +233,7 @@ const Header = () => {
                       Xin chào, {user?.username || user?.email || "User"}!
                     </div>
 
-                    {/* Admin Management Link - Only show for admin users */}
+                    {/* Admin Management Link */}
                     {hasRole && hasRole("admin") && (
                       <Link
                         to="/admin"
@@ -230,6 +242,18 @@ const Header = () => {
                       >
                         <Shield className="w-4 h-4 text-blue-600" />
                         <span className="font-medium">Quản lý Admin</span>
+                      </Link>
+                    )}
+
+                    {/* Doctor Management Link */}
+                    {hasRole && hasRole("doctor") && (
+                      <Link
+                        to="/doctor"
+                        className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 py-2 border-b border-gray-200"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Shield className="w-4 h-4 text-green-600" />
+                        <span className="font-medium">Quản lý Bác sĩ</span>
                       </Link>
                     )}
 

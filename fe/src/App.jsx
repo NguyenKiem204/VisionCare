@@ -12,6 +12,8 @@ import Services from "./pages/Services";
 import Equipment from "./pages/Equipment";
 import Contact from "./pages/Contact";
 import Booking from "./pages/Booking";
+import BookingStatus from "./pages/BookingStatus";
+import BookingPaymentCallback from "./pages/BookingPaymentCallback";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -33,6 +35,21 @@ function App() {
             <Route path="equipment" element={<Equipment />} />
             <Route path="contact" element={<Contact />} />
             <Route path="booking" element={<Booking />} />
+            {/* Booking Status - Public (no auth required) */}
+            <Route path="booking/status" element={<BookingStatus />} />
+            {/* Payment Callback - Public */}
+            <Route
+              path="booking/payment/callback"
+              element={<BookingPaymentCallback />}
+            />
+            <Route
+              path="booking/success"
+              element={<BookingPaymentCallback />}
+            />
+            <Route
+              path="booking/failed"
+              element={<BookingPaymentCallback />}
+            />
             <Route path="profile" element={<Profile />} />
           </Route>
 

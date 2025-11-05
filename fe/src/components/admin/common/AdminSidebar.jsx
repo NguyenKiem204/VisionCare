@@ -16,6 +16,8 @@ import {
   History,
   ListChecks,
   Images,
+  CalendarX,
+  Clock,
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 
@@ -29,7 +31,10 @@ const adminMenu = [
   { to: "/admin/services", label: "Dịch vụ", icon: Stethoscope },
   { to: "/admin/service-types", label: "Loại dịch vụ", icon: ListChecks },
   { to: "/admin/appointments", label: "Lịch hẹn", icon: Calendar },
-  { to: "/admin/weekly-schedule", label: "Lịch tuần", icon: CalendarCheck },
+  { to: "/admin/doctor-schedules", label: "Lịch làm việc bác sĩ", icon: Clock },
+  { to: "/admin/doctor-absence", label: "Nghỉ phép BS", icon: CalendarX },
+  { to: "/admin/rooms", label: "Phòng khám", icon: CalendarCheck },
+  { to: "/admin/work-shifts", label: "Ca làm việc", icon: Clock },
   { to: "/admin/users", label: "Người dùng", icon: UserCheck },
   { group: "MEDICAL RECORDS" },
   { to: "/admin/medical-history", label: "Lịch sử khám", icon: History },

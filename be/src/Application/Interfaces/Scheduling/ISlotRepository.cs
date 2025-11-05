@@ -22,6 +22,7 @@ public interface ISlotRepository
         int serviceTypeId,
         int? excludeId = null
     );
+    Task<int> DeleteByServiceTypeAndTimeRangeAsync(int serviceTypeId, TimeOnly startInclusive, TimeOnly endInclusive);
     Task<int> GetTotalCountAsync();
     Task<IEnumerable<Slot>> GetPagedAsync(int page, int pageSize);
 }

@@ -28,4 +28,8 @@ public partial class Equipment
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    public virtual ICollection<Doctorschedule> Doctorschedules { get; set; } = new List<Doctorschedule>();
+
+    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 }

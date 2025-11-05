@@ -92,9 +92,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<UserDto>.Ok(null, "User deleted successfully"));
     }
 
-    /// <summary>
-    /// Get user by email
-    /// </summary>
     [HttpGet("email/{email}")]
     [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetUserByEmail(string email)
@@ -107,9 +104,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<UserDto>.Ok(user));
     }
 
-    /// <summary>
-    /// Get user by username
-    /// </summary>
     [HttpGet("username/{username}")]
     [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetUserByUsername(string username)
@@ -122,9 +116,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<UserDto>.Ok(user));
     }
 
-    /// <summary>
-    /// Activate user
-    /// </summary>
     [HttpPut("{id}/activate")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> ActivateUser(int id)
@@ -133,9 +124,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<UserDto>.Ok(user));
     }
 
-    /// <summary>
-    /// Deactivate user
-    /// </summary>
     [HttpPut("{id}/deactivate")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeactivateUser(int id)
@@ -144,9 +132,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<UserDto>.Ok(user));
     }
 
-    /// <summary>
-    /// Change user password
-    /// </summary>
     [HttpPut("{id}/password")]
     [Authorize(Policy = "OwnProfileOrAdmin")]
     public async Task<IActionResult> ChangePassword(
@@ -158,9 +143,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<UserDto>.Ok(user));
     }
 
-    /// <summary>
-    /// Update user role
-    /// </summary>
     [HttpPut("{id}/role")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateUserRole(
@@ -172,9 +154,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<UserDto>.Ok(user));
     }
 
-    /// <summary>
-    /// Get users by role
-    /// </summary>
     [HttpGet("role/{roleId}")]
     [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetUsersByRole(int roleId)
@@ -183,9 +162,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<IEnumerable<UserDto>>.Ok(users));
     }
 
-    /// <summary>
-    /// Get active users
-    /// </summary>
     [HttpGet("active")]
     [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetActiveUsers()
@@ -194,9 +170,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<IEnumerable<UserDto>>.Ok(users));
     }
 
-    /// <summary>
-    /// Get inactive users
-    /// </summary>
     [HttpGet("inactive")]
     [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> GetInactiveUsers()
@@ -205,9 +178,6 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<IEnumerable<UserDto>>.Ok(users));
     }
 
-    /// <summary>
-    /// Get user statistics
-    /// </summary>
     [HttpGet("statistics")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> GetUserStatistics()

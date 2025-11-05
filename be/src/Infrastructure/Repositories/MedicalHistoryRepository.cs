@@ -229,7 +229,7 @@ public class MedicalHistoryRepository : IMedicalHistoryRepository
             AdditionalTests = model.AdditionalTests,
             Notes = model.Notes,
             Created = model.CreatedAt ?? DateTime.UtcNow,
-            LastModified = model.UpdatedAt,
+            LastModified = model.UpdatedAt ?? DateTime.UtcNow,
             Appointment = model.Appointment != null ? new Domain.Entities.Appointment
             {
                 Id = model.Appointment.AppointmentId,
@@ -237,14 +237,14 @@ public class MedicalHistoryRepository : IMedicalHistoryRepository
                 Doctor = model.Appointment.Doctor != null ? new Domain.Entities.Doctor
                 {
                     Id = model.Appointment.Doctor.AccountId,
-                    DoctorName = model.Appointment.Doctor.FullName
-                } : null,
+                    DoctorName = model.Appointment.Doctor.FullName ?? string.Empty
+                } : null!,
                 Patient = model.Appointment.Patient != null ? new Domain.Entities.Customer
                 {
                     Id = model.Appointment.Patient.AccountId,
-                    CustomerName = model.Appointment.Patient.FullName
-                } : null
-            } : null
+                    CustomerName = model.Appointment.Patient.FullName ?? string.Empty
+                } : null!
+            } : null!
         };
     }
 

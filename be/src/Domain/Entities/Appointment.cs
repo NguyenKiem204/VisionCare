@@ -9,6 +9,11 @@ public class Appointment : BaseEntity
     public int? DoctorId { get; set; }
     public int? PatientId { get; set; }
     public string? Notes { get; set; }
+    public string? AppointmentCode { get; set; }
+    public string? PaymentStatus { get; set; }
+    public decimal? ActualCost { get; set; }
+    public int? ServiceDetailId { get; set; }
+    public int? DiscountId { get; set; }
 
     // Navigation properties
     public Doctor? Doctor { get; set; }

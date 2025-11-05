@@ -25,7 +25,6 @@ public class BannerController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] string place = "home_hero")
     {
-        // Current schema doesn't include 'place', so we ignore it for now.
         var list = await _service.GetByPlaceAsync(place);
         return Ok(list);
     }
@@ -63,7 +62,6 @@ public class BannerController : ControllerBase
     {
         if (image != null && image.Length > 0)
         {
-            // delete old if exists
             var current = await _service.GetByIdAsync(id);
             var oldKey = VisionCare.WebAPI.Utils.S3KeyHelper.TryExtractObjectKey(current?.ImageUrl);
             var url = await _storage.UploadAsync(

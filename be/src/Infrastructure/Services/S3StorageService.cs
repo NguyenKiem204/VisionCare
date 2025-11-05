@@ -36,7 +36,7 @@ public class S3StorageService : IS3StorageService
             throw new ArgumentException("Content stream is null", nameof(content));
         }
 
-        var bucket = _configuration["AWS:BucketName"]; // expected in appsettings.Development.json
+        var bucket = _configuration["AWS:BucketName"];
         var region = _configuration["AWS:Region"];
         var accessKey = _configuration["AWS:AccessKeyId"];
         var secretKey = _configuration["AWS:SecretAccessKey"];

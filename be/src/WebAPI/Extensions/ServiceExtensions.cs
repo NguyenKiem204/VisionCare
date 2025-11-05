@@ -52,6 +52,12 @@ public static class ServiceExtensions
         services.AddFluentValidationAutoValidation();
         services.AddFluentValidationClientsideAdapters();
 
+        // Add SignalR for real-time booking updates
+        services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true; // Only for development
+        });
+
         services.AddScoped<ValidationFilter>();
 
         services.Configure<MvcOptions>(options =>

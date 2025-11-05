@@ -15,9 +15,7 @@ public class SpecializationsController : ControllerBase
         _specializationService = specializationService;
     }
 
-    /// <summary>
-    /// Get all specializations
-    /// </summary>
+    
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SpecializationDto>>> GetSpecializations()
     {
@@ -25,9 +23,6 @@ public class SpecializationsController : ControllerBase
         return Ok(specializations);
     }
 
-    /// <summary>
-    /// Get specialization by ID
-    /// </summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<SpecializationDto>> GetSpecialization(int id)
     {
@@ -39,9 +34,6 @@ public class SpecializationsController : ControllerBase
         return Ok(specialization);
     }
 
-    /// <summary>
-    /// Create a new specialization
-    /// </summary>
     [HttpPost]
     public async Task<ActionResult<SpecializationDto>> CreateSpecialization(
         CreateSpecializationRequest request
@@ -55,9 +47,6 @@ public class SpecializationsController : ControllerBase
         );
     }
 
-    /// <summary>
-    /// Update specialization
-    /// </summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<SpecializationDto>> UpdateSpecialization(
         int id,
@@ -68,9 +57,6 @@ public class SpecializationsController : ControllerBase
         return Ok(specialization);
     }
 
-    /// <summary>
-    /// Delete specialization
-    /// </summary>
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteSpecialization(int id)
     {
@@ -82,9 +68,6 @@ public class SpecializationsController : ControllerBase
         return NoContent();
     }
 
-    /// <summary>
-    /// Get active specializations
-    /// </summary>
     [HttpGet("active")]
     public async Task<ActionResult<IEnumerable<SpecializationDto>>> GetActiveSpecializations()
     {
@@ -92,9 +75,6 @@ public class SpecializationsController : ControllerBase
         return Ok(specializations);
     }
 
-    /// <summary>
-    /// Activate specialization
-    /// </summary>
     [HttpPut("{id}/activate")]
     public async Task<ActionResult<SpecializationDto>> ActivateSpecialization(int id)
     {
@@ -102,9 +82,6 @@ public class SpecializationsController : ControllerBase
         return Ok(specialization);
     }
 
-    /// <summary>
-    /// Deactivate specialization
-    /// </summary>
     [HttpPut("{id}/deactivate")]
     public async Task<ActionResult<SpecializationDto>> DeactivateSpecialization(int id)
     {
@@ -112,9 +89,6 @@ public class SpecializationsController : ControllerBase
         return Ok(specialization);
     }
 
-    /// <summary>
-    /// Search specializations
-    /// </summary>
     [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<SpecializationDto>>> SearchSpecializations(
         [FromQuery] string keyword
@@ -124,9 +98,6 @@ public class SpecializationsController : ControllerBase
         return Ok(specializations);
     }
 
-    /// <summary>
-    /// Get specialization statistics
-    /// </summary>
     [HttpGet("statistics")]
     public async Task<ActionResult<object>> GetSpecializationStatistics()
     {

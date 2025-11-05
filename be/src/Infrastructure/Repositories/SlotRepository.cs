@@ -127,6 +127,20 @@ public class SlotRepository : ISlotRepository
         return await query.AnyAsync();
     }
 
+    public async Task<int> DeleteByServiceTypeAndTimeRangeAsync(int serviceTypeId, TimeOnly startInclusive, TimeOnly endInclusive)
+    {
+        var toDelete = await _context.Slots
+            .Where(s => s.ServiceTypeId == serviceTypeId && s.StartTime >= startInclusive && s.EndTime <= endInclusive)
+            .ToListAsync();
+        var count = toDelete.Count;
+        if (count > 0)
+        {
+            _context.Slots.RemoveRange(toDelete);
+            await _context.SaveChangesAsync();
+        }
+        return count;
+    }
+
     public async Task<int> GetTotalCountAsync()
     {
         return await _context.Slots.CountAsync();

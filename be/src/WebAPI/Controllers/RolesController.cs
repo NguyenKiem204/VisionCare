@@ -15,9 +15,6 @@ public class RolesController : ControllerBase
         _roleService = roleService;
     }
 
-    /// <summary>
-    /// Get all roles
-    /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RoleDto>>> GetRoles()
     {
@@ -25,9 +22,6 @@ public class RolesController : ControllerBase
         return Ok(roles);
     }
 
-    /// <summary>
-    /// Get role by ID
-    /// </summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<RoleDto>> GetRole(int id)
     {
@@ -39,9 +33,6 @@ public class RolesController : ControllerBase
         return Ok(role);
     }
 
-    /// <summary>
-    /// Get role by name
-    /// </summary>
     [HttpGet("name/{roleName}")]
     public async Task<ActionResult<RoleDto>> GetRoleByName(string roleName)
     {
@@ -53,9 +44,6 @@ public class RolesController : ControllerBase
         return Ok(role);
     }
 
-    /// <summary>
-    /// Create a new role
-    /// </summary>
     [HttpPost]
     public async Task<ActionResult<RoleDto>> CreateRole(CreateRoleRequest request)
     {
@@ -63,9 +51,6 @@ public class RolesController : ControllerBase
         return CreatedAtAction(nameof(GetRole), new { id = role.Id }, role);
     }
 
-    /// <summary>
-    /// Update role
-    /// </summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<RoleDto>> UpdateRole(int id, UpdateRoleRequest request)
     {
@@ -73,9 +58,6 @@ public class RolesController : ControllerBase
         return Ok(role);
     }
 
-    /// <summary>
-    /// Delete role
-    /// </summary>
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteRole(int id)
     {
@@ -87,9 +69,6 @@ public class RolesController : ControllerBase
         return NoContent();
     }
 
-    /// <summary>
-    /// Search roles
-    /// </summary>
     [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<RoleDto>>> SearchRoles([FromQuery] string keyword)
     {
@@ -97,9 +76,6 @@ public class RolesController : ControllerBase
         return Ok(roles);
     }
 
-    /// <summary>
-    /// Check if role is in use
-    /// </summary>
     [HttpGet("{id}/in-use")]
     public async Task<ActionResult<bool>> IsRoleInUse(int id)
     {
@@ -107,19 +83,12 @@ public class RolesController : ControllerBase
         return Ok(isInUse);
     }
 
-    /// <summary>
-    /// Get role statistics
-    /// </summary>
     [HttpGet("statistics")]
     public async Task<ActionResult<object>> GetRoleStatistics()
     {
         var totalCount = await _roleService.GetTotalRolesCountAsync();
         var usageStats = await _roleService.GetRoleUsageStatsAsync();
 
-        return Ok(new
-        {
-            TotalCount = totalCount,
-            UsageStats = usageStats
-        });
+        return Ok(new { TotalCount = totalCount, UsageStats = usageStats });
     }
 }

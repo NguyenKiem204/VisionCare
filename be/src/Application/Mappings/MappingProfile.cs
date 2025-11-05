@@ -16,6 +16,9 @@ using VisionCare.Application.DTOs.SlotDto;
 using VisionCare.Application.DTOs.SpecializationDto;
 using VisionCare.Application.DTOs.StaffDto;
 using VisionCare.Application.DTOs.User;
+using VisionCare.Application.DTOs.RoomDto;
+using VisionCare.Application.DTOs.WorkShiftDto;
+using VisionCare.Application.DTOs.DoctorScheduleDto;
 using VisionCare.Domain.Entities;
 
 namespace VisionCare.Application.Mappings;
@@ -357,6 +360,21 @@ public class MappingProfile : Profile
 
         CreateMap<CreateFeedbackServiceRequest, VisionCare.Domain.Entities.FeedbackService>();
         CreateMap<UpdateFeedbackServiceRequest, VisionCare.Domain.Entities.FeedbackService>();
+
+        // Room mappings
+        CreateMap<Room, RoomDto>();
+        CreateMap<CreateRoomRequest, Room>();
+        CreateMap<UpdateRoomRequest, Room>();
+
+        // WorkShift mappings
+        CreateMap<WorkShift, WorkShiftDto>();
+        CreateMap<CreateWorkShiftRequest, WorkShift>();
+        CreateMap<UpdateWorkShiftRequest, WorkShift>();
+
+        // DoctorSchedule mappings
+        CreateMap<DoctorSchedule, DoctorScheduleDto>();
+        CreateMap<CreateDoctorScheduleRequest, DoctorSchedule>();
+        CreateMap<UpdateDoctorScheduleRequest, DoctorSchedule>();
 
         // Infrastructure mappings are defined in Infrastructure layer
     }

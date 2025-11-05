@@ -17,9 +17,7 @@ public class AppointmentsController : ControllerBase
         _appointmentService = appointmentService;
     }
 
-    /// <summary>
-    /// Get all appointments
-    /// </summary>
+
     [HttpGet]
     [Authorize(Policy = "StaffOrAdmin")]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointments()
@@ -28,9 +26,6 @@ public class AppointmentsController : ControllerBase
         return Ok(ApiResponse<IEnumerable<AppointmentDto>>.Ok(appointments));
     }
 
-    /// <summary>
-    /// Search appointments with filters
-    /// </summary>
     [HttpGet("search")]
     [Authorize(Policy = "StaffOrAdmin")]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> SearchAppointments(
@@ -61,9 +56,6 @@ public class AppointmentsController : ControllerBase
         return Ok(PagedResponse<AppointmentDto>.Ok(result.items, result.totalCount, page, pageSize));
     }
 
-    /// <summary>
-    /// Get appointment by ID
-    /// </summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<AppointmentDto>> GetAppointment(int id)
     {
@@ -75,9 +67,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointment);
     }
 
-    /// <summary>
-    /// Create a new appointment
-    /// </summary>
     [HttpPost]
     public async Task<ActionResult<AppointmentDto>> CreateAppointment(
         CreateAppointmentRequest request
@@ -87,9 +76,6 @@ public class AppointmentsController : ControllerBase
         return CreatedAtAction(nameof(GetAppointment), new { id = appointment.Id }, appointment);
     }
 
-    /// <summary>
-    /// Update appointment
-    /// </summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<AppointmentDto>> UpdateAppointment(
         int id,
@@ -100,9 +86,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointment);
     }
 
-    /// <summary>
-    /// Delete appointment
-    /// </summary>
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAppointment(int id)
     {
@@ -114,9 +97,6 @@ public class AppointmentsController : ControllerBase
         return NoContent();
     }
 
-    /// <summary>
-    /// Get appointments by doctor
-    /// </summary>
     [HttpGet("doctor/{doctorId}")]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointmentsByDoctor(
         int doctorId,
@@ -127,9 +107,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointments);
     }
 
-    /// <summary>
-    /// Get appointments by customer
-    /// </summary>
     [HttpGet("customer/{customerId}")]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointmentsByCustomer(
         int customerId,
@@ -143,9 +120,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointments);
     }
 
-    /// <summary>
-    /// Get appointments by date
-    /// </summary>
     [HttpGet("date/{date}")]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointmentsByDate(
         DateTime date
@@ -155,9 +129,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointments);
     }
 
-    /// <summary>
-    /// Get appointments by date range
-    /// </summary>
     [HttpGet("date-range")]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointmentsByDateRange(
         [FromQuery] DateTime startDate,
@@ -171,9 +142,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointments);
     }
 
-    /// <summary>
-    /// Get upcoming appointments
-    /// </summary>
     [HttpGet("upcoming")]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetUpcomingAppointments(
         [FromQuery] int? doctorId = null,
@@ -187,9 +155,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointments);
     }
 
-    /// <summary>
-    /// Confirm appointment
-    /// </summary>
     [HttpPut("{id}/confirm")]
     public async Task<ActionResult<AppointmentDto>> ConfirmAppointment(int id)
     {
@@ -197,9 +162,7 @@ public class AppointmentsController : ControllerBase
         return Ok(appointment);
     }
 
-    /// <summary>
-    /// Cancel appointment
-    /// </summary>
+  
     [HttpPut("{id}/cancel")]
     public async Task<ActionResult<AppointmentDto>> CancelAppointment(
         int id,
@@ -210,9 +173,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointment);
     }
 
-    /// <summary>
-    /// Complete appointment
-    /// </summary>
     [HttpPut("{id}/complete")]
     public async Task<ActionResult<AppointmentDto>> CompleteAppointment(
         int id,
@@ -223,9 +183,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointment);
     }
 
-    /// <summary>
-    /// Reschedule appointment
-    /// </summary>
     [HttpPut("{id}/reschedule")]
     public async Task<ActionResult<AppointmentDto>> RescheduleAppointment(
         int id,
@@ -236,9 +193,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointment);
     }
 
-    /// <summary>
-    /// Check if doctor is available
-    /// </summary>
     [HttpGet("availability")]
     public async Task<ActionResult<bool>> CheckDoctorAvailability(
         [FromQuery] int doctorId,
@@ -249,9 +203,6 @@ public class AppointmentsController : ControllerBase
         return Ok(isAvailable);
     }
 
-    /// <summary>
-    /// Get available time slots for a doctor on a specific date
-    /// </summary>
     [HttpGet("available-slots")]
     public async Task<ActionResult<IEnumerable<DateTime>>> GetAvailableTimeSlots(
         [FromQuery] int doctorId,
@@ -262,9 +213,6 @@ public class AppointmentsController : ControllerBase
         return Ok(slots);
     }
 
-    /// <summary>
-    /// Get overdue appointments
-    /// </summary>
     [HttpGet("overdue")]
     public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetOverdueAppointments()
     {
@@ -272,9 +220,6 @@ public class AppointmentsController : ControllerBase
         return Ok(appointments);
     }
 
-    /// <summary>
-    /// Get appointment statistics
-    /// </summary>
     [HttpGet("statistics")]
     public async Task<ActionResult<object>> GetAppointmentStatistics()
     {

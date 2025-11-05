@@ -31,7 +31,9 @@ public class MedicalHistoryController : ControllerBase
         var medicalHistory = await _medicalHistoryService.GetMedicalHistoryByIdAsync(id);
         if (medicalHistory == null)
         {
-            return NotFound(ApiResponse<MedicalHistoryDto>.Fail($"Medical history with ID {id} not found."));
+            return NotFound(
+                ApiResponse<MedicalHistoryDto>.Fail($"Medical history with ID {id} not found.")
+            );
         }
         return Ok(ApiResponse<MedicalHistoryDto>.Ok(medicalHistory));
     }
@@ -39,10 +41,16 @@ public class MedicalHistoryController : ControllerBase
     [HttpGet("appointment/{appointmentId}")]
     public async Task<IActionResult> GetMedicalHistoryByAppointment(int appointmentId)
     {
-        var medicalHistory = await _medicalHistoryService.GetMedicalHistoryByAppointmentIdAsync(appointmentId);
+        var medicalHistory = await _medicalHistoryService.GetMedicalHistoryByAppointmentIdAsync(
+            appointmentId
+        );
         if (medicalHistory == null)
         {
-            return NotFound(ApiResponse<MedicalHistoryDto>.Fail($"Medical history for appointment {appointmentId} not found."));
+            return NotFound(
+                ApiResponse<MedicalHistoryDto>.Fail(
+                    $"Medical history for appointment {appointmentId} not found."
+                )
+            );
         }
         return Ok(ApiResponse<MedicalHistoryDto>.Ok(medicalHistory));
     }
@@ -50,14 +58,18 @@ public class MedicalHistoryController : ControllerBase
     [HttpGet("patient/{patientId}")]
     public async Task<IActionResult> GetMedicalHistoriesByPatient(int patientId)
     {
-        var medicalHistories = await _medicalHistoryService.GetMedicalHistoriesByPatientIdAsync(patientId);
+        var medicalHistories = await _medicalHistoryService.GetMedicalHistoriesByPatientIdAsync(
+            patientId
+        );
         return Ok(ApiResponse<IEnumerable<MedicalHistoryDto>>.Ok(medicalHistories));
     }
 
     [HttpGet("doctor/{doctorId}")]
     public async Task<IActionResult> GetMedicalHistoriesByDoctor(int doctorId)
     {
-        var medicalHistories = await _medicalHistoryService.GetMedicalHistoriesByDoctorIdAsync(doctorId);
+        var medicalHistories = await _medicalHistoryService.GetMedicalHistoriesByDoctorIdAsync(
+            doctorId
+        );
         return Ok(ApiResponse<IEnumerable<MedicalHistoryDto>>.Ok(medicalHistories));
     }
 
@@ -84,22 +96,33 @@ public class MedicalHistoryController : ControllerBase
             Page = page,
             PageSize = pageSize,
             SortBy = sortBy,
-            Desc = desc
+            Desc = desc,
         };
 
         var result = await _medicalHistoryService.SearchMedicalHistoriesAsync(request);
-        return Ok(PagedResponse<MedicalHistoryDto>.Ok(result.items, result.totalCount, page, pageSize));
+        return Ok(
+            PagedResponse<MedicalHistoryDto>.Ok(result.items, result.totalCount, page, pageSize)
+        );
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateMedicalHistory([FromBody] CreateMedicalHistoryRequest request)
+    public async Task<IActionResult> CreateMedicalHistory(
+        [FromBody] CreateMedicalHistoryRequest request
+    )
     {
         var medicalHistory = await _medicalHistoryService.CreateMedicalHistoryAsync(request);
-        return CreatedAtAction(nameof(GetMedicalHistoryById), new { id = medicalHistory.Id }, ApiResponse<MedicalHistoryDto>.Ok(medicalHistory));
+        return CreatedAtAction(
+            nameof(GetMedicalHistoryById),
+            new { id = medicalHistory.Id },
+            ApiResponse<MedicalHistoryDto>.Ok(medicalHistory)
+        );
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateMedicalHistory(int id, [FromBody] UpdateMedicalHistoryRequest request)
+    public async Task<IActionResult> UpdateMedicalHistory(
+        int id,
+        [FromBody] UpdateMedicalHistoryRequest request
+    )
     {
         var medicalHistory = await _medicalHistoryService.UpdateMedicalHistoryAsync(id, request);
         return Ok(ApiResponse<MedicalHistoryDto>.Ok(medicalHistory));
@@ -111,7 +134,9 @@ public class MedicalHistoryController : ControllerBase
         var result = await _medicalHistoryService.DeleteMedicalHistoryAsync(id);
         if (!result)
         {
-            return NotFound(ApiResponse<MedicalHistoryDto>.Fail($"Medical history with ID {id} not found."));
+            return NotFound(
+                ApiResponse<MedicalHistoryDto>.Fail($"Medical history with ID {id} not found.")
+            );
         }
         return Ok(ApiResponse<MedicalHistoryDto>.Ok(null, "Medical history deleted successfully"));
     }

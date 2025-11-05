@@ -95,8 +95,14 @@ public class ServiceTypeRepository : IServiceTypeRepository
         };
 
         var totalCount = await query.CountAsync();
+        
+        // Ensure page is at least 1 to avoid negative OFFSET
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        
+        var skip = (page - 1) * pageSize;
         var items = await query
-            .Skip((page - 1) * pageSize)
+            .Skip(skip)
             .Take(pageSize)
             .ToListAsync();
 

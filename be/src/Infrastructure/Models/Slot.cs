@@ -16,4 +16,6 @@ public partial class Slot
     public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
     public virtual Servicestype ServiceType { get; set; } = null!;
+
+    public virtual ICollection<Weeklyschedule> Weeklyschedules { get; set; } = new List<Weeklyschedule>();
 }

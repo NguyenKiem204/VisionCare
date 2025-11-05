@@ -44,7 +44,6 @@ public class AuthService : IAuthService
 
     public async Task<TokenResponse> RefreshTokenAsync(string refreshToken, string ipAddress)
     {
-        // Get recent valid tokens only (last 100) to limit BCrypt verification
         var validTokens = await _db
             .Refreshtokens.Where(t => t.RevokedAt == null && t.ExpiresAt > DateTime.Now)
             .OrderByDescending(t => t.CreatedAt)
@@ -57,24 +56,20 @@ public class AuthService : IAuthService
             })
             .ToListAsync();
 
-        // Find the matching token using BCrypt verification
         var tokenMatch = validTokens.FirstOrDefault(t => Bcrypt.Verify(refreshToken, t.TokenHash));
         if (tokenMatch == null)
         {
             throw new UnauthorizedAccessException("Invalid refresh token");
         }
 
-        // Get the full token entity for revocation
         var token = await _db.Refreshtokens.FindAsync(tokenMatch.TokenId);
 
         var account = await _db
             .Accounts.Include(a => a.Role)
             .FirstAsync(a => a.AccountId == tokenMatch.AccountId);
 
-        // revoke old token
         token!.RevokedAt = DateTime.Now;
 
-        // Clean up old expired tokens (keep only last 50 per account)
         var oldTokens = await _db
             .Refreshtokens.Where(t =>
                 t.AccountId == tokenMatch.AccountId
@@ -96,11 +91,10 @@ public class AuthService : IAuthService
 
     public async Task RevokeTokenAsync(string refreshToken, string ipAddress)
     {
-        // Get recent non-revoked tokens (limit to reduce BCrypt.Verify calls)
         var validTokens = await _db
             .Refreshtokens.Where(t => t.RevokedAt == null)
-            .OrderByDescending(t => t.CreatedAt) // Most recent first
-            .Take(50) // Limit to 50 most recent tokens
+            .OrderByDescending(t => t.CreatedAt)
+            .Take(50)
             .Select(t => new { t.TokenId, t.TokenHash })
             .ToListAsync();
 
@@ -118,7 +112,6 @@ public class AuthService : IAuthService
 
     public async Task<UserDto> RegisterAsync(RegisterRequest request)
     {
-        // minimal working registration: create Account with hashed password and default role (Customer = 4)
         if (await _db.Accounts.AnyAsync(a => a.Email == request.Email))
         {
             throw new InvalidOperationException("Email already exists");
@@ -238,7 +231,6 @@ public class AuthService : IAuthService
 
     public async Task<UserDto?> GetUserFromTokenAsync(string token)
     {
-        // Not implemented without full claim parsing service; return null for now
         return await Task.FromResult<UserDto?>(null);
     }
 

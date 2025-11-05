@@ -3,6 +3,7 @@ using VisionCare.Application.DTOs.DoctorDto;
 using VisionCare.Application.Exceptions;
 using VisionCare.Application.Interfaces;
 using VisionCare.Application.Interfaces.Doctors;
+using VisionCare.Application.Interfaces.Services;
 using VisionCare.Domain.Entities;
 
 namespace VisionCare.Application.Services.Doctors;
@@ -11,16 +12,19 @@ public class DoctorService : IDoctorService
 {
     private readonly IDoctorRepository _doctorRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IServiceDetailRepository _serviceDetailRepository;
     private readonly IMapper _mapper;
 
     public DoctorService(
         IDoctorRepository doctorRepository,
         IUserRepository userRepository,
+        IServiceDetailRepository serviceDetailRepository,
         IMapper mapper
     )
     {
         _doctorRepository = doctorRepository;
         _userRepository = userRepository;
+        _serviceDetailRepository = serviceDetailRepository;
         _mapper = mapper;
     }
 
@@ -91,6 +95,21 @@ public class DoctorService : IDoctorService
     public async Task<IEnumerable<DoctorDto>> GetDoctorsBySpecializationAsync(int specializationId)
     {
         var doctors = await _doctorRepository.GetBySpecializationAsync(specializationId);
+        return _mapper.Map<IEnumerable<DoctorDto>>(doctors);
+    }
+
+    public async Task<IEnumerable<DoctorDto>> GetDoctorsByServiceAsync(int serviceDetailId)
+    {
+        // Get service detail to find its specialization
+        var serviceDetail = await _serviceDetailRepository.GetByIdAsync(serviceDetailId);
+        
+        if (serviceDetail == null || serviceDetail.Service == null || !serviceDetail.Service.SpecializationId.HasValue)
+        {
+            return Enumerable.Empty<DoctorDto>();
+        }
+
+        // Get doctors with same specialization as the service
+        var doctors = await _doctorRepository.GetBySpecializationAsync(serviceDetail.Service.SpecializationId.Value);
         return _mapper.Map<IEnumerable<DoctorDto>>(doctors);
     }
 

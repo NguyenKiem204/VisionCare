@@ -21,8 +21,13 @@ DROP TABLE IF EXISTS OTPServices CASCADE;
 DROP TABLE IF EXISTS MedicalHistory CASCADE;
 DROP TABLE IF EXISTS Appointment CASCADE;
 DROP TABLE IF EXISTS Staff CASCADE;
+DROP TABLE IF EXISTS DoctorAbsence CASCADE;
+DROP TABLE IF EXISTS DoctorSchedule CASCADE;
+DROP TABLE IF EXISTS WeeklySchedule CASCADE;
 DROP TABLE IF EXISTS Schedules CASCADE;
 DROP TABLE IF EXISTS Slots CASCADE;
+DROP TABLE IF EXISTS WorkShift CASCADE;
+DROP TABLE IF EXISTS Rooms CASCADE;
 DROP TABLE IF EXISTS ServicesDetail CASCADE;
 DROP TABLE IF EXISTS Services CASCADE;
 DROP TABLE IF EXISTS ServicesType CASCADE;
@@ -296,6 +301,48 @@ CREATE TABLE ImagesService (
     FOREIGN KEY (service_id) REFERENCES Services(service_id) ON DELETE CASCADE
 );
 
+-- Resources Management
+CREATE TABLE Rooms (
+    room_id SERIAL PRIMARY KEY,
+    room_name VARCHAR(100) NOT NULL UNIQUE,
+    room_code VARCHAR(20) UNIQUE,
+    capacity INTEGER DEFAULT 1,
+    status VARCHAR(20) DEFAULT 'Active', -- Active, Maintenance, Inactive
+    location VARCHAR(255),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Work Shift Management
+CREATE TABLE WorkShift (
+    shift_id SERIAL PRIMARY KEY,
+    shift_name VARCHAR(100) NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    CHECK (end_time > start_time)
+);
+
+-- Equipment Management
+CREATE TABLE Equipment (
+    equipment_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    model VARCHAR(255),
+    serial_number VARCHAR(255),
+    manufacturer VARCHAR(255),
+    purchase_date DATE,
+    last_maintenance_date DATE,
+    status VARCHAR(50) DEFAULT 'Active', -- Active, Maintenance, Broken
+    location VARCHAR(255),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
 -- Scheduling System
 CREATE TABLE Slots (
     slot_id SERIAL PRIMARY KEY,
@@ -312,11 +359,70 @@ CREATE TABLE Schedules (
     doctor_id INTEGER NOT NULL,
     slot_id INTEGER NOT NULL,
     schedule_date DATE NOT NULL,
-    status VARCHAR(20) DEFAULT 'Available', -- Available, Booked, Unavailable
+    status VARCHAR(20) DEFAULT 'Available', -- Available, Booked, Unavailable, Blocked
+    room_id INTEGER,
+    equipment_id INTEGER,
     
     FOREIGN KEY (doctor_id) REFERENCES Doctors(account_id) ON DELETE CASCADE,
     FOREIGN KEY (slot_id) REFERENCES Slots(slot_id),
+    FOREIGN KEY (room_id) REFERENCES Rooms(room_id),
+    FOREIGN KEY (equipment_id) REFERENCES Equipment(equipment_id),
     UNIQUE (doctor_id, slot_id, schedule_date)
+);
+
+-- Weekly Schedule Template (for recurring schedules)
+CREATE TABLE WeeklySchedule (
+    weekly_schedule_id SERIAL PRIMARY KEY,
+    doctor_id INTEGER NOT NULL,
+    day_of_week INTEGER NOT NULL, -- 0=Sunday, 1=Monday, 2=Tuesday, etc.
+    slot_id INTEGER NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(account_id) ON DELETE CASCADE,
+    FOREIGN KEY (slot_id) REFERENCES Slots(slot_id),
+    UNIQUE (doctor_id, day_of_week, slot_id)
+);
+
+-- Doctor Schedule with Recurrence (New flexible scheduling)
+CREATE TABLE DoctorSchedule (
+    doctor_schedule_id SERIAL PRIMARY KEY,
+    doctor_id INTEGER NOT NULL,
+    shift_id INTEGER NOT NULL,
+    room_id INTEGER,
+    equipment_id INTEGER,
+    start_date DATE NOT NULL,
+    end_date DATE, -- NULL = no end date
+    day_of_week INTEGER, -- 1=Monday, 2=Tuesday, ..., 7=Sunday, NULL = all days
+    recurrence_rule VARCHAR(50) DEFAULT 'WEEKLY', -- 'DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM'
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(account_id) ON DELETE CASCADE,
+    FOREIGN KEY (shift_id) REFERENCES WorkShift(shift_id),
+    FOREIGN KEY (room_id) REFERENCES Rooms(room_id),
+    FOREIGN KEY (equipment_id) REFERENCES Equipment(equipment_id),
+    CHECK (end_date IS NULL OR end_date >= start_date),
+    CHECK (day_of_week IS NULL OR (day_of_week >= 1 AND day_of_week <= 7))
+);
+
+-- Doctor Absence/Leave Management
+CREATE TABLE DoctorAbsence (
+    absence_id SERIAL PRIMARY KEY,
+    doctor_id INTEGER NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    absence_type VARCHAR(50) DEFAULT 'Leave', -- Leave, Emergency, Sick, Other
+    reason TEXT,
+    status VARCHAR(20) DEFAULT 'Pending', -- Pending, Approved, Rejected
+    is_resolved BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (doctor_id) REFERENCES Doctors(account_id) ON DELETE CASCADE,
+    CHECK (end_date >= start_date)
 );
 
 -- Appointment & Medical Records
@@ -328,6 +434,8 @@ CREATE TABLE Appointment (
     discount_id INTEGER,
     appointment_datetime TIMESTAMP NOT NULL,
     status VARCHAR(30) DEFAULT 'Scheduled', -- Scheduled, Completed, Cancelled, No_Show
+    appointment_code VARCHAR(20) UNIQUE, -- Format: VC-YYYYMMDD-XXXXXX
+    payment_status VARCHAR(30) DEFAULT 'Unpaid', -- Unpaid, Pending, Paid, Failed, Refunding, Refunded
     actual_cost DECIMAL(10,2),
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -339,6 +447,8 @@ CREATE TABLE Appointment (
     FOREIGN KEY (discount_id) REFERENCES Discount(discount_id),
     FOREIGN KEY (created_by) REFERENCES Accounts(account_id)
 );
+
+CREATE INDEX idx_appointment_code ON Appointment(appointment_code);
 
 CREATE TABLE MedicalHistory (
     medical_history_id SERIAL PRIMARY KEY,
@@ -368,19 +478,86 @@ CREATE TABLE FollowUp (
     FOREIGN KEY (appointment_id) REFERENCES Appointment(appointment_id) ON DELETE CASCADE
 );
 
+-- EHR: Encounters, Prescriptions, Orders
+CREATE TABLE IF NOT EXISTS Encounters (
+    encounter_id SERIAL PRIMARY KEY,
+    appointment_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    customer_id INT NOT NULL,
+    subjective TEXT,
+    objective TEXT,
+    assessment TEXT,
+    plan TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'Draft', -- Draft|Signed
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NULL,
+    CONSTRAINT fk_encounter_appointment FOREIGN KEY (appointment_id) REFERENCES Appointment(appointment_id) ON DELETE CASCADE,
+    CONSTRAINT fk_encounter_doctor FOREIGN KEY (doctor_id) REFERENCES Doctors(account_id) ON DELETE RESTRICT,
+    CONSTRAINT fk_encounter_customer FOREIGN KEY (customer_id) REFERENCES Customers(account_id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_encounters_doctor ON Encounters(doctor_id);
+CREATE INDEX IF NOT EXISTS idx_encounters_appointment ON Encounters(appointment_id);
+
+CREATE TABLE IF NOT EXISTS Prescriptions (
+    prescription_id SERIAL PRIMARY KEY,
+    encounter_id INT NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NULL,
+    CONSTRAINT fk_prescription_encounter FOREIGN KEY (encounter_id) REFERENCES Encounters(encounter_id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_prescriptions_encounter ON Prescriptions(encounter_id);
+
+CREATE TABLE IF NOT EXISTS PrescriptionLines (
+    line_id SERIAL PRIMARY KEY,
+    prescription_id INT NOT NULL,
+    drug_code VARCHAR(100) NULL,
+    drug_name VARCHAR(255) NOT NULL,
+    dosage VARCHAR(100) NULL,
+    frequency VARCHAR(100) NULL,
+    duration VARCHAR(100) NULL,
+    instructions TEXT NULL,
+    CONSTRAINT fk_line_prescription FOREIGN KEY (prescription_id) REFERENCES Prescriptions(prescription_id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_lines_prescription ON PrescriptionLines(prescription_id);
+
+CREATE TABLE IF NOT EXISTS Orders (
+    order_id SERIAL PRIMARY KEY,
+    encounter_id INT NOT NULL,
+    order_type VARCHAR(50) NOT NULL, -- Test|Procedure
+    name VARCHAR(255) NOT NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'Requested', -- Requested|InProgress|Completed|Canceled
+    result_url TEXT NULL,
+    notes TEXT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NULL,
+    CONSTRAINT fk_order_encounter FOREIGN KEY (encounter_id) REFERENCES Encounters(encounter_id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_orders_encounter ON Orders(encounter_id);
+
 -- Payment System
 CREATE TABLE CheckOut (
     checkout_id SERIAL PRIMARY KEY,
     appointment_id INTEGER NOT NULL,
-    transaction_type VARCHAR(50), -- Cash, Card, Transfer, Insurance
+    transaction_type VARCHAR(50) DEFAULT 'VNPay', -- VNPay (chỉ thanh toán online)
     transaction_status VARCHAR(30), -- Pending, Completed, Failed, Refunded
     total_amount DECIMAL(10,2) NOT NULL,
     transaction_code VARCHAR(100),
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     notes TEXT,
+    payment_gateway VARCHAR(50), -- VNPay, MoMo, Stripe
+    gateway_transaction_id VARCHAR(255),
+    gateway_response JSONB, -- Full response từ gateway
+    refund_requested_at TIMESTAMP,
+    refund_completed_at TIMESTAMP,
+    refund_amount DECIMAL(10,2),
+    refund_reason TEXT,
     
     FOREIGN KEY (appointment_id) REFERENCES Appointment(appointment_id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_checkout_gateway_txn ON CheckOut(gateway_transaction_id);
+CREATE INDEX idx_checkout_status ON CheckOut(transaction_status);
 
 -- Feedback System
 CREATE TABLE FeedbackService (
@@ -476,22 +653,6 @@ CREATE TABLE Machine (
     status VARCHAR(20) DEFAULT 'Active'
 );
 
--- Equipment Management
-CREATE TABLE Equipment (
-    equipment_id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    model VARCHAR(255),
-    serial_number VARCHAR(255),
-    manufacturer VARCHAR(255),
-    purchase_date DATE,
-    last_maintenance_date DATE,
-    status VARCHAR(50) DEFAULT 'Active', -- Active, Maintenance, Broken
-    location VARCHAR(255),
-    notes TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP
-);
-
 CREATE TABLE SectionContent (
     section_key VARCHAR(100) PRIMARY KEY, -- (hero_slider, why_us, about, background_image...)
     content TEXT,           -- HTML hoặc JSON hoặc text, tùy section
@@ -522,6 +683,22 @@ CREATE INDEX idx_appointments_patient ON Appointment(patient_id);
 CREATE INDEX idx_appointments_doctor ON Appointment(doctor_id);
 CREATE INDEX idx_appointments_datetime ON Appointment(appointment_datetime);
 CREATE INDEX idx_appointments_status ON Appointment(status);
+
+-- Scheduling indexes
+CREATE INDEX idx_schedules_doctor ON Schedules(doctor_id);
+CREATE INDEX idx_schedules_date ON Schedules(schedule_date);
+CREATE INDEX idx_schedules_status ON Schedules(status);
+CREATE INDEX idx_schedules_room ON Schedules(room_id) WHERE room_id IS NOT NULL;
+CREATE INDEX idx_schedules_equipment ON Schedules(equipment_id) WHERE equipment_id IS NOT NULL;
+CREATE INDEX idx_weekly_schedules_doctor ON WeeklySchedule(doctor_id);
+CREATE INDEX idx_doctor_schedules_doctor ON DoctorSchedule(doctor_id);
+CREATE INDEX idx_doctor_schedules_shift ON DoctorSchedule(shift_id);
+CREATE INDEX idx_doctor_schedules_active ON DoctorSchedule(is_active) WHERE is_active = true;
+CREATE INDEX idx_doctor_absence_doctor ON DoctorAbsence(doctor_id);
+CREATE INDEX idx_doctor_absence_status ON DoctorAbsence(status);
+CREATE INDEX idx_doctor_absence_dates ON DoctorAbsence(start_date, end_date);
+CREATE INDEX idx_rooms_status ON Rooms(status);
+CREATE INDEX idx_work_shift_active ON WorkShift(is_active) WHERE is_active = true;
 CREATE INDEX idx_schedules_doctor_date ON Schedules(doctor_id, schedule_date);
 CREATE INDEX idx_medical_history_appointment ON MedicalHistory(appointment_id);
 
@@ -563,7 +740,6 @@ CREATE INDEX idx_feedback_doctor_appointment ON FeedbackDoctor(appointment_id);
 
 -- Payment indexes
 CREATE INDEX idx_checkout_appointment ON CheckOut(appointment_id);
-CREATE INDEX idx_checkout_status ON CheckOut(transaction_status);
 
 -- Audit indexes
 CREATE INDEX idx_audit_account ON AuditLogs(account_id);

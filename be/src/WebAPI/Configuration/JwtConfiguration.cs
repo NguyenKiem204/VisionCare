@@ -23,8 +23,21 @@ public static class JwtConfiguration
             ClockSkew = TimeSpan.Zero,
         };
 
-        // Custom events
-        options.Events = new JwtBearerEvents { OnChallenge = HandleUnauthorized };
+        // Custom events (support SignalR access_token on query string)
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = HandleUnauthorized,
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"].ToString();
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/booking"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     }
 
     private static async Task HandleUnauthorized(JwtBearerChallengeContext context)

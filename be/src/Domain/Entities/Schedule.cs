@@ -8,10 +8,14 @@ public class Schedule : BaseEntity
     public DateOnly ScheduleDate { get; set; }
     public int SlotId { get; set; }
     public string Status { get; set; } = "Available";
+    public int? RoomId { get; set; }
+    public int? EquipmentId { get; set; }
 
     // Navigation properties
     public Doctor Doctor { get; set; } = null!;
     public Slot Slot { get; set; } = null!;
+    public Room? Room { get; set; }
+    public Equipment? Equipment { get; set; }
 
     // Domain methods
     public void MarkAsBooked()

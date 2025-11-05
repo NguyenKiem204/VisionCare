@@ -73,6 +73,12 @@ export const getDoctorsBySpecialization = async (specializationId) => {
   return response;
 };
 
+// Get doctors by service (serviceDetailId)
+export const getDoctorsByService = async (serviceDetailId) => {
+  const response = await api.get(`/doctors/service/${serviceDetailId}`);
+  return response;
+};
+
 // Get available doctors
 export const getAvailableDoctors = async (date) => {
   const response = await api.get(`/doctors/available?date=${date}`);

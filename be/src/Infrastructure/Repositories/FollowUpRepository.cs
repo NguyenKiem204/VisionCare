@@ -213,7 +213,7 @@ public class FollowUpRepository : IFollowUpRepository
                                     CustomerName =
                                         model.Appointment.Patient.FullName ?? string.Empty,
                                 }
-                                : null,
+                                : null!,
                         Doctor =
                             model.Appointment.Doctor != null
                                 ? new Doctor
@@ -221,9 +221,9 @@ public class FollowUpRepository : IFollowUpRepository
                                     Id = model.Appointment.Doctor.AccountId,
                                     DoctorName = model.Appointment.Doctor.FullName ?? string.Empty,
                                 }
-                                : null,
+                                : null!,
                     }
-                    : null,
+                    : null!,
         };
     }
 

@@ -23,7 +23,9 @@ public class DoctorCertificatesController : ControllerBase
     }
 
     [HttpGet("doctor/{doctorId}")]
-    public async Task<ActionResult<IEnumerable<DoctorCertificateDto>>> GetCertificatesByDoctor(int doctorId)
+    public async Task<ActionResult<IEnumerable<DoctorCertificateDto>>> GetCertificatesByDoctor(
+        int doctorId
+    )
     {
         var certificates = await _doctorCertificateService.GetCertificatesByDoctorAsync(doctorId);
         return Ok(certificates);
@@ -41,16 +43,30 @@ public class DoctorCertificatesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<DoctorCertificateDto>> CreateDoctorCertificate(CreateDoctorCertificateRequest request)
+    public async Task<ActionResult<DoctorCertificateDto>> CreateDoctorCertificate(
+        CreateDoctorCertificateRequest request
+    )
     {
-        var doctorCertificate = await _doctorCertificateService.CreateDoctorCertificateAsync(request);
-        return CreatedAtAction(nameof(GetDoctorCertificate), new { id = doctorCertificate.Id }, doctorCertificate);
+        var doctorCertificate = await _doctorCertificateService.CreateDoctorCertificateAsync(
+            request
+        );
+        return CreatedAtAction(
+            nameof(GetDoctorCertificate),
+            new { id = doctorCertificate.Id },
+            doctorCertificate
+        );
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<DoctorCertificateDto>> UpdateDoctorCertificate(int id, UpdateDoctorCertificateRequest request)
+    public async Task<ActionResult<DoctorCertificateDto>> UpdateDoctorCertificate(
+        int id,
+        UpdateDoctorCertificateRequest request
+    )
     {
-        var doctorCertificate = await _doctorCertificateService.UpdateDoctorCertificateAsync(id, request);
+        var doctorCertificate = await _doctorCertificateService.UpdateDoctorCertificateAsync(
+            id,
+            request
+        );
         return Ok(doctorCertificate);
     }
 

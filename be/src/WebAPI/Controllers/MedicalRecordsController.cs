@@ -123,7 +123,14 @@ public class MedicalRecordsController : ControllerBase
     )
     {
         var result = await _medicalHistoryService.SearchMedicalHistoriesAsync(request);
-        return Ok(PagedResponse<MedicalHistoryDto>.Ok(result.items, result.totalCount, request.Page, request.PageSize));
+        return Ok(
+            PagedResponse<MedicalHistoryDto>.Ok(
+                result.items,
+                result.totalCount,
+                request.Page,
+                request.PageSize
+            )
+        );
     }
 
     [HttpGet("count")]

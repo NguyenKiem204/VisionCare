@@ -52,16 +52,16 @@ const AboutSection = () => {
     <section id="about-section" className="py-16 bg-white">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch mb-16">
           {/* Left - Image */}
-          <div className={`transition-all duration-1000 ${
+          <div className={`transition-all duration-1000 h-full ${
             isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
           }`}>
-            <div className="relative">
+            <div className="relative h-full lg:h-[460px]">
               <img
-                src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                src="https://plus.unsplash.com/premium_photo-1677410176369-76ec12f34cf1?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80"
                 alt="Bác sĩ khám mắt"
-                className="w-full h-auto rounded-lg shadow-xl"
+                className="w-full h-full object-cover rounded-lg shadow-xl"
               />
               {/* Floating Card - Bottom Left */}
               <div className="absolute -bottom-6 -left-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-5 shadow-2xl">
@@ -79,7 +79,7 @@ const AboutSection = () => {
           </div>
 
           {/* Right - Content */}
-          <div className={`transition-all duration-1000 ${
+          <div className={`transition-all duration-1000 h-full ${
             isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
           }`}>
             <p className="text-yellow-500 text-xs font-semibold uppercase tracking-wide mb-3">
@@ -123,11 +123,11 @@ const AboutSection = () => {
             </div>
 
             {/* CTA Button */}
-            <div className="mt-8">
+            {/* <div className="mt-8">
               <a href="/#doctors-section" className="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white text-sm font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg uppercase">
                 <span>→ XEM THÊM</span>
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

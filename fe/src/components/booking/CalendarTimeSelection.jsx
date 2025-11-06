@@ -347,30 +347,30 @@ const CalendarTimeSelection = ({ data, update, next, back, holdSlot }) => {
 
       {/* Calendar */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3">
           <button
             onClick={() => navigateMonth(-1)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
-          <h4 className="text-xl font-semibold">
+          <h4 className="text-lg font-semibold">
             {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </h4>
           <button
             onClick={() => navigateMonth(1)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
         {/* Day names */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
+        <div className="grid grid-cols-7 gap-1 mb-1">
           {dayNames.map((day) => (
             <div
               key={day}
-              className="text-center text-sm font-semibold text-gray-600 py-2"
+              className="text-center text-xs font-medium text-gray-500 py-1.5"
             >
               {day}
             </div>
@@ -391,16 +391,16 @@ const CalendarTimeSelection = ({ data, update, next, back, holdSlot }) => {
                 onClick={() => !isDatePast && handleDateSelect(date)}
                 disabled={isDatePast}
                 className={`
-                  aspect-square rounded-lg border-2 transition-all text-sm font-medium
+                  h-9 md:h-10 lg:h-10 w-full rounded-md border transition-colors text-[13px] font-medium grid place-items-center
                   ${
                     isDatePast
-                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                      ? "bg-gray-50 text-gray-400 border-gray-100 cursor-not-allowed"
                       : isDateSelected
-                      ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                      ? "bg-blue-600 text-white border-blue-600 shadow"
                       : isDateToday
-                      ? "bg-blue-50 text-blue-600 border-blue-300 hover:border-blue-400"
+                      ? "bg-blue-50 text-blue-700 border-blue-200 hover:border-blue-300"
                       : isDateCurrentMonth
-                      ? "bg-white text-gray-900 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                      ? "bg-white text-gray-800 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
                       : "bg-gray-50 text-gray-400 border-gray-100"
                   }
                 `}
@@ -443,7 +443,7 @@ const CalendarTimeSelection = ({ data, update, next, back, holdSlot }) => {
               Không có slot khả dụng cho ngày này
             </p>
           ) : (
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
               {validStarts.map((slot) => {
                 const isSlotSelected = selectedSlot === slot.slotId;
                 // Check xem slot này có phải do mình hold không
@@ -462,15 +462,15 @@ const CalendarTimeSelection = ({ data, update, next, back, holdSlot }) => {
                     onClick={() => !isDisabled && handleSlotSelect(slot)}
                     disabled={isDisabled || holdingSlot}
                     className={`
-                      px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all
+                      px-3 py-2.5 rounded-lg border text-sm font-medium transition-colors
                       ${
                         isSlotSelected
-                          ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                          ? "bg-blue-600 text-white border-blue-600 shadow"
                           : isHeldByMe
-                          ? "bg-blue-50 text-blue-700 border-blue-300 hover:border-blue-500 hover:bg-blue-100 cursor-pointer"
+                          ? "bg-blue-50 text-blue-700 border-blue-300 hover:border-blue-400 hover:bg-blue-100 cursor-pointer"
                           : isDisabled
-                          ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                          : "bg-white text-gray-900 border-gray-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600"
+                          ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
+                          : "bg-white text-gray-800 border-gray-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700"
                       }
                     `}
                     title={

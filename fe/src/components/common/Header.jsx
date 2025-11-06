@@ -43,7 +43,7 @@ const Header = () => {
 
   const navigation = [
     { name: "TRANG CHỦ", href: "/" },
-    { name: "VỀ MẮT VisionCare", href: "/#about-section" },
+    { name: "VỀ MẮT VisionCare", href: "/about" },
     { name: "DỊCH VỤ", href: "/services" },
     { name: "ĐỘI NGŨ BÁC SĨ", href: "/#doctors-section" },
     { name: "TIN TỨC", href: "/#news-section" },

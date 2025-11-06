@@ -232,18 +232,18 @@ const Booking = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <section className="relative py-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Đặt Lịch Khám Online
-          </h1>
-          <p className="text-gray-600 mb-6">
-            Làm theo các bước để hoàn tất đặt lịch
-          </p>
-          {currentStep > 0 && <StepIndicator step={currentStep} />}
+    <div className="min-h-screen bg-white">
+      <section className="py-10">
+        <div className="mx-auto max-w-4xl px-6">
+          <h1 className="text-3xl md:text-4xl font-semibold text-gray-900">Đặt Lịch Khám Online</h1>
+          <p className="mt-2 text-sm text-gray-600">Làm theo các bước để hoàn tất đặt lịch</p>
+          {currentStep > 0 && (
+            <div className="mt-6">
+              <StepIndicator step={currentStep} />
+            </div>
+          )}
 
-          <div className="bg-white/85 backdrop-blur-sm rounded-2xl shadow p-6 md:p-8">
+          <div className="mt-6 rounded-2xl bg-white shadow p-6 md:p-8 border border-gray-100">
             {renderStep()}
           </div>
         </div>

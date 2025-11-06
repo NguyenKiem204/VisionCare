@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Services from "./pages/Services";
 import Equipment from "./pages/Equipment";
 import Contact from "./pages/Contact";
+import About from "./pages/About";
 import Booking from "./pages/Booking";
 import BookingStatus from "./pages/BookingStatus";
 import BookingPaymentCallback from "./pages/BookingPaymentCallback";
@@ -31,6 +32,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/*" element={<PublicLayout />}>
             <Route index element={<Home />} />
+            <Route path="about" element={<About />} />
             <Route path="services" element={<Services />} />
             <Route path="equipment" element={<Equipment />} />
             <Route path="contact" element={<Contact />} />

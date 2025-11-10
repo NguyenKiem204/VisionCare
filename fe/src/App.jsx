@@ -19,6 +19,8 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
+import Blogs from "./pages/Blogs";
+import BlogDetail from "./pages/BlogDetail";
 import AdminRoutes from "./routes/AdminRoutes";
 import DoctorRoutes from "./routes/DoctorRoutes";
 import StaffRoutes from "./routes/StaffRoutes";
@@ -53,6 +55,8 @@ function App() {
               element={<BookingPaymentCallback />}
             />
             <Route path="profile" element={<Profile />} />
+            <Route path="blogs" element={<Blogs />} />
+            <Route path="blogs/:slug" element={<BlogDetail />} />
           </Route>
 
           {/* Auth Routes */}

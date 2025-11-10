@@ -15,6 +15,7 @@ using VisionCare.Application.Interfaces.Services;
 using VisionCare.Application.Interfaces.ServiceTypes;
 using VisionCare.Application.Interfaces.Content;
 using VisionCare.Application.Interfaces.Banners;
+using VisionCare.Application.Interfaces.Blogs;
 using VisionCare.Infrastructure.Data;
 using VisionCare.Infrastructure.Repositories;
 using VisionCare.Infrastructure.Services;
@@ -59,6 +60,8 @@ public static class DependencyInjection
         services.AddScoped<IFollowUpRepository, FollowUpRepository>();
         services.AddScoped<ISectionContentRepository, SectionContentRepository>();
         services.AddScoped<IBannerRepository, BannerRepository>();
+        services.AddScoped<IBlogRepository, BlogRepository>();
+        services.AddScoped<ICommentBlogRepository, CommentBlogRepository>();
         
         // Scheduling Repositories
         services.AddScoped<IWeeklyScheduleRepository, WeeklyScheduleRepository>();

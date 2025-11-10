@@ -9,7 +9,14 @@ using DbSeeder = VisionCare.Infrastructure.Services.DbSeeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder
+    .Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter()
+        );
+    });
 
 builder.Services.AddApplication();
 
@@ -19,27 +26,29 @@ builder.Services.AddWebAPIServices();
 
 builder.Services.AddAuthenticationServices(builder.Configuration);
 
-// Configure Hangfire
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 #pragma warning disable CS0618
 builder.Services.AddHangfire(config =>
-    config.UsePostgreSqlStorage(connectionString, new PostgreSqlStorageOptions
-    {
-        SchemaName = "hangfire", // Optional: separate schema for Hangfire tables
-        QueuePollInterval = TimeSpan.FromSeconds(15),
-        InvisibilityTimeout = TimeSpan.FromMinutes(5),
-        DistributedLockTimeout = TimeSpan.FromMinutes(5),
-        JobExpirationCheckInterval = TimeSpan.FromHours(1),
-        CountersAggregateInterval = TimeSpan.FromMinutes(5),
-        PrepareSchemaIfNecessary = true,
-        EnableTransactionScopeEnlistment = true
-    })
+    config.UsePostgreSqlStorage(
+        connectionString,
+        new PostgreSqlStorageOptions
+        {
+            SchemaName = "hangfire",
+            QueuePollInterval = TimeSpan.FromSeconds(15),
+            InvisibilityTimeout = TimeSpan.FromMinutes(5),
+            DistributedLockTimeout = TimeSpan.FromMinutes(5),
+            JobExpirationCheckInterval = TimeSpan.FromHours(1),
+            CountersAggregateInterval = TimeSpan.FromMinutes(5),
+            PrepareSchemaIfNecessary = true,
+            EnableTransactionScopeEnlistment = true,
+        }
+    )
 );
 #pragma warning restore CS0618
 
 builder.Services.AddHangfireServer(options =>
 {
-    options.WorkerCount = Environment.ProcessorCount * 5; // Adjust based on your needs
+    options.WorkerCount = Environment.ProcessorCount * 5;
     options.ServerTimeout = TimeSpan.FromMinutes(4);
     options.SchedulePollingInterval = TimeSpan.FromSeconds(15);
 });
@@ -60,37 +69,32 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<VisionCare.WebAPI.Middleware.AuthenticationMiddleware>();
 
-// Hangfire Dashboard (only accessible by Admin)
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
-{
-    Authorization = new[] { new HangfireAuthorizationFilter() },
-    DashboardTitle = "VisionCare Background Jobs",
-    StatsPollingInterval = 2000,
-    DisplayStorageConnectionString = false
-});
+app.UseHangfireDashboard(
+    "/hangfire",
+    new DashboardOptions
+    {
+        Authorization = new[] { new HangfireAuthorizationFilter() },
+        DashboardTitle = "VisionCare Background Jobs",
+        StatsPollingInterval = 2000,
+        DisplayStorageConnectionString = false,
+    }
+);
 
-// Map SignalR Hub
 app.MapHub<BookingHub>("/hubs/booking");
+app.MapHub<CommentHub>("/hubs/comment");
 
 app.MapControllers();
 
-// Seed data
 await DbSeeder.SeedAdminAsync(app.Services);
 
-// Configure Hangfire Recurring Jobs
 var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-// Schedule Generation Job - Runs daily at 02:00 AM
-// Note: Hangfire will create a new scope and resolve ScheduleGenerationJob from DI
 recurringJobManager.AddOrUpdate<VisionCare.Application.Services.Scheduling.ScheduleGenerationJob>(
     "schedule-generation-job",
     job => job.ExecuteAsync(),
-    "0 2 * * *", // Cron expression: Every day at 02:00 AM
-    new RecurringJobOptions
-    {
-        TimeZone = TimeZoneInfo.Local
-    }
+    "0 2 * * *",
+    new RecurringJobOptions { TimeZone = TimeZoneInfo.Local }
 );
 
 logger.LogInformation("Hangfire recurring jobs configured successfully");

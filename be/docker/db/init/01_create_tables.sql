@@ -592,6 +592,7 @@ CREATE TABLE FeedbackDoctor (
 CREATE TABLE Blog (
     blog_id SERIAL PRIMARY KEY,
     title VARCHAR(500) NOT NULL,
+    slug VARCHAR(500) NOT NULL UNIQUE,
     content TEXT NOT NULL,
     excerpt TEXT,
     featured_image VARCHAR(255),
@@ -732,6 +733,7 @@ WHERE status = 'Active';
 -- Content indexes
 CREATE INDEX idx_blog_author ON Blog(author_id);
 CREATE INDEX idx_blog_status_published ON Blog(status, published_at);
+CREATE UNIQUE INDEX idx_blog_slug ON Blog(slug);
 CREATE INDEX idx_comment_blog ON CommentBlog(blog_id);
 
 -- Feedback indexes

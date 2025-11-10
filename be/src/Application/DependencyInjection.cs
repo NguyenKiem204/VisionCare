@@ -22,8 +22,10 @@ using VisionCare.Application.Interfaces.Users;
 using VisionCare.Application.Interfaces.WorkShifts;
 using VisionCare.Application.Interfaces.Content;
 using VisionCare.Application.Interfaces.Banners;
+using VisionCare.Application.Interfaces.Blogs;
 using VisionCare.Application.Services.Appointments;
 using VisionCare.Application.Services.Banners;
+using VisionCare.Application.Services.Blogs;
 using VisionCare.Application.Services.Content;
 using VisionCare.Application.Services.Customers;
 using VisionCare.Application.Services.Dashboard;
@@ -89,6 +91,8 @@ public static class DependencyInjection
         // Register Content Services
         services.AddScoped<ISectionContentService, SectionContentService>();
         services.AddScoped<IBannerService, BannerService>();
+        services.AddScoped<IBlogService, BlogService>();
+        services.AddScoped<ICommentBlogService, CommentBlogService>();
         
         // Scheduling Services
         services.AddScoped<IWeeklyScheduleService, WeeklyScheduleService>();

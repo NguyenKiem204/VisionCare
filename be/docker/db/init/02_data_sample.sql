@@ -382,8 +382,8 @@ INSERT INTO Machine (name, description, image_url, specifications, status) VALUE
 ('Máy Laser Excimer Wavelight EX500', 'Hệ thống laser điều chỉnh khúc xạ thế hệ mới với công nghệ Eye Tracking', 'wavelight_ex500.jpg', 'Tần số laser: 500Hz, Đường kính chùm tia: 0.95mm, Hệ thống theo dõi mắt: 6D Real-time', 'Active');
 
 -- 30. Insert Blog posts
-INSERT INTO Blog (title, content, excerpt, featured_image, author_id, status, published_at, view_count) VALUES 
-('10 cách bảo vệ mắt khi làm việc với máy tính', 
+INSERT INTO Blog (title, slug, content, excerpt, featured_image, author_id, status, published_at, view_count) VALUES 
+('10 cách bảo vệ mắt khi làm việc với máy tính', '10-cach-bao-ve-mat-khi-lam-viec-voi-may-tinh', 
 'Trong thời đại số hóa hiện nay, việc làm việc với máy tính đã trở thành không thể thiếu. Tuy nhiên, điều này cũng đồng nghĩa với việc mắt chúng ta phải chịu áp lực lớn...
 
 **1. Áp dụng quy tắc 20-20-20**
@@ -404,7 +404,7 @@ Khi tập trung vào màn hình, chúng ta thường chớp mắt ít hơn, dẫ
 'Hướng dẫn chi tiết 10 cách đơn giản nhưng hiệu quả để bảo vệ đôi mắt khi làm việc với máy tính hàng ngày.',
 'blog_computer_eye_care.jpg', 1, 'Published', '2025-09-20 09:00:00', 1250),
 
-('Phẫu thuật Laser điều trị cận thị - Những điều bạn cần biết',
+('Phẫu thuật Laser điều trị cận thị - Những điều bạn cần biết', 'phau-thuat-laser-dieu-tri-can-thi-nhung-dieu-ban-can-biet',
 'Phẫu thuật Laser điều trị cận thị (LASIK) là một trong những phương pháp hiệu quả nhất để điều chỉnh khúc xạ mắt hiện nay...
 
 **Phẫu thuật LASIK là gì?**
@@ -431,7 +431,7 @@ LASIK (Laser-Assisted in Situ Keratomileusis) là kỹ thuật sử dụng tia l
 'Tìm hiểu về phẫu thuật Laser LASIK - phương pháp hiện đại giúp loại bỏ kính cận thị an toàn và hiệu quả.',
 'blog_lasik_surgery.jpg', 2, 'Published', '2025-09-18 14:30:00', 890),
 
-('Bệnh võng mạc tiểu đường - Nguyên nhân, triệu chứng và cách điều trị',
+('Bệnh võng mạc tiểu đường - Nguyên nhân, triệu chứng và cách điều trị', 'benh-vong-mac-tieu-duong-nguyen-nhan-trieu-chung-va-cach-dieu-tri',
 'Bệnh võng mạc tiểu đường là một trong những biến chứng nghiêm trọng của bệnh tiểu đường, có thể dẫn đến mù lòa nếu không được phát hiện và điều trị kịp thời...
 
 **Nguyên nhân**

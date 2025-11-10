@@ -7,6 +7,7 @@ import {
   Activity,
   ChevronsLeft,
   ChevronsRight,
+  BookOpen,
 } from "lucide-react";
 
 const doctorMenu = [
@@ -17,6 +18,7 @@ const doctorMenu = [
   { to: "/doctor/absences", label: "Nghỉ phép", icon: ClipboardList },
   { to: "/doctor/ehr", label: "Hồ sơ khám", icon: Activity },
   { to: "/doctor/analytics", label: "Thống kê", icon: Activity },
+  { to: "/doctor/blogs", label: "Blogs", icon: BookOpen },
 ];
 
 export default function DoctorSidebar({ isOpen, setOpen }) {

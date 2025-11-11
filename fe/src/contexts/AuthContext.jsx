@@ -97,9 +97,23 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Get user role before clearing auth
+    const userRole = user?.roleName?.toLowerCase();
+    
     clearAuth();
-    // Redirect to login page
-    window.location.href = "/admin/login";
+    
+    // Redirect based on user role
+    let loginPath = "/login"; // Default to customer login
+    if (userRole === "admin") {
+      loginPath = "/admin/login";
+    } else if (userRole === "doctor") {
+      loginPath = "/doctor/login";
+    } else if (userRole === "staff") {
+      loginPath = "/staff/login";
+    }
+    
+    // Redirect to appropriate login page
+    window.location.href = loginPath;
   };
 
   const clearAuth = () => {

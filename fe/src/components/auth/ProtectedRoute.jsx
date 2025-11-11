@@ -28,9 +28,27 @@ const ProtectedRoute = ({
   }
 
   if (!isAuthenticated) {
-    // Build absolute admin login path if inside admin section
-    const isAdminSection = location.pathname.startsWith("/admin");
-    const loginPath = isAdminSection ? "/admin/login" : "/login";
+    // Redirect to role-specific login page
+    let loginPath = "/login";
+    if (requiredRole) {
+      const role = requiredRole.toLowerCase();
+      if (role === "admin") {
+        loginPath = "/admin/login";
+      } else if (role === "doctor") {
+        loginPath = "/doctor/login";
+      } else if (role === "staff") {
+        loginPath = "/staff/login";
+      }
+    } else {
+      // Check current path to determine login page
+      if (location.pathname.startsWith("/admin")) {
+        loginPath = "/admin/login";
+      } else if (location.pathname.startsWith("/doctor")) {
+        loginPath = "/doctor/login";
+      } else if (location.pathname.startsWith("/staff")) {
+        loginPath = "/staff/login";
+      }
+    }
     return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 

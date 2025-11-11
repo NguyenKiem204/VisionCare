@@ -47,12 +47,12 @@ public class UpdateAppointmentRequestValidator : AbstractValidator<UpdateAppoint
             .When(x => x.AppointmentDate.HasValue);
 
         RuleFor(x => x.AppointmentDate)
-            .Must(date => date.Value.Hour >= 8 && date.Value.Hour <= 17)
+            .Must(date => date.HasValue && date.Value.Hour >= 8 && date.Value.Hour <= 17)
             .WithMessage("Appointment must be scheduled between 8 AM and 5 PM")
             .When(x => x.AppointmentDate.HasValue);
 
         RuleFor(x => x.AppointmentDate)
-            .Must(date => date.Value.DayOfWeek != DayOfWeek.Sunday)
+            .Must(date => date.HasValue && date.Value.DayOfWeek != DayOfWeek.Sunday)
             .WithMessage("Appointments cannot be scheduled on Sundays")
             .When(x => x.AppointmentDate.HasValue);
 

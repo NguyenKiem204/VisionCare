@@ -19,8 +19,13 @@ import AdminFeedback from "../pages/admin/FeedbackManagementPage";
 import AdminFollowUp from "../pages/admin/FollowUpManagementPage";
 import AdminMedicalHistory from "../pages/admin/MedicalHistoryManagementPage";
 import AdminMedicalRecords from "../pages/admin/MedicalRecordsManagementPage";
-import AdminWeeklySchedule from "../pages/admin/WeeklyScheduleManagementPage";
 import AdminHomeContent from "../pages/admin/HomeContentManagementPage";
+import DoctorSchedulesManagementPage from "../pages/admin/DoctorSchedulesManagementPage";
+import DoctorAbsenceManagement from "../pages/admin/DoctorAbsenceManagement";
+import RoomsManagementPage from "../pages/admin/RoomsManagementPage";
+import WorkShiftsManagementPage from "../pages/admin/WorkShiftsManagementPage";
+import BlogsManagement from "../pages/admin/BlogsManagement";
+import BlogEditor from "../pages/admin/BlogEditor";
 
 const AdminRoutes = () => {
   return (
@@ -70,9 +75,15 @@ const AdminRoutes = () => {
         <Route path="follow-up" element={<AdminFollowUp />} />
         <Route path="medical-history" element={<AdminMedicalHistory />} />
         <Route path="medical-records" element={<AdminMedicalRecords />} />
-        <Route path="weekly-schedule" element={<AdminWeeklySchedule />} />
+        <Route path="doctor-schedules" element={<DoctorSchedulesManagementPage />} />
+        <Route path="doctor-absence" element={<DoctorAbsenceManagement />} />
+        <Route path="rooms" element={<RoomsManagementPage />} />
+        <Route path="work-shifts" element={<WorkShiftsManagementPage />} />
         <Route path="home-content" element={<AdminHomeContent />} />
         <Route path="settings" element={<AdminSettings />} />
+        <Route path="blogs" element={<BlogsManagement />} />
+        <Route path="blogs/new" element={<BlogEditor />} />
+        <Route path="blogs/:id/edit" element={<BlogEditor />} />
       </Route>
     </Routes>
   );

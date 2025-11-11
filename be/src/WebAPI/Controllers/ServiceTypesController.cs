@@ -8,7 +8,6 @@ namespace VisionCare.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "StaffOrAdmin")]
 public class ServiceTypesController : ControllerBase
 {
     private readonly IServiceTypeService _serviceTypeService;
@@ -19,6 +18,7 @@ public class ServiceTypesController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous] // Customer needs to view service types for booking
     public async Task<IActionResult> GetAllServiceTypes()
     {
         var serviceTypes = await _serviceTypeService.GetAllServiceTypesAsync();
@@ -26,17 +26,21 @@ public class ServiceTypesController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous] // Customer needs to view service types for booking
     public async Task<IActionResult> GetServiceTypeById(int id)
     {
         var serviceType = await _serviceTypeService.GetServiceTypeByIdAsync(id);
         if (serviceType == null)
         {
-            return NotFound(ApiResponse<ServiceTypeDto>.Fail($"Service type with ID {id} not found."));
+            return NotFound(
+                ApiResponse<ServiceTypeDto>.Fail($"Service type with ID {id} not found.")
+            );
         }
         return Ok(ApiResponse<ServiceTypeDto>.Ok(serviceType));
     }
 
     [HttpGet("search")]
+    [AllowAnonymous] // Customer needs to search service types for booking
     public async Task<IActionResult> SearchServiceTypes(
         [FromQuery] string? keyword,
         [FromQuery] int? minDuration,
@@ -47,6 +51,13 @@ public class ServiceTypesController : ControllerBase
         [FromQuery] bool desc = false
     )
     {
+        if (page < 1)
+            page = 1;
+        if (pageSize < 1)
+            pageSize = 10;
+        if (pageSize > 100)
+            pageSize = 100;
+
         var result = await _serviceTypeService.SearchServiceTypesAsync(
             keyword,
             minDuration,
@@ -56,30 +67,44 @@ public class ServiceTypesController : ControllerBase
             sortBy,
             desc
         );
-        return Ok(PagedResponse<ServiceTypeDto>.Ok(result.items, result.totalCount, page, pageSize));
+        return Ok(
+            PagedResponse<ServiceTypeDto>.Ok(result.items, result.totalCount, page, pageSize)
+        );
     }
 
     [HttpPost]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> CreateServiceType([FromBody] CreateServiceTypeRequest request)
     {
         var serviceType = await _serviceTypeService.CreateServiceTypeAsync(request);
-        return CreatedAtAction(nameof(GetServiceTypeById), new { id = serviceType.Id }, ApiResponse<ServiceTypeDto>.Ok(serviceType));
+        return CreatedAtAction(
+            nameof(GetServiceTypeById),
+            new { id = serviceType.Id },
+            ApiResponse<ServiceTypeDto>.Ok(serviceType)
+        );
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateServiceType(int id, [FromBody] UpdateServiceTypeRequest request)
+    [Authorize(Policy = "StaffOrAdmin")]
+    public async Task<IActionResult> UpdateServiceType(
+        int id,
+        [FromBody] UpdateServiceTypeRequest request
+    )
     {
         var serviceType = await _serviceTypeService.UpdateServiceTypeAsync(id, request);
         return Ok(ApiResponse<ServiceTypeDto>.Ok(serviceType));
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "StaffOrAdmin")]
     public async Task<IActionResult> DeleteServiceType(int id)
     {
         var result = await _serviceTypeService.DeleteServiceTypeAsync(id);
         if (!result)
         {
-            return NotFound(ApiResponse<ServiceTypeDto>.Fail($"Service type with ID {id} not found."));
+            return NotFound(
+                ApiResponse<ServiceTypeDto>.Fail($"Service type with ID {id} not found.")
+            );
         }
         return Ok(ApiResponse<ServiceTypeDto>.Ok(null, "Service type deleted successfully"));
     }

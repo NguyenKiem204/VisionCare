@@ -204,6 +204,22 @@ INSERT INTO ImagesService (service_id, image_main, image_before, image_after) VA
 (4, 'service04_main.jpg', 'service04_before.jpg', 'service04_after.jpg'),
 (7, 'service07_main.jpg', 'service07_before.jpg', 'service07_after.jpg');
 
+-- 18a. Insert Rooms
+INSERT INTO Rooms (room_name, room_code, capacity, status, location, notes) VALUES 
+('Phòng Khám 1', 'PK1', 1, 'Active', 'Tầng 1', 'Phòng khám tổng quát'),
+('Phòng Khám 2', 'PK2', 1, 'Active', 'Tầng 1', 'Phòng khám chuyên khoa'),
+('Phòng Khám 3', 'PK3', 1, 'Active', 'Tầng 2', 'Phòng khám nội soi'),
+('Phòng Phẫu thuật 1', 'PT1', 1, 'Active', 'Tầng 3', 'Phòng phẫu thuật Lasik'),
+('Phòng Phẫu thuật 2', 'PT2', 1, 'Active', 'Tầng 3', 'Phòng phẫu thuật đục thủy tinh thể');
+
+-- 18b. Insert Work Shifts
+INSERT INTO WorkShift (shift_name, start_time, end_time, is_active, description) VALUES 
+('Ca Sáng', '08:00:00', '12:00:00', true, 'Ca làm việc buổi sáng'),
+('Ca Chiều', '13:00:00', '17:00:00', true, 'Ca làm việc buổi chiều'),
+('Ca Tối', '17:00:00', '20:00:00', true, 'Ca làm việc buổi tối'),
+('Ca Phẫu thuật Sáng', '07:00:00', '11:00:00', true, 'Ca phẫu thuật buổi sáng'),
+('Ca Phẫu thuật Chiều', '13:00:00', '17:00:00', true, 'Ca phẫu thuật buổi chiều');
+
 -- 19. Insert Slots
 INSERT INTO Slots (start_time, end_time, service_type_id) VALUES 
 ('08:00:00', '08:30:00', 1),
@@ -225,33 +241,59 @@ INSERT INTO Slots (start_time, end_time, service_type_id) VALUES
 ('09:00:00', '11:00:00', 4),
 ('13:00:00', '15:00:00', 4);
 
+-- 19a. Insert Doctor Schedules (New flexible scheduling)
+INSERT INTO DoctorSchedule (doctor_id, shift_id, room_id, start_date, end_date, day_of_week, recurrence_rule, is_active) VALUES 
+-- Doctor 1 (Nguyễn Văn Nam) - Ca Sáng Thứ 2, 4, 6 tại PK1
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 1, '2025-01-01', NULL, 1, 'WEEKLY', true), -- Monday
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 1, '2025-01-01', NULL, 3, 'WEEKLY', true), -- Wednesday
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 1, '2025-01-01', NULL, 5, 'WEEKLY', true), -- Friday
+-- Doctor 1 - Ca Chiều Thứ 2, 4, 6 tại PK1
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 2, 1, '2025-01-01', NULL, 1, 'WEEKLY', true), -- Monday
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 2, 1, '2025-01-01', NULL, 3, 'WEEKLY', true), -- Wednesday
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 2, 1, '2025-01-01', NULL, 5, 'WEEKLY', true), -- Friday
+-- Doctor 2 (Trần Thị Mai) - Ca Sáng Thứ 3, 5, 7 tại PK2
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 1, 2, '2025-01-01', NULL, 2, 'WEEKLY', true), -- Tuesday
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 1, 2, '2025-01-01', NULL, 4, 'WEEKLY', true), -- Thursday
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 1, 2, '2025-01-01', NULL, 6, 'WEEKLY', true), -- Saturday
+-- Doctor 2 - Ca Chiều Thứ 3, 5, 7 tại PK2
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 2, '2025-01-01', NULL, 2, 'WEEKLY', true), -- Tuesday
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 2, '2025-01-01', NULL, 4, 'WEEKLY', true), -- Thursday
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 2, '2025-01-01', NULL, 6, 'WEEKLY', true), -- Saturday
+-- Doctor 3 (Lê Minh Tuấn) - Ca Sáng Thứ 2, 4, 6 tại PK3
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, 3, '2025-01-01', NULL, 1, 'WEEKLY', true), -- Monday
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, 3, '2025-01-01', NULL, 3, 'WEEKLY', true), -- Wednesday
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, 3, '2025-01-01', NULL, 5, 'WEEKLY', true), -- Friday
+-- Doctor 4 (Phạm Thị Lan) - Ca Phẫu thuật Thứ 3, 5 tại PT1
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 4, 4, '2025-01-01', NULL, 2, 'WEEKLY', true), -- Tuesday
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 4, 4, '2025-01-01', NULL, 4, 'WEEKLY', true); -- Thursday
+
 -- 20. Insert Schedules
-INSERT INTO Schedules (doctor_id, slot_id, schedule_date, status) VALUES 
--- Doctor 1 (Nguyễn Văn Nam) - Khúc xạ
-((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, '2025-09-26', 'Available'),
-((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 2, '2025-09-26', 'Booked'),
-((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, '2025-09-26', 'Available'),
-((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 7, '2025-09-26', 'Available'),
--- Doctor 2 (Trần Thị Mai) - Bệnh võng mạc  
-((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, '2025-09-26', 'Available'),
-((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 5, '2025-09-26', 'Available'),
-((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 8, '2025-09-26', 'Booked'),
-((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 9, '2025-09-26', 'Available'),
--- Doctor 3 (Lê Minh Tuấn) - Glaucoma
-((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 11, '2025-09-27', 'Available'),
-((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 12, '2025-09-27', 'Available'),
-((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 16, '2025-09-27', 'Booked'),
--- Doctor 4 (Phạm Thị Lan) - Phẫu thuật
-((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 17, '2025-09-28', 'Available'),
-((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 18, '2025-09-28', 'Available');
+INSERT INTO Schedules (doctor_id, slot_id, schedule_date, status, room_id) VALUES 
+-- Doctor 1 (Nguyễn Văn Nam) - Khúc xạ tại PK1
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, '2025-09-26', 'Available', 1),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 2, '2025-09-26', 'Booked', 1),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, '2025-09-26', 'Available', 1),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 7, '2025-09-26', 'Available', 1),
+-- Doctor 2 (Trần Thị Mai) - Bệnh võng mạc tại PK2
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, '2025-09-26', 'Available', 2),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 5, '2025-09-26', 'Available', 2),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 8, '2025-09-26', 'Booked', 2),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 9, '2025-09-26', 'Available', 2),
+-- Doctor 3 (Lê Minh Tuấn) - Glaucoma tại PK3
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 11, '2025-09-27', 'Available', 3),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 12, '2025-09-27', 'Available', 3),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 16, '2025-09-27', 'Booked', 3),
+-- Doctor 4 (Phạm Thị Lan) - Phẫu thuật tại PT1
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 17, '2025-09-28', 'Available', 4),
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 18, '2025-09-28', 'Available', 4);
 
 -- 21. Insert Appointments
-INSERT INTO Appointment (patient_id, doctor_id, service_detail_id, discount_id, appointment_datetime, status, actual_cost, notes, created_by) VALUES 
-((SELECT account_id FROM accounts WHERE email = 'nguyen.van.a@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 2, '2025-09-26 08:30:00', 'Completed', 270000, 'Khám định kỳ', (SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com')),
-((SELECT account_id FROM accounts WHERE email = 'tran.thi.b@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 9, NULL, '2025-09-26 15:00:00', 'Completed', 1500000, 'Điều trị võng mạc tiểu đường', (SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com')),
-((SELECT account_id FROM accounts WHERE email = 'le.van.c@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 5, 3, '2025-09-27 13:00:00', 'Scheduled', 680000, 'Điều trị glaucoma', (SELECT account_id FROM accounts WHERE email = 'staff02@visioncare.com')),
-((SELECT account_id FROM accounts WHERE email = 'pham.thi.d@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, NULL, '2025-09-27 09:00:00', 'Scheduled', 200000, 'Đo khúc xạ', (SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com')),
-((SELECT account_id FROM accounts WHERE email = 'hoang.van.e@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 15, 4, '2025-09-28 09:00:00', 'Scheduled', 22400000, 'Phẫu thuật Laser cận thị', (SELECT account_id FROM accounts WHERE email = 'staff02@visioncare.com'));
+INSERT INTO Appointment (patient_id, doctor_id, service_detail_id, discount_id, appointment_datetime, status, appointment_code, payment_status, actual_cost, notes, created_by) VALUES 
+((SELECT account_id FROM accounts WHERE email = 'nguyen.van.a@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 2, '2025-09-26 08:30:00', 'Completed', 'VC-20250926-123456', 'Paid', 270000, 'Khám định kỳ', (SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com')),
+((SELECT account_id FROM accounts WHERE email = 'tran.thi.b@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 9, NULL, '2025-09-26 15:00:00', 'Completed', 'VC-20250926-234567', 'Paid', 1500000, 'Điều trị võng mạc tiểu đường', (SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com')),
+((SELECT account_id FROM accounts WHERE email = 'le.van.c@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 5, 3, '2025-09-27 13:00:00', 'Scheduled', 'VC-20250927-345678', 'Unpaid', 680000, 'Điều trị glaucoma', (SELECT account_id FROM accounts WHERE email = 'staff02@visioncare.com')),
+((SELECT account_id FROM accounts WHERE email = 'pham.thi.d@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, NULL, '2025-09-27 09:00:00', 'Scheduled', 'VC-20250927-456789', 'Pending', 200000, 'Đo khúc xạ', (SELECT account_id FROM accounts WHERE email = 'staff01@visioncare.com')),
+((SELECT account_id FROM accounts WHERE email = 'hoang.van.e@gmail.com'), (SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 15, 4, '2025-09-28 09:00:00', 'Scheduled', 'VC-20250928-567890', 'Unpaid', 22400000, 'Phẫu thuật Laser cận thị', (SELECT account_id FROM accounts WHERE email = 'staff02@visioncare.com'));
 
 -- 22. Insert Medical History
 INSERT INTO MedicalHistory (appointment_id, diagnosis, symptoms, treatment, prescription, vision_left, vision_right, additional_tests, notes) VALUES 
@@ -263,10 +305,51 @@ INSERT INTO FollowUp (appointment_id, next_appointment_date, description, status
 (1, '2026-03-26', 'Tái khám kiểm tra thị lực, đo khúc xạ', 'Pending'),
 (2, '2025-10-26', 'Kiểm tra tình trạng võng mạc sau điều trị', 'Pending');
 
--- 24. Insert Check Out
-INSERT INTO CheckOut (appointment_id, transaction_type, transaction_status, total_amount, transaction_code, payment_date, notes) VALUES 
-(1, 'Cash', 'Completed', 270000, 'PAY202509260001', '2025-09-26 09:15:00', 'Thanh toán tiền mặt'),
-(2, 'Card', 'Completed', 1500000, 'PAY202509260002', '2025-09-26 16:00:00', 'Thanh toán qua thẻ Visa');
+-- 24. Insert Check Out (Chỉ thanh toán qua VNPay)
+INSERT INTO CheckOut (appointment_id, transaction_type, transaction_status, total_amount, transaction_code, payment_date, notes, payment_gateway, gateway_transaction_id, gateway_response) VALUES 
+(1, 'VNPay', 'Completed', 270000, 'VNP202509260001', '2025-09-26 09:15:00', 'Thanh toán qua VNPay', 'VNPay', 'VNP12345678901234567890', '{"vnp_ResponseCode":"00","vnp_TransactionNo":"12345678","vnp_PayDate":"20250926091500","vnp_Amount":"27000000"}'),
+(2, 'VNPay', 'Completed', 1500000, 'VNP202509260002', '2025-09-26 16:00:00', 'Thanh toán qua VNPay', 'VNPay', 'VNP12345678901234567891', '{"vnp_ResponseCode":"00","vnp_TransactionNo":"12345679","vnp_PayDate":"20250926160000","vnp_Amount":"150000000"}'),
+(4, 'VNPay', 'Completed', 200000, 'VNP202509270001', '2025-09-27 09:30:00', 'Thanh toán qua VNPay', 'VNPay', 'VNP12345678901234567892', '{"vnp_ResponseCode":"00","vnp_TransactionNo":"12345680","vnp_PayDate":"20250927093000","vnp_Amount":"20000000"}');
+
+-- 26b. Seed EHR minimal data (encounter, prescription, order)
+-- Ensure appointment 1 exists (Completed); link to doctor and customer ids used above
+WITH e AS (
+  INSERT INTO Encounters (appointment_id, doctor_id, customer_id, subjective, objective, assessment, plan, status)
+  VALUES (
+    1,
+    (SELECT doctor_id FROM (SELECT account_id AS doctor_id FROM Doctors) d WHERE doctor_id = (SELECT doctor_id FROM Appointment WHERE appointment_id = 1)),
+    (SELECT patient_id FROM Appointment WHERE appointment_id = 1),
+    'Đau mắt, mỏi sau khi làm việc máy tính',
+    'Thị lực: P 8/10, T 9/10; Nhãn áp bình thường',
+    'Viêm kết mạc dị ứng',
+    'Thuốc nhỏ mắt, vệ sinh mắt, nghỉ ngơi',
+    'Draft'
+  ) RETURNING encounter_id
+)
+INSERT INTO Prescriptions (encounter_id, notes)
+SELECT encounter_id, 'Đơn thuốc cơ bản' FROM e
+RETURNING prescription_id;
+
+-- Add one prescription line for the inserted prescription (the last inserted id)
+INSERT INTO PrescriptionLines (prescription_id, drug_name, dosage, frequency, duration, instructions)
+VALUES (
+  (SELECT MAX(prescription_id) FROM Prescriptions),
+  'Natri Clorid 0.9% (nước muối sinh lý)',
+  '2 giọt',
+  '3 lần/ngày',
+  '5 ngày',
+  'Nhỏ mắt sau khi rửa tay sạch, tránh chạm đầu lọ vào mắt'
+);
+
+-- Create one diagnostic order for OCT
+INSERT INTO Orders (encounter_id, order_type, name, status, notes)
+VALUES (
+  (SELECT MAX(encounter_id) FROM Encounters),
+  'Test',
+  'Chụp OCT',
+  'Requested',
+  'Kiểm tra phù hoàng điểm nếu có'
+);
 
 -- 25. Insert Feedback Service
 INSERT INTO FeedbackService (appointment_id, rating, feedback_text, feedback_date, response_text, response_date, responded_by) VALUES 
@@ -299,8 +382,8 @@ INSERT INTO Machine (name, description, image_url, specifications, status) VALUE
 ('Máy Laser Excimer Wavelight EX500', 'Hệ thống laser điều chỉnh khúc xạ thế hệ mới với công nghệ Eye Tracking', 'wavelight_ex500.jpg', 'Tần số laser: 500Hz, Đường kính chùm tia: 0.95mm, Hệ thống theo dõi mắt: 6D Real-time', 'Active');
 
 -- 30. Insert Blog posts
-INSERT INTO Blog (title, content, excerpt, featured_image, author_id, status, published_at, view_count) VALUES 
-('10 cách bảo vệ mắt khi làm việc với máy tính', 
+INSERT INTO Blog (title, slug, content, excerpt, featured_image, author_id, status, published_at, view_count) VALUES 
+('10 cách bảo vệ mắt khi làm việc với máy tính', '10-cach-bao-ve-mat-khi-lam-viec-voi-may-tinh', 
 'Trong thời đại số hóa hiện nay, việc làm việc với máy tính đã trở thành không thể thiếu. Tuy nhiên, điều này cũng đồng nghĩa với việc mắt chúng ta phải chịu áp lực lớn...
 
 **1. Áp dụng quy tắc 20-20-20**
@@ -321,7 +404,7 @@ Khi tập trung vào màn hình, chúng ta thường chớp mắt ít hơn, dẫ
 'Hướng dẫn chi tiết 10 cách đơn giản nhưng hiệu quả để bảo vệ đôi mắt khi làm việc với máy tính hàng ngày.',
 'blog_computer_eye_care.jpg', 1, 'Published', '2025-09-20 09:00:00', 1250),
 
-('Phẫu thuật Laser điều trị cận thị - Những điều bạn cần biết',
+('Phẫu thuật Laser điều trị cận thị - Những điều bạn cần biết', 'phau-thuat-laser-dieu-tri-can-thi-nhung-dieu-ban-can-biet',
 'Phẫu thuật Laser điều trị cận thị (LASIK) là một trong những phương pháp hiệu quả nhất để điều chỉnh khúc xạ mắt hiện nay...
 
 **Phẫu thuật LASIK là gì?**
@@ -348,7 +431,7 @@ LASIK (Laser-Assisted in Situ Keratomileusis) là kỹ thuật sử dụng tia l
 'Tìm hiểu về phẫu thuật Laser LASIK - phương pháp hiện đại giúp loại bỏ kính cận thị an toàn và hiệu quả.',
 'blog_lasik_surgery.jpg', 2, 'Published', '2025-09-18 14:30:00', 890),
 
-('Bệnh võng mạc tiểu đường - Nguyên nhân, triệu chứng và cách điều trị',
+('Bệnh võng mạc tiểu đường - Nguyên nhân, triệu chứng và cách điều trị', 'benh-vong-mac-tieu-duong-nguyen-nhan-trieu-chung-va-cach-dieu-tri',
 'Bệnh võng mạc tiểu đường là một trong những biến chứng nghiêm trọng của bệnh tiểu đường, có thể dẫn đến mù lòa nếu không được phát hiện và điều trị kịp thời...
 
 **Nguyên nhân**
@@ -469,3 +552,111 @@ DELETE FROM SectionContent WHERE section_key IN ('about','background_image');
 INSERT INTO SectionContent(section_key, content, image_url, more_data) VALUES
 ('about', 'VisionCare cam kết mang đến trải nghiệm khám mắt chuyên nghiệp với công nghệ hiện đại và đội ngũ bác sĩ giàu kinh nghiệm.', 'https://images.unsplash.com/photo-about.jpg', NULL),
 ('background_image', NULL, 'https://plus.unsplash.com/premium_photo-1677333508737-6b6d642bc6d6?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', NULL);
+
+-- 40. Insert Weekly Schedule Templates
+-- Doctor 1 (Nguyễn Văn Nam) - Khúc xạ: Làm việc Thứ 2, 4, 6 (buổi sáng 8h-11h, buổi chiều 13h30-16h30)
+INSERT INTO WeeklySchedule (doctor_id, day_of_week, slot_id, is_active, created_at, updated_at) VALUES
+-- Thứ 2 (Monday = 1)
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 08:00-08:30
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 08:30-09:00
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 3, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 09:00-09:30
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 4, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 09:30-10:00
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 10:00-10:30
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 7, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 13:30-14:15
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 8, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 14:15-15:00
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 9, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 15:00-15:45
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 1, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 15:45-16:30
+-- Thứ 4 (Wednesday = 3)
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, 3, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, 4, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, 7, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, 8, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, 9, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 3, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- Thứ 6 (Friday = 5)
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 3, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 4, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 7, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 8, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 9, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 5, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Doctor 2 (Trần Thị Mai) - Bệnh võng mạc: Làm việc Thứ 3, 5, 7 (buổi sáng 9h-11h, buổi chiều 14h-16h30)
+INSERT INTO WeeklySchedule (doctor_id, day_of_week, slot_id, is_active, created_at, updated_at) VALUES
+-- Thứ 3 (Tuesday = 2)
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 3, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 09:00-09:30
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 4, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 09:30-10:00
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 10:00-10:30
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 7, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 13:30-14:15
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 8, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 14:15-15:00
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 9, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 15:00-15:45
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 2, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 15:45-16:30
+-- Thứ 5 (Thursday = 4)
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, 3, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, 4, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, 7, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, 8, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, 9, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 4, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- Thứ 7 (Saturday = 6)
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 6, 3, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 6, 4, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 6, 5, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 6, 7, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 6, 8, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 6, 9, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 6, 10, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Doctor 3 (Lê Minh Tuấn) - Glaucoma: Làm việc Thứ 2, 4, 6 (buổi sáng 8h-10h, buổi chiều 13h-15h)
+INSERT INTO WeeklySchedule (doctor_id, day_of_week, slot_id, is_active, created_at, updated_at) VALUES
+-- Thứ 2 (Monday = 1)
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, 11, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 08:00-09:00
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, 12, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 09:00-10:00
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, 13, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 13:30-14:45
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, 14, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 14:45-15:00
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 1, 15, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 15:00-15:15
+-- Thứ 4 (Wednesday = 3)
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 3, 11, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 3, 12, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 3, 13, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 3, 14, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 3, 15, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- Thứ 6 (Friday = 5)
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 5, 11, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 5, 12, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 5, 13, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 5, 14, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 5, 15, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Doctor 4 (Phạm Thị Lan) - Phẫu thuật: Làm việc Thứ 3, 5 (chỉ buổi sáng 7h-11h cho phẫu thuật)
+INSERT INTO WeeklySchedule (doctor_id, day_of_week, slot_id, is_active, created_at, updated_at) VALUES
+-- Thứ 3 (Tuesday = 2)
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 2, 16, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 07:00-09:00
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 2, 17, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), -- 09:00-11:00
+-- Thứ 5 (Thursday = 4)
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 4, 16, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 4, 17, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- 41. Insert Doctor Absence/Leave Records
+-- Doctor 1 - Nghỉ 1 ngày (đã được xử lý)
+INSERT INTO DoctorAbsence (doctor_id, start_date, end_date, absence_type, reason, status, is_resolved, created_at, updated_at) VALUES
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), '2025-09-20', '2025-09-20', 'Sick', 'Nghỉ ốm', 'Approved', true, '2025-09-19 08:00:00', '2025-09-19 10:00:00');
+
+-- Doctor 2 - Nghỉ 3 ngày (pending - chưa xử lý)
+INSERT INTO DoctorAbsence (doctor_id, start_date, end_date, absence_type, reason, status, is_resolved, created_at, updated_at) VALUES
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), '2025-10-05', '2025-10-07', 'Leave', 'Nghỉ phép gia đình', 'Pending', false, '2025-09-25 14:00:00', '2025-09-25 14:00:00');
+
+-- Doctor 3 - Nghỉ đột xuất 1 ngày (đã được xử lý)
+INSERT INTO DoctorAbsence (doctor_id, start_date, end_date, absence_type, reason, status, is_resolved, created_at, updated_at) VALUES
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), '2025-09-24', '2025-09-24', 'Emergency', 'Việc gia đình đột xuất', 'Approved', true, '2025-09-23 18:00:00', '2025-09-23 20:00:00');
+
+-- Doctor 4 - Nghỉ 1 tuần (approved nhưng chưa xử lý appointments)
+INSERT INTO DoctorAbsence (doctor_id, start_date, end_date, absence_type, reason, status, is_resolved, created_at, updated_at) VALUES
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), '2025-10-10', '2025-10-16', 'Leave', 'Nghỉ phép năm', 'Approved', false, '2025-09-20 09:00:00', '2025-09-20 11:00:00');

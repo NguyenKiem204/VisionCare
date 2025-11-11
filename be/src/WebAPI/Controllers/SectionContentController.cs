@@ -75,7 +75,6 @@ public class SectionContentController : ControllerBase
             return NotFound();
         if (image != null && image.Length > 0)
         {
-            // delete old if exists
             var oldKey = VisionCare.WebAPI.Utils.S3KeyHelper.TryExtractObjectKey(found.ImageUrl);
             var url = await _storage.UploadAsync(
                 image.OpenReadStream(),
@@ -93,7 +92,6 @@ public class SectionContentController : ControllerBase
         return NoContent();
     }
 
-    // Strongly-typed endpoints for specific sections
     [HttpPut("why_us")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateWhyUs(
@@ -106,7 +104,6 @@ public class SectionContentController : ControllerBase
         var found = await _service.GetByKeyAsync(key);
         if (found == null)
             return NotFound();
-        // Read existing images (support both camelCase and PascalCase from older data)
         List<string> oldImages = new();
         try
         {
@@ -128,7 +125,6 @@ public class SectionContentController : ControllerBase
         }
         catch { }
 
-        // Initialize images from provided dto or fall back to old images
         var images =
             (dto.Images != null && dto.Images.Count > 0)
                 ? new List<string>(dto.Images)
@@ -138,7 +134,6 @@ public class SectionContentController : ControllerBase
         while (oldImages.Count < 4)
             oldImages.Add("");
 
-        // Replace any blob: urls with existing URLs to avoid persisting temp blobs
         for (int i = 0; i < images.Count && i < oldImages.Count; i++)
         {
             var v = images[i];
@@ -151,14 +146,14 @@ public class SectionContentController : ControllerBase
             }
         }
 
-        // Upload new files per index if provided
         if (imageFiles != null && imageFiles.Count > 0)
         {
             for (int k = 0; k < imageFiles.Count; k++)
             {
                 var f = imageFiles[k];
                 var i = (imageIndexes != null && k < imageIndexes.Count) ? imageIndexes[k] : k;
-                if (i < 0 || i > 3) continue;
+                if (i < 0 || i > 3)
+                    continue;
                 if (f != null && f.Length > 0)
                 {
                     var newUrl = await _storage.UploadAsync(
@@ -178,7 +173,6 @@ public class SectionContentController : ControllerBase
             }
         }
 
-        // Ensure bullets/images size 4
         while (dto.Bullets.Count < 4)
             dto.Bullets.Add("");
         while (images.Count < 4)

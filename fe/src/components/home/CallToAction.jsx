@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Calendar, Phone } from "lucide-react";
 
 const CallToAction = () => {
@@ -17,13 +18,13 @@ const CallToAction = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <a
-              href="/booking"
+            <Link
+              to="/booking"
               className="inline-flex items-center justify-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg rounded-full transition-all duration-300 transform hover:scale-105 shadow-xl"
             >
               <Calendar className="w-6 h-6 mr-3" />
               Đặt Lịch Khám Ngay
-            </a>
+            </Link>
 
             <a
               href="tel:1900xxxx"

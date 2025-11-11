@@ -15,9 +15,7 @@ public class StaffController : ControllerBase
         _staffService = staffService;
     }
 
-    /// <summary>
-    /// Get all staff
-    /// </summary>
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<StaffDto>>> GetStaff()
     {
@@ -25,9 +23,6 @@ public class StaffController : ControllerBase
         return Ok(staff);
     }
 
-    /// <summary>
-    /// Get staff by ID
-    /// </summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<StaffDto>> GetStaff(int id)
     {
@@ -39,9 +34,6 @@ public class StaffController : ControllerBase
         return Ok(staff);
     }
 
-    /// <summary>
-    /// Get staff by account ID
-    /// </summary>
     [HttpGet("account/{accountId}")]
     public async Task<ActionResult<StaffDto>> GetStaffByAccountId(int accountId)
     {
@@ -53,9 +45,6 @@ public class StaffController : ControllerBase
         return Ok(staff);
     }
 
-    /// <summary>
-    /// Create a new staff member
-    /// </summary>
     [HttpPost]
     public async Task<ActionResult<StaffDto>> CreateStaff(CreateStaffRequest request)
     {
@@ -63,9 +52,6 @@ public class StaffController : ControllerBase
         return CreatedAtAction(nameof(GetStaff), new { id = staff.Id }, staff);
     }
 
-    /// <summary>
-    /// Update staff
-    /// </summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<StaffDto>> UpdateStaff(int id, UpdateStaffRequest request)
     {
@@ -73,9 +59,6 @@ public class StaffController : ControllerBase
         return Ok(staff);
     }
 
-    /// <summary>
-    /// Delete staff
-    /// </summary>
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteStaff(int id)
     {
@@ -87,9 +70,6 @@ public class StaffController : ControllerBase
         return NoContent();
     }
 
-    /// <summary>
-    /// Search staff
-    /// </summary>
     [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<StaffDto>>> SearchStaff(
         [FromQuery] string? keyword,
@@ -100,9 +80,6 @@ public class StaffController : ControllerBase
         return Ok(staff);
     }
 
-    /// <summary>
-    /// Get staff by gender
-    /// </summary>
     [HttpGet("gender/{gender}")]
     public async Task<ActionResult<IEnumerable<StaffDto>>> GetStaffByGender(string gender)
     {
@@ -110,9 +87,6 @@ public class StaffController : ControllerBase
         return Ok(staff);
     }
 
-    /// <summary>
-    /// Update staff profile
-    /// </summary>
     [HttpPut("{id}/profile")]
     public async Task<ActionResult<StaffDto>> UpdateStaffProfile(
         int id,
@@ -123,9 +97,6 @@ public class StaffController : ControllerBase
         return Ok(staff);
     }
 
-    /// <summary>
-    /// Get staff statistics
-    /// </summary>
     [HttpGet("statistics")]
     public async Task<ActionResult<object>> GetStaffStatistics()
     {

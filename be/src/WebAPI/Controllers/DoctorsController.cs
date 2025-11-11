@@ -68,6 +68,15 @@ public class DoctorsController : ControllerBase
         return Ok(doctors);
     }
 
+    [HttpGet("service/{serviceDetailId}")]
+    public async Task<ActionResult<IEnumerable<DoctorDto>>> GetDoctorsByService(
+        int serviceDetailId
+    )
+    {
+        var doctors = await _doctorService.GetDoctorsByServiceAsync(serviceDetailId);
+        return Ok(doctors);
+    }
+
     [HttpGet("search")]
     public async Task<ActionResult<PagedResponse<DoctorDto>>> SearchDoctors(
         [FromQuery] string? keyword,

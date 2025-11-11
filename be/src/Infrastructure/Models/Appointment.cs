@@ -19,6 +19,10 @@ public partial class Appointment
 
     public string? Status { get; set; }
 
+    public string? AppointmentCode { get; set; }
+
+    public string? PaymentStatus { get; set; }
+
     public decimal? ActualCost { get; set; }
 
     public string? Notes { get; set; }
@@ -34,6 +38,8 @@ public partial class Appointment
     public virtual Discount? Discount { get; set; }
 
     public virtual Doctor Doctor { get; set; } = null!;
+
+    public virtual ICollection<Encounter> Encounters { get; set; } = new List<Encounter>();
 
     public virtual ICollection<Feedbackdoctor> Feedbackdoctors { get; set; } = new List<Feedbackdoctor>();
 

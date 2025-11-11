@@ -11,6 +11,7 @@ import {
   Bell,
   User,
   ClipboardList,
+  BookOpen,
 } from "lucide-react";
 
 const StaffLayout = () => {
@@ -22,6 +23,7 @@ const StaffLayout = () => {
     { name: "Dashboard", href: "/staff", icon: LayoutDashboard },
     { name: "Lịch hẹn", href: "/staff/bookings", icon: Calendar },
     { name: "Bệnh nhân", href: "/staff/patients", icon: Users },
+    { name: "Blogs", href: "/staff/blogs", icon: BookOpen },
   ];
 
   const isActive = (path) => {

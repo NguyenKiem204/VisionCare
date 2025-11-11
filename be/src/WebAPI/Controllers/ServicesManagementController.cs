@@ -17,20 +17,16 @@ public class ServicesManagementController : ControllerBase
         _serviceService = serviceService;
     }
 
-    /// <summary>
-    /// Get all services
-    /// </summary>
     [HttpGet]
+    [AllowAnonymous] // Customer needs to view services for booking
     public async Task<IActionResult> GetAllServices()
     {
         var services = await _serviceService.GetAllServicesAsync();
         return Ok(ApiResponse<IEnumerable<ServiceDto>>.Ok(services));
     }
 
-    /// <summary>
-    /// Get service by ID
-    /// </summary>
     [HttpGet("{id}")]
+    [AllowAnonymous] // Customer needs to view services for booking
     public async Task<IActionResult> GetServiceById(int id)
     {
         var service = await _serviceService.GetServiceByIdAsync(id);
@@ -41,9 +37,6 @@ public class ServicesManagementController : ControllerBase
         return Ok(ApiResponse<ServiceDto>.Ok(service));
     }
 
-    /// <summary>
-    /// Get service by name
-    /// </summary>
     [HttpGet("name/{name}")]
     public async Task<IActionResult> GetServiceByName(string name)
     {
@@ -55,9 +48,6 @@ public class ServicesManagementController : ControllerBase
         return Ok(ApiResponse<ServiceDto>.Ok(service));
     }
 
-    /// <summary>
-    /// Get services by specialization
-    /// </summary>
     [HttpGet("by-specialization/{specializationId}")]
     public async Task<IActionResult> GetServicesBySpecialization(int specializationId)
     {
@@ -65,19 +55,14 @@ public class ServicesManagementController : ControllerBase
         return Ok(ApiResponse<IEnumerable<ServiceDto>>.Ok(services));
     }
 
-    /// <summary>
-    /// Get active services only
-    /// </summary>
     [HttpGet("active")]
+    [AllowAnonymous] // Customer needs to view active services for booking
     public async Task<IActionResult> GetActiveServices()
     {
         var services = await _serviceService.GetActiveServicesAsync();
         return Ok(ApiResponse<IEnumerable<ServiceDto>>.Ok(services));
     }
 
-    /// <summary>
-    /// Create a new service
-    /// </summary>
     [HttpPost]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> CreateService([FromBody] CreateServiceRequest request)
@@ -90,9 +75,6 @@ public class ServicesManagementController : ControllerBase
         );
     }
 
-    /// <summary>
-    /// Update service
-    /// </summary>
     [HttpPut("{id}")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UpdateService(int id, [FromBody] UpdateServiceRequest request)
@@ -101,9 +83,6 @@ public class ServicesManagementController : ControllerBase
         return Ok(ApiResponse<ServiceDto>.Ok(service));
     }
 
-    /// <summary>
-    /// Delete service
-    /// </summary>
     [HttpDelete("{id}")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteService(int id)
@@ -116,9 +95,6 @@ public class ServicesManagementController : ControllerBase
         return Ok(ApiResponse<ServiceDto>.Ok(null, "Service deleted successfully"));
     }
 
-    /// <summary>
-    /// Activate service
-    /// </summary>
     [HttpPut("{id}/activate")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> ActivateService(int id)
@@ -127,9 +103,6 @@ public class ServicesManagementController : ControllerBase
         return Ok(ApiResponse<ServiceDto>.Ok(service));
     }
 
-    /// <summary>
-    /// Deactivate service
-    /// </summary>
     [HttpPut("{id}/deactivate")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeactivateService(int id)
@@ -138,9 +111,6 @@ public class ServicesManagementController : ControllerBase
         return Ok(ApiResponse<ServiceDto>.Ok(service));
     }
 
-    /// <summary>
-    /// Search services
-    /// </summary>
     [HttpPost("search")]
     public async Task<IActionResult> SearchServices([FromBody] ServiceSearchRequest request)
     {
@@ -148,9 +118,6 @@ public class ServicesManagementController : ControllerBase
         return Ok(ApiResponse<IEnumerable<ServiceDto>>.Ok(services));
     }
 
-    /// <summary>
-    /// Get total services count
-    /// </summary>
     [HttpGet("count")]
     public async Task<IActionResult> GetTotalServicesCount()
     {

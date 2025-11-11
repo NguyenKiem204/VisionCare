@@ -3,7 +3,7 @@ import { MapPin, Phone, Mail, Clock, Facebook, Youtube, Instagram, MessageCircle
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-gray-900 text-white relative z-20">
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -140,7 +140,7 @@ const Footer = () => {
       </div>
 
       {/* Newsletter Section */}
-      <div className="bg-gray-800 py-12">
+      {/* <div className="bg-gray-800 py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
             <h3 className="text-2xl font-semibold mb-3">Đăng Ký Nhận Tin Sức Khỏe Mắt</h3>
@@ -157,7 +157,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Bottom Bar */}
       <div className="bg-gray-950 py-6">

@@ -93,7 +93,6 @@ public class DashboardController : ControllerBase
         CancellationToken ct
     )
     {
-        // Assume doctorId from token claim "sub" or custom claim "doctorId"
         var doctorIdStr = User.FindFirst("doctorId")?.Value;
         if (!int.TryParse(doctorIdStr, out var doctorId))
             return Forbid();

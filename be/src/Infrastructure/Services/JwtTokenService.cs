@@ -59,7 +59,6 @@ public class JwtTokenService : IJwtTokenService
 
     public string Hash(string value)
     {
-        // Use BCrypt for security (with optimized work factor)
-        return BCrypt.Net.BCrypt.HashPassword(value, 10); // Work factor 10 (faster than default 12)
+        return BCrypt.Net.BCrypt.HashPassword(value, 10);
     }
 }

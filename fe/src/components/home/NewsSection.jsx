@@ -29,56 +29,58 @@ const NewsSection = () => {
   const news = [
     {
       id: 1,
-      title: "Cách Bảo Vệ Mắt Khi Làm Việc Với Máy Tính",
-      excerpt: "Những mẹo đơn giản giúp giảm mỏi mắt và bảo vệ thị lực khi sử dụng máy tính trong thời gian dài.",
-      image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      category: "Chăm sóc mắt",
-      author: "BS. Nguyễn Văn An",
-      date: "15/12/2024",
-      readTime: "5 phút đọc"
+      title: "Bệnh Viện Mắt Ánh Dương Ký Kết Hợp Tác Cùng Trường Tiểu...",
+      excerpt: "Ngày 21/10/2025, tại Trường Tiểu học & THCS Tây Hà Nội, Bệnh viện Mắt Ánh Dương đã chính thức ký kết biên bản...",
+      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      author: "hangvt-admin",
+      date: "23/10/2025"
     },
     {
       id: 2,
-      title: "Phẫu Thuật Lasik: Những Điều Cần Biết",
-      excerpt: "Tìm hiểu về quy trình, chỉ định và những lưu ý quan trọng trước khi quyết định phẫu thuật Lasik.",
-      image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      category: "Phẫu thuật",
-      author: "BS. Trần Thị Bình",
-      date: "12/12/2024",
-      readTime: "8 phút đọc"
+      title: "LỄ KÝ KẾT HỢP TÁC CHIẾN LƯỢC TOÀN DIỆN GIỮA BỆN...",
+      excerpt: "Ngày 21/10/2025, tại Hà Nội, Bệnh viện Mắt Ánh Dương và Trường Tiểu học & THCS Tây Hà Nội đã chính thức diễn ra...",
+      image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      author: "hangvt-admin",
+      date: "22/10/2025"
     },
     {
       id: 3,
-      title: "Tầm Soát Mắt Định Kỳ: Tại Sao Quan Trọng?",
-      excerpt: "Khám mắt định kỳ giúp phát hiện sớm các bệnh lý về mắt và bảo vệ thị lực tốt nhất.",
-      image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      category: "Sức khỏe",
-      author: "BS. Lê Minh Châu",
-      date: "10/12/2024",
-      readTime: "6 phút đọc"
+      title: "BỆNH VIỆN MẮT ÁNH DƯƠNG ĐỒNG HÀNH CÙNG TRƯỜNG...",
+      excerpt: "Ngày 10/10/2025, Bệnh viện Mắt Ánh Dương phối hợp cùng Trường Liên cấp Tây Hà Nội (WIHS) tổ chức thành công...",
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      author: "hangvt-admin",
+      date: "17/10/2025"
+    },
+    {
+      id: 4,
+      title: "Kính Cận Là Gì? Ai Cần Sử Dụng Kính Cận?",
+      excerpt: "Kính cận là một dụng cụ quang học có gọng và tròng kính, được thiết kế đặc biệt để điều chỉnh tật khúc xạ cận thị...",
+      image: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      author: "hangvt-admin",
+      date: "02/10/2025"
     }
   ];
 
   return (
-    <section id="news-section" className="py-20 bg-white">
-      <div className="container mx-auto px-4">
+    <section id="news-section" className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4 max-w-7xl">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Cập Nhật Kiến Thức Sức Khỏe Mắt
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Những bài viết chuyên môn và mẹo chăm sóc mắt từ đội ngũ bác sĩ VisionCare
+          <p className="text-yellow-500 font-semibold text-sm uppercase tracking-wider mb-3">
+            TIN TỨC
           </p>
+          <h2 className="text-4xl md:text-5xl font-bold text-teal-700 mb-4">
+            HOẠT ĐỘNG CỦA BỆNH VIỆN
+          </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {news.map((article, index) => (
             <article
               key={article.id}
-              className={`bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden ${
+              className={`bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden ${
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
-              style={{ transitionDelay: `${index * 200}ms` }}
+              style={{ transitionDelay: `${index * 150}ms` }}
             >
               <div className="relative">
                 <img
@@ -86,57 +88,35 @@ const NewsSection = () => {
                   alt={article.title}
                   className="w-full h-48 object-cover"
                 />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                    {article.category}
-                  </span>
-                </div>
               </div>
 
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+              <div className="p-5">
+                <h3 className="text-base font-bold text-teal-700 mb-3 line-clamp-2 min-h-[3rem]">
                   {article.title}
                 </h3>
-                <p className="text-gray-600 mb-4 line-clamp-3">
+
+                <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+                  <div className="flex items-center gap-1">
+                    <User className="w-3 h-3 text-yellow-500" />
+                    <span>{article.author}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3 text-yellow-500" />
+                    <span>{article.date}</span>
+                  </div>
+                </div>
+
+                <p className="text-sm text-gray-600 mb-4 line-clamp-3">
                   {article.excerpt}
                 </p>
 
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1">
-                      <User className="w-4 h-4" />
-                      <span>{article.author}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{article.date}</span>
-                    </div>
-                  </div>
-                  <span className="text-orange-500 font-medium">
-                    {article.readTime}
-                  </span>
-                </div>
-
-                <a
-                  href={`/news/${article.id}`}
-                  className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium group"
-                >
-                  Đọc tiếp
-                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                </a>
+                <button className="flex items-center gap-2 px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold rounded-full transition-all duration-300">
+                  <ArrowRight className="w-4 h-4" />
+                  ĐỌC THÊM
+                </button>
               </div>
             </article>
           ))}
-        </div>
-
-        <div className="text-center">
-          <a
-            href="/news"
-            className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Xem Tất Cả Bài Viết
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </a>
         </div>
       </div>
     </section>

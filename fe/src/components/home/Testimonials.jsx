@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Testimonials = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -30,39 +30,45 @@ const Testimonials = () => {
   const testimonials = [
     {
       id: 1,
-      name: "Cô Lan",
-      age: 45,
-      service: "Phẫu thuật cận thị Lasik",
-      rating: 5,
-      quote: "Tôi đã phẫu thuật Lasik tại VisionCare và kết quả vượt ngoài mong đợi. Đội ngũ bác sĩ rất chuyên nghiệp, thiết bị hiện đại. Giờ tôi có thể nhìn rõ mà không cần đeo kính!",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+      name: "Cô Nga",
+      service: "Phẫu thuật Phaco đục thủy tinh",
+      video: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
     },
     {
       id: 2,
-      name: "Anh Minh",
-      age: 38,
-      service: "Điều trị glaucoma",
-      rating: 5,
-      quote: "Bác sĩ tại VisionCare đã giúp tôi phát hiện và điều trị glaucoma kịp thời. Dịch vụ tận tâm, chi phí hợp lý. Tôi rất hài lòng với kết quả điều trị.",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+      name: "Chị Hoàng Hà",
+      service: "Phẫu thuật mỡ cận Smile Pro",
+      video: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
     },
     {
       id: 3,
-      name: "Bé An",
-      age: 8,
-      service: "Điều trị cận thị trẻ em",
-      rating: 5,
-      quote: "Con tôi được điều trị cận thị tại VisionCare. Bác sĩ rất kiên nhẫn với trẻ em, phòng khám thân thiện. Con tôi không còn sợ đi khám mắt nữa!",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+      name: "Anh Minh Đức",
+      service: "Phẫu thuật mỡ cận Smile Pro",
+      video: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
     },
     {
       id: 4,
-      name: "Chị Hương",
-      age: 52,
+      name: "Anh Tuấn",
+      service: "Phẫu thuật Lasik",
+      video: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+    },
+    {
+      id: 5,
+      name: "Chị Mai",
+      service: "Điều trị cận thị",
+      video: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+    },
+    {
+      id: 6,
+      name: "Anh Khoa",
       service: "Phẫu thuật đục thủy tinh thể",
-      rating: 5,
-      quote: "Sau phẫu thuật đục thủy tinh thể, tôi có thể nhìn rõ trở lại. Cảm ơn VisionCare đã mang lại ánh sáng cho cuộc sống của tôi!",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+      video: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
     }
   ];
 
@@ -81,79 +87,98 @@ const Testimonials = () => {
 
   return (
     <section id="testimonials-section" className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-7xl">
+        {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Đánh Giá Khách Hàng
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <span className="text-teal-600">CẢM NHẬN CỦA</span>{" "}
+            <span className="text-yellow-500">KHÁCH HÀNG</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Những chia sẻ chân thực từ khách hàng đã tin tưởng và sử dụng dịch vụ của VisionCare
-          </p>
         </div>
 
+        {/* Testimonials Container */}
         <div className="relative">
-          {/* Testimonials Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {getVisibleTestimonials().map((testimonial, index) => (
+          {/* Left Arrow */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all"
+          >
+            <ChevronLeft className="w-6 h-6 text-teal-600" />
+          </button>
+
+          {/* Right Arrow */}
+          <button
+            onClick={nextSlide}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all"
+          >
+            <ChevronRight className="w-6 h-6 text-teal-600" />
+          </button>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {getVisibleTestimonials().map((item, index) => (
               <div
-                key={testimonial.id}
-                className={`bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 ${
+                key={item.id}
+                className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ${
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
-                style={{ transitionDelay: `${index * 200}ms` }}
+                style={{ transitionDelay: `${index * 150}ms` }}
               >
-                <div className="flex items-center mb-6">
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-16 h-16 rounded-full object-cover mr-4"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{testimonial.name}</h3>
-                    <p className="text-sm text-gray-600">{testimonial.age} tuổi</p>
-                    <p className="text-sm text-blue-600 font-medium">{testimonial.service}</p>
+                {/* Video Card */}
+                <div className="relative bg-gray-100">
+                  <div className="relative aspect-video">
+                    <img
+                      src={item.video}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Play Button */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <button className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
+                        <svg 
+                          className="w-6 h-6 text-teal-600 ml-1" 
+                          fill="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
-                  ))}
+                {/* Info Section */}
+                <div className="p-5">
+                  <div className="flex items-start gap-3">
+                    <img
+                      src={item.avatar}
+                      alt={item.name}
+                      className="w-14 h-14 rounded-full object-cover border-2 border-yellow-400 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 text-base mb-1">
+                        {item.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 leading-snug">
+                        {item.service}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-
-                <blockquote className="text-gray-700 leading-relaxed italic">
-                  "{testimonial.quote}"
-                </blockquote>
               </div>
             ))}
           </div>
 
-          {/* Navigation */}
-          <div className="flex justify-center space-x-4">
-            <button
-              onClick={prevSlide}
-              className="p-3 bg-white border-2 border-blue-500 text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition-all duration-300 shadow-lg"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="p-3 bg-white border-2 border-blue-500 text-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition-all duration-300 shadow-lg"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Dots */}
-          <div className="flex justify-center mt-6 space-x-2">
+          {/* Dots Indicator */}
+          <div className="flex justify-center mt-8 gap-2">
             {[...Array(Math.ceil(testimonials.length / 3))].map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                className={`transition-all duration-300 rounded-full ${
                   index === currentSlide
-                    ? "bg-blue-500 scale-125"
-                    : "bg-gray-300 hover:bg-blue-300"
+                    ? "w-8 h-3 bg-teal-600"
+                    : "w-3 h-3 bg-gray-300 hover:bg-teal-300"
                 }`}
               />
             ))}

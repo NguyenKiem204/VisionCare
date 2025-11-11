@@ -21,8 +21,10 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-visioncare};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres123}
+      ConnectionStrings__Redis: redis:6379,abortConnect=false,connectTimeout=1000,syncTimeout=1000
     depends_on:
       - db
+      - redis
     ports:
       - "5000:8080"
     restart: unless-stopped
@@ -39,5 +41,21 @@ services:
       - db
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    container_name: visioncare-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   db-data:
+  redis-data:

@@ -21,4 +21,19 @@ public interface IScheduleRepository
     Task<bool> ScheduleExistsAsync(int doctorId, int slotId, DateOnly scheduleDate);
     Task<int> GetTotalCountAsync();
     Task<IEnumerable<Schedule>> GetPagedAsync(int page, int pageSize);
+    
+    /// <summary>
+    /// Check if room/equipment is available for a specific time slot
+    /// </summary>
+    Task<bool> IsResourceAvailableAsync(int? roomId, int? equipmentId, int slotId, DateOnly scheduleDate, int? excludeScheduleId = null);
+    
+    /// <summary>
+    /// Delete schedules older than specified days
+    /// </summary>
+    Task<int> CleanupOldSchedulesAsync(int daysOld = 90);
+
+    /// <summary>
+    /// Delete all schedules of a doctor within a date range (inclusive)
+    /// </summary>
+    Task<int> DeleteByDoctorAndDateRangeAsync(int doctorId, DateOnly startDate, DateOnly endDate);
 }

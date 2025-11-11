@@ -12,13 +12,21 @@ using VisionCare.Application.Interfaces.FollowUp;
 using VisionCare.Application.Interfaces.MedicalHistory;
 using VisionCare.Application.Interfaces.Reporting;
 using VisionCare.Application.Interfaces.Roles;
+using VisionCare.Application.Interfaces.Rooms;
 using VisionCare.Application.Interfaces.Scheduling;
 using VisionCare.Application.Interfaces.Services;
 using VisionCare.Application.Interfaces.ServiceTypes;
 using VisionCare.Application.Interfaces.Specializations;
 using VisionCare.Application.Interfaces.Staff;
 using VisionCare.Application.Interfaces.Users;
+using VisionCare.Application.Interfaces.WorkShifts;
+using VisionCare.Application.Interfaces.Content;
+using VisionCare.Application.Interfaces.Banners;
+using VisionCare.Application.Interfaces.Blogs;
 using VisionCare.Application.Services.Appointments;
+using VisionCare.Application.Services.Banners;
+using VisionCare.Application.Services.Blogs;
+using VisionCare.Application.Services.Content;
 using VisionCare.Application.Services.Customers;
 using VisionCare.Application.Services.Dashboard;
 using VisionCare.Application.Services.Doctors;
@@ -27,8 +35,10 @@ using VisionCare.Application.Services.Feedback;
 using VisionCare.Application.Services.FollowUp;
 using VisionCare.Application.Services.MedicalHistory;
 using VisionCare.Application.Services.Roles;
+using VisionCare.Application.Services.Rooms;
 using VisionCare.Application.Services.Scheduling;
 using VisionCare.Application.Services.Services;
+using VisionCare.Application.Services.WorkShifts;
 using VisionCare.Application.Services.ServiceTypes;
 using VisionCare.Application.Services.Specializations;
 using VisionCare.Application.Services.Staff;
@@ -77,6 +87,27 @@ public static class DependencyInjection
         // Dashboard & Reporting
         services.AddMemoryCache();
         services.AddScoped<IDashboardService, DashboardService>();
+
+        // Register Content Services
+        services.AddScoped<ISectionContentService, SectionContentService>();
+        services.AddScoped<IBannerService, BannerService>();
+        services.AddScoped<IBlogService, BlogService>();
+        services.AddScoped<ICommentBlogService, CommentBlogService>();
+        
+        // Scheduling Services
+        services.AddScoped<IWeeklyScheduleService, WeeklyScheduleService>();
+        services.AddScoped<IScheduleGenerationService, ScheduleGenerationService>();
+        services.AddScoped<IDoctorAbsenceService, DoctorAbsenceService>();
+        services.AddScoped<ISubstituteDoctorService, SubstituteDoctorService>();
+        services.AddScoped<ISlotGenerationService, SlotGenerationService>();
+        services.AddScoped<IDoctorScheduleService, DoctorScheduleService>();
+        
+        // Register ScheduleGenerationJob for Hangfire
+        services.AddScoped<VisionCare.Application.Services.Scheduling.ScheduleGenerationJob>();
+        
+        // Room & WorkShift Services
+        services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<IWorkShiftService, WorkShiftService>();
 
         return services;
     }

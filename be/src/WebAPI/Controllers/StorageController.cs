@@ -19,7 +19,7 @@ public class StorageController : ControllerBase
     }
 
     [HttpPost("upload")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Doctor,Staff")]
     public async Task<IActionResult> Upload(
         [FromQuery] string prefix,
         IFormFile file,

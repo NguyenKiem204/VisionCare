@@ -21,5 +21,19 @@ public partial class Checkout
 
     public string? Notes { get; set; }
 
+    public string? PaymentGateway { get; set; }
+
+    public string? GatewayTransactionId { get; set; }
+
+    public string? GatewayResponse { get; set; }
+
+    public DateTime? RefundRequestedAt { get; set; }
+
+    public DateTime? RefundCompletedAt { get; set; }
+
+    public decimal? RefundAmount { get; set; }
+
+    public string? RefundReason { get; set; }
+
     public virtual Appointment Appointment { get; set; } = null!;
 }

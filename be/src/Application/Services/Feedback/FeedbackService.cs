@@ -91,7 +91,7 @@ public class FeedbackService : IFeedbackService
 
         // Use domain methods to update
         existingFeedback.UpdateRating(request.Rating);
-        existingFeedback.UpdateFeedback(request.FeedbackText);
+        existingFeedback.UpdateFeedback(request.FeedbackText ?? string.Empty);
 
         await _doctorFeedbackRepository.UpdateAsync(existingFeedback);
         return _mapper.Map<FeedbackDoctorDto>(existingFeedback);
@@ -109,7 +109,7 @@ public class FeedbackService : IFeedbackService
         }
 
         // Use domain method to add response
-        existingFeedback.AddResponse(1, request.ResponseText); // TODO: Get actual user ID from context
+        existingFeedback.AddResponse(1, request.ResponseText ?? string.Empty); // TODO: Get actual user ID from context
 
         await _doctorFeedbackRepository.UpdateAsync(existingFeedback);
         return _mapper.Map<FeedbackDoctorDto>(existingFeedback);
@@ -197,7 +197,7 @@ public class FeedbackService : IFeedbackService
 
         // Use domain methods to update
         existingFeedback.UpdateRating(request.Rating);
-        existingFeedback.UpdateFeedback(request.FeedbackText);
+        existingFeedback.UpdateFeedback(request.FeedbackText ?? string.Empty);
 
         await _serviceFeedbackRepository.UpdateAsync(existingFeedback);
         return _mapper.Map<FeedbackServiceDto>(existingFeedback);
@@ -215,7 +215,7 @@ public class FeedbackService : IFeedbackService
         }
 
         // Use domain method to add response
-        existingFeedback.AddResponse(1, request.ResponseText); // TODO: Get actual user ID from context
+        existingFeedback.AddResponse(1, request.ResponseText ?? string.Empty); // TODO: Get actual user ID from context
 
         await _serviceFeedbackRepository.UpdateAsync(existingFeedback);
         return _mapper.Map<FeedbackServiceDto>(existingFeedback);

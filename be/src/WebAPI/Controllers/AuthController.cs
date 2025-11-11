@@ -11,7 +11,6 @@ using VisionCare.WebAPI.Responses;
 namespace VisionCare.WebAPI.Controllers;
 
 [ApiController]
-[AllowAnonymous]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
@@ -30,6 +29,7 @@ public class AuthController : ControllerBase
         _env = env;
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
@@ -46,6 +46,7 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<TokenResponse>.Ok(response));
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
@@ -60,6 +61,7 @@ public class AuthController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh()
     {
@@ -82,6 +84,7 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<TokenResponse>.Ok(response));
     }
 
+    [AllowAnonymous]
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
@@ -109,7 +112,6 @@ public class AuthController : ControllerBase
     {
         try
         {
-            // Get user ID from JWT token claims
             var userIdClaim =
                 User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
@@ -151,7 +153,6 @@ public class AuthController : ControllerBase
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            // For cross-site requests from FE (different port), cookies must be SameSite=None; Secure=true
             Secure = true,
             SameSite = SameSiteMode.None,
             Expires = DateTime.UtcNow.AddDays(7),

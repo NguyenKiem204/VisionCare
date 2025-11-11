@@ -25,5 +25,7 @@ public partial class Customer
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
+    public virtual ICollection<Encounter> Encounters { get; set; } = new List<Encounter>();
+
     public virtual Customerrank? Rank { get; set; }
 }

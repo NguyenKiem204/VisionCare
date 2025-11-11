@@ -42,7 +42,11 @@ public class FollowUpController : ControllerBase
         var followUp = await _followUpService.GetFollowUpByAppointmentIdAsync(appointmentId);
         if (followUp == null)
         {
-            return NotFound(ApiResponse<FollowUpDto>.Fail($"Follow-up for appointment {appointmentId} not found."));
+            return NotFound(
+                ApiResponse<FollowUpDto>.Fail(
+                    $"Follow-up for appointment {appointmentId} not found."
+                )
+            );
         }
         return Ok(ApiResponse<FollowUpDto>.Ok(followUp));
     }
@@ -82,7 +86,7 @@ public class FollowUpController : ControllerBase
             FromDate = fromDate,
             ToDate = toDate,
             Page = page,
-            PageSize = pageSize
+            PageSize = pageSize,
         };
 
         var result = await _followUpService.SearchFollowUpsAsync(request);
@@ -93,11 +97,18 @@ public class FollowUpController : ControllerBase
     public async Task<IActionResult> CreateFollowUp([FromBody] CreateFollowUpRequest request)
     {
         var followUp = await _followUpService.CreateFollowUpAsync(request);
-        return CreatedAtAction(nameof(GetFollowUpById), new { id = followUp.Id }, ApiResponse<FollowUpDto>.Ok(followUp));
+        return CreatedAtAction(
+            nameof(GetFollowUpById),
+            new { id = followUp.Id },
+            ApiResponse<FollowUpDto>.Ok(followUp)
+        );
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateFollowUp(int id, [FromBody] UpdateFollowUpRequest request)
+    public async Task<IActionResult> UpdateFollowUp(
+        int id,
+        [FromBody] UpdateFollowUpRequest request
+    )
     {
         var followUp = await _followUpService.UpdateFollowUpAsync(id, request);
         return Ok(ApiResponse<FollowUpDto>.Ok(followUp));

@@ -63,11 +63,18 @@ public class EquipmentController : ControllerBase
     public async Task<IActionResult> CreateEquipment([FromBody] CreateEquipmentRequest request)
     {
         var equipment = await _equipmentService.CreateEquipmentAsync(request);
-        return CreatedAtAction(nameof(GetEquipmentById), new { id = equipment.Id }, ApiResponse<EquipmentDto>.Ok(equipment));
+        return CreatedAtAction(
+            nameof(GetEquipmentById),
+            new { id = equipment.Id },
+            ApiResponse<EquipmentDto>.Ok(equipment)
+        );
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEquipment(int id, [FromBody] UpdateEquipmentRequest request)
+    public async Task<IActionResult> UpdateEquipment(
+        int id,
+        [FromBody] UpdateEquipmentRequest request
+    )
     {
         var equipment = await _equipmentService.UpdateEquipmentAsync(id, request);
         return Ok(ApiResponse<EquipmentDto>.Ok(equipment));

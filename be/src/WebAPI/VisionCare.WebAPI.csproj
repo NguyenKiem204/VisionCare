@@ -1,29 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="FluentValidation.AspNetCore"
-                          Version="11.3.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"
-                          Version="9.*" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi"
-                          Version="9.0.7" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore"
-                          Version="9.0.9" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design"
-                          Version="9.0.9">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="Swashbuckle.AspNetCore"
-                          Version="9.0.4" />
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\Application\VisionCare.Application.csproj" />
-        <ProjectReference Include="..\Infrastructure\VisionCare.Infrastructure.csproj" />
-    </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.*" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.18" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.18" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.20.8" />
+    <!-- SignalR is built-in to ASP.NET Core 9.0, no package needed -->
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\VisionCare.Application.csproj" />
+    <ProjectReference Include="..\Infrastructure\VisionCare.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>

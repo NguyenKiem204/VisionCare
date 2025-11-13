@@ -8,7 +8,7 @@ public static class DoctorDegreeMapper
     {
         return new DoctorDegree
         {
-            Id = 0, // Composite key, will be handled differently
+            Id = model.DegreeId,
             DoctorId = model.DoctorId,
             DegreeId = model.DegreeId,
             IssuedDate = model.IssuedDate,
@@ -16,7 +16,28 @@ public static class DoctorDegreeMapper
             CertificateImage = model.CertificateImage,
             Status = model.Status,
             Created = DateTime.UtcNow,
-            LastModified = DateTime.UtcNow
+            LastModified = DateTime.UtcNow,
+            Doctor = model.Doctor != null
+                ? new Doctor
+                {
+                    Id = model.Doctor.AccountId,
+                    DoctorName = model.Doctor.FullName,
+                    ProfileImage = model.Doctor.Avatar,
+                    ExperienceYears = model.Doctor.ExperienceYears,
+                    SpecializationId = model.Doctor.SpecializationId,
+                    Gender = model.Doctor.Gender,
+                    Dob = model.Doctor.Dob,
+                    Address = model.Doctor.Address,
+                    Phone = model.Doctor.Phone
+                }
+                : null,
+            Degree = model.Degree != null
+                ? new Degree
+                {
+                    Id = model.Degree.DegreeId,
+                    Name = model.Degree.Name
+                }
+                : null
         };
     }
 

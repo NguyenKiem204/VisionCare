@@ -40,4 +40,9 @@ export const updateOrder = async (orderId, data) => {
   return res?.data?.data ?? res?.data ?? null;
 };
 
+export const getEncounterByAppointment = async (appointmentId) => {
+  const res = await api.get(`/doctor/me/ehr/encounters/by-appointment/${appointmentId}`);
+  return res?.data?.data ?? res?.data ?? null;
+};
+
 

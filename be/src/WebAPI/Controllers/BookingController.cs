@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
@@ -51,7 +52,6 @@ public class BookingController : ControllerBase
         }
     }
 
-    /// <summary>
     [HttpPost("hold-slot")]
     public async Task<ActionResult<HoldSlotResponse>> HoldSlot([FromBody] HoldSlotRequest request)
     {
@@ -59,7 +59,6 @@ public class BookingController : ControllerBase
         {
             var response = await _bookingService.HoldSlotAsync(request);
 
-            // Get hold data to include customerId in SignalR event
             var holdData = await _holdCache.GetHoldAsync(response.HoldToken);
 
             var groupName = $"slots:{request.DoctorId}:{request.ScheduleDate:yyyyMMdd}";
@@ -74,7 +73,7 @@ public class BookingController : ControllerBase
                         date = request.ScheduleDate.ToString("yyyyMMdd"),
                         holdToken = response.HoldToken,
                         expiresAt = response.ExpiresAt,
-                        customerId = holdData?.CustomerId, // Include customerId for frontend to identify
+                        customerId = holdData?.CustomerId,
                     }
                 );
 
@@ -101,8 +100,11 @@ public class BookingController : ControllerBase
         try
         {
             await _bookingService.ReleaseHoldAsync(request.HoldToken);
-            // Fallback: ensure key by slot is removed even if token not found
-            await _holdCache.RemoveBySlotAsync(request.DoctorId, request.SlotId, request.ScheduleDate);
+            await _holdCache.RemoveBySlotAsync(
+                request.DoctorId,
+                request.SlotId,
+                request.ScheduleDate
+            );
 
             var groupName = $"slots:{request.DoctorId}:{request.ScheduleDate:yyyyMMdd}";
             await _hubContext
@@ -126,17 +128,82 @@ public class BookingController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Create a new booking
-    /// </summary>
     [HttpPost("create")]
     public async Task<ActionResult<BookingResponse>> CreateBooking(
         [FromBody] CreateBookingRequest request
     )
     {
+        if (request == null)
+        {
+            _logger.LogWarning("CreateBooking: Request is null");
+            return BadRequest(new { message = "Request body is required" });
+        }
+
+        _logger.LogInformation(
+            "CreateBooking request: DoctorId={DoctorId}, ServiceDetailId={ServiceDetailId}, SlotId={SlotId}, ScheduleDate={ScheduleDate} (default={IsDefault}), StartTime={StartTime} (default={IsTimeDefault}), CustomerId={CustomerId}, Phone={Phone}, Email={Email}",
+            request.DoctorId,
+            request.ServiceDetailId,
+            request.SlotId,
+            request.ScheduleDate,
+            request.ScheduleDate == default(DateOnly),
+            request.StartTime,
+            request.StartTime == default(TimeOnly),
+            request.CustomerId,
+            request.Phone,
+            request.Email
+        );
+
+        if (request.ScheduleDate == default(DateOnly))
+        {
+            _logger.LogWarning("CreateBooking: ScheduleDate is default (not parsed correctly)");
+            return BadRequest(
+                new { message = "Invalid schedule date format. Expected: YYYY-MM-DD" }
+            );
+        }
+
+        if (request.StartTime == default(TimeOnly))
+        {
+            _logger.LogWarning("CreateBooking: StartTime is default (not parsed correctly)");
+            return BadRequest(new { message = "Invalid start time format. Expected: HH:mm" });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState
+                .Where(x => x.Value?.Errors.Count > 0)
+                .SelectMany(x =>
+                    x.Value!.Errors.Select(e =>
+                        $"{x.Key}: {e.ErrorMessage ?? e.Exception?.Message ?? "Invalid value"}"
+                    )
+                )
+                .ToList();
+            _logger.LogWarning("ModelState validation failed: {Errors}", string.Join(", ", errors));
+            return BadRequest(new { message = "Validation failed", errors });
+        }
+
+        var remoteIp = HttpContext.Connection.RemoteIpAddress;
+        string ipAddress = "127.0.0.1";
+
+        if (remoteIp != null)
+        {
+            if (remoteIp.IsIPv4MappedToIPv6)
+            {
+                ipAddress = remoteIp.MapToIPv4().ToString();
+            }
+            else if (remoteIp.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+            {
+                ipAddress = remoteIp.ToString();
+            }
+            else
+            {
+                ipAddress = remoteIp.ToString();
+            }
+        }
+
+        _logger.LogDebug("Client IP address for VNPay: {IpAddress}", ipAddress);
+
         try
         {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
             var response = await _bookingService.CreateBookingAsync(request, ipAddress);
 
             var groupName = $"slots:{request.DoctorId}:{request.ScheduleDate:yyyyMMdd}";
@@ -172,16 +239,44 @@ public class BookingController : ControllerBase
         }
         catch (VisionCare.Application.Exceptions.ValidationException ex)
         {
-            return BadRequest(new { message = ex.Message });
+            _logger.LogWarning(ex, "Validation error creating booking: {Message}", ex.Message);
+            return BadRequest(
+                new
+                {
+                    message = ex.Message,
+                    errors = new System.Collections.Generic.Dictionary<string, string[]>
+                    {
+                        { "General", new[] { ex.Message } },
+                    },
+                }
+            );
         }
         catch (VisionCare.Application.Exceptions.NotFoundException ex)
         {
+            _logger.LogWarning(ex, "Not found error creating booking: {Message}", ex.Message);
             return NotFound(new { message = ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating booking");
-            return StatusCode(500, new { message = "Internal server error" });
+            _logger.LogError(
+                ex,
+                "Unexpected error creating booking. Request: DoctorId={DoctorId}, ServiceDetailId={ServiceDetailId}, SlotId={SlotId}",
+                request.DoctorId,
+                request.ServiceDetailId,
+                request.SlotId
+            );
+
+            var errorMessage = "Đã xảy ra lỗi khi tạo đặt lịch. Vui lòng thử lại sau.";
+            var errorDetails = new System.Collections.Generic.Dictionary<string, object>
+            {
+                { "message", errorMessage },
+            };
+
+#if DEBUG
+            errorDetails.Add("exception", ex.Message);
+            errorDetails.Add("stackTrace", ex.StackTrace);
+#endif
+            return StatusCode(500, errorDetails);
         }
     }
 
@@ -286,6 +381,8 @@ public class BookingController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
+    [HttpGet("payment/callback")]
     [HttpPost("payment/callback")]
     public async Task<ActionResult> PaymentCallback()
     {
@@ -295,6 +392,15 @@ public class BookingController : ControllerBase
                 kvp => kvp.Key,
                 kvp => kvp.Value.ToString()
             );
+
+            _logger.LogInformation(
+                "Payment callback received with {Count} parameters",
+                queryParams.Count
+            );
+
+            queryParams.TryGetValue("vnp_ResponseCode", out var rspCode);
+            queryParams.TryGetValue("vnp_TransactionStatus", out var txnStatus);
+            queryParams.TryGetValue("vnp_TxnRef", out var txnRef);
 
             var success = await _bookingService.ProcessPaymentCallbackAsync(queryParams);
 
@@ -320,19 +426,16 @@ public class BookingController : ControllerBase
                 }
             }
 
-            var returnUrl =
-                _configuration["Payment:VNPay:ReturnUrl"]
-                ?? "http://localhost:5173/booking/payment/callback";
-            var baseUrl = returnUrl.Replace("/booking/payment/callback", "");
+            var frontendBaseUrl = _configuration["Frontend:BaseUrl"] ?? "http://localhost:5173";
 
             if (success)
-            {
-                return Redirect($"{baseUrl}/booking/success");
-            }
+                return Redirect(
+                    $"{frontendBaseUrl}/booking/success?code={Uri.EscapeDataString(txnRef ?? string.Empty)}"
+                );
             else
-            {
-                return Redirect($"{baseUrl}/booking/failed");
-            }
+                return Redirect(
+                    $"{frontendBaseUrl}/booking/failed?rsp={Uri.EscapeDataString(rspCode ?? string.Empty)}&st={Uri.EscapeDataString(txnStatus ?? string.Empty)}&code={Uri.EscapeDataString(txnRef ?? string.Empty)}"
+                );
         }
         catch (Exception ex)
         {

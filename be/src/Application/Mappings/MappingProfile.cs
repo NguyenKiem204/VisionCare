@@ -19,6 +19,8 @@ using VisionCare.Application.DTOs.User;
 using VisionCare.Application.DTOs.RoomDto;
 using VisionCare.Application.DTOs.WorkShiftDto;
 using VisionCare.Application.DTOs.DoctorScheduleDto;
+using VisionCare.Application.DTOs.DoctorCertificateDto;
+using VisionCare.Application.DTOs.DoctorDegreeDto;
 using VisionCare.Domain.Entities;
 
 namespace VisionCare.Application.Mappings;
@@ -139,6 +141,22 @@ public class MappingProfile : Profile
 
         CreateMap<CreateAppointmentRequest, Appointment>();
         CreateMap<UpdateAppointmentRequest, Appointment>();
+
+        CreateMap<DoctorCertificate, DoctorCertificateDto>()
+            .ForMember(
+                dest => dest.CertificateName,
+                opt => opt.MapFrom(src => src.Certificate != null ? src.Certificate.Name : null)
+            );
+        CreateMap<CreateDoctorCertificateRequest, DoctorCertificate>();
+        CreateMap<UpdateDoctorCertificateRequest, DoctorCertificate>();
+
+        CreateMap<DoctorDegree, DoctorDegreeDto>()
+            .ForMember(
+                dest => dest.DegreeName,
+                opt => opt.MapFrom(src => src.Degree != null ? src.Degree.Name : null)
+            );
+        CreateMap<CreateDoctorDegreeRequest, DoctorDegree>();
+        CreateMap<UpdateDoctorDegreeRequest, DoctorDegree>();
 
         // Service mappings
         CreateMap<Service, ServiceDto>()

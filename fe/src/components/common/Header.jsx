@@ -14,6 +14,7 @@ import {
   Facebook,
   Youtube,
   Search,
+  History,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -46,13 +47,21 @@ const Header = () => {
     { name: "VỀ MẮT VisionCare", href: "/about" },
     { name: "DỊCH VỤ", href: "/services" },
     { name: "ĐỘI NGŨ BÁC SĨ", href: "/#doctors-section" },
-    { name: "TIN TỨC", href: "/#news-section" },
+    { name: "TIN TỨC", href: "/blogs" },
   ];
 
   const handleLogout = async () => {
     await logout();
     setIsUserMenuOpen(false);
     setIsMenuOpen(false);
+  };
+
+  const getProfilePath = () => {
+    const role = user?.roleName?.toLowerCase();
+    if (role === "admin") return "/admin/profile";
+    if (role === "doctor") return "/doctor/profile";
+    if (role === "staff") return "/staff/profile";
+    return "/customer/profile"; // Default to customer
   };
 
   return (
@@ -214,7 +223,16 @@ const Header = () => {
                       )}
 
                       <Link
-                        to="/profile"
+                        to="/customer/history"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-200"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <History className="w-4 h-4 mr-2 text-yellow-500" />
+                        Lịch sử khám
+                      </Link>
+
+                      <Link
+                        to={getProfilePath()}
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
@@ -353,7 +371,16 @@ const Header = () => {
                       )}
 
                       <Link
-                        to="/profile"
+                        to="/customer/history"
+                        className="flex items-center space-x-2 text-gray-700 hover:text-[#0c5a8a] py-2 border-b border-gray-200"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <History className="w-4 h-4 text-yellow-500" />
+                        <span>Lịch sử khám</span>
+                      </Link>
+
+                      <Link
+                        to={getProfilePath()}
                         className="flex items-center space-x-2 text-gray-700 hover:text-[#0c5a8a] py-2"
                         onClick={() => setIsMenuOpen(false)}
                       >

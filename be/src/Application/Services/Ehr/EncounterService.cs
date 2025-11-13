@@ -26,6 +26,15 @@ public class EncounterService : IEncounterService
         return e == null ? null : Map(e);
     }
 
+    public async Task<EncounterDto?> GetByAppointmentIdAsync(int appointmentId, int doctorId)
+    {
+        var e = await _encounterRepository.GetByAppointmentIdAsync(appointmentId);
+        if (e == null) return null;
+        if (e.DoctorId != doctorId)
+            throw new UnauthorizedAccessException("Cannot access encounter of another doctor");
+        return Map(e);
+    }
+
     public async Task<IEnumerable<EncounterDto>> GetByDoctorAndRangeAsync(
         int doctorId,
         DateOnly? from,

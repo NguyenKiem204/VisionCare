@@ -8,6 +8,7 @@ import StaffPatients from "../pages/staff/Patients";
 import StaffBookings from "../pages/staff/Bookings";
 import BlogsManagement from "../pages/staff/BlogsManagement";
 import BlogEditor from "../pages/staff/BlogEditor";
+import Profile from "../pages/staff/Profile";
 
 const StaffRoutes = () => {
   return (
@@ -29,6 +30,7 @@ const StaffRoutes = () => {
         <Route path="blogs" element={<BlogsManagement />} />
         <Route path="blogs/new" element={<BlogEditor />} />
         <Route path="blogs/:id/edit" element={<BlogEditor />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>
   );

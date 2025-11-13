@@ -30,7 +30,7 @@ public class CommentBlogRepository : ICommentBlogRepository
             .Include(c => c.Author!)
                 .ThenInclude(a => a.Staff)
             .Where(c => c.BlogId == blogId && c.Status == "Active")
-            .OrderBy(c => c.CreatedAt)
+            .OrderByDescending(c => c.CreatedAt)
             .ToListAsync(ct);
         return comments.Select(CommentBlogMapper.ToDomain).ToList();
     }
@@ -46,7 +46,7 @@ public class CommentBlogRepository : ICommentBlogRepository
             .Include(c => c.Author!)
                 .ThenInclude(a => a.Staff)
             .Where(c => c.BlogId == blogId && c.Status == "Active")
-            .OrderBy(c => c.CreatedAt)
+            .OrderByDescending(c => c.CreatedAt)
             .ToListAsync(ct);
         
         return comments.Select(c =>

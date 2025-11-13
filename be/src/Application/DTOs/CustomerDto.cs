@@ -11,6 +11,7 @@ public class CustomerDto
     public DateOnly? Dob { get; set; }
     public string? Address { get; set; }
     public string? Phone { get; set; }
+    public string? Avatar { get; set; }
     public DateTime Created { get; set; }
     public DateTime? LastModified { get; set; }
     public string? Email { get; set; }
@@ -33,6 +34,8 @@ public class UpdateCustomerRequest
     public string? Gender { get; set; }
     public DateOnly? Dob { get; set; }
     public string? Address { get; set; }
+    public string? Phone { get; set; }
+    public string? Avatar { get; set; }
 }
 
 public class UpdateCustomerProfileRequest

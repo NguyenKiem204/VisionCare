@@ -15,6 +15,7 @@ public static class CustomerMapper
             Dob = model.Dob,
             Address = model.Address ?? string.Empty,
             Phone = model.Phone,
+            Avatar = model.Avatar,
             Created = DateTime.UtcNow,
             LastModified = DateTime.UtcNow,
             Account =
@@ -38,6 +39,8 @@ public static class CustomerMapper
             Gender = domain.Gender,
             Dob = domain.Dob,
             Address = domain.Address,
+            Phone = domain.Phone,
+            Avatar = domain.Avatar,
         };
     }
 }

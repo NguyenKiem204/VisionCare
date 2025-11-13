@@ -5,6 +5,7 @@ using VisionCare.Infrastructure;
 using VisionCare.WebAPI.Extensions;
 using VisionCare.WebAPI.Filters;
 using VisionCare.WebAPI.Hubs;
+using VisionCare.WebAPI.Converters;
 using DbSeeder = VisionCare.Infrastructure.Services.DbSeeder;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,9 @@ builder
         options.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter()
         );
+        // Add DateOnly and TimeOnly converters
+        options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
     });
 
 builder.Services.AddApplication();

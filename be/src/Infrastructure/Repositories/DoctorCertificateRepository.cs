@@ -46,6 +46,10 @@ public class DoctorCertificateRepository : IDoctorCertificateRepository
         var doctorCertificateModel = DoctorCertificateMapper.ToInfrastructure(doctorCertificate);
         _context.Certificatedoctors.Add(doctorCertificateModel);
         await _context.SaveChangesAsync();
+
+        await _context.Entry(doctorCertificateModel).Reference(dc => dc.Doctor).LoadAsync();
+        await _context.Entry(doctorCertificateModel).Reference(dc => dc.Certificate).LoadAsync();
+
         return DoctorCertificateMapper.ToDomain(doctorCertificateModel);
     }
 

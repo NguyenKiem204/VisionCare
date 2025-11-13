@@ -37,6 +37,20 @@ public class AppointmentRepository : IAppointmentRepository
         return appointment != null ? AppointmentMapper.ToDomain(appointment) : null;
     }
 
+    public async Task<DomainAppointment?> GetByCodeAsync(string appointmentCode)
+    {
+        if (string.IsNullOrWhiteSpace(appointmentCode))
+            return null;
+
+        var appointment = await _context
+            .Appointments.Include(a => a.Doctor)
+            .ThenInclude(d => d.Specialization)
+            .Include(a => a.Patient)
+            .FirstOrDefaultAsync(a => a.AppointmentCode == appointmentCode);
+
+        return appointment != null ? AppointmentMapper.ToDomain(appointment) : null;
+    }
+
     public async Task<DomainAppointment> AddAsync(DomainAppointment appointment)
     {
         var appointmentModel = AppointmentMapper.ToInfrastructure(appointment);
@@ -55,7 +69,20 @@ public class AppointmentRepository : IAppointmentRepository
         {
             existingAppointment.AppointmentDatetime =
                 appointment.AppointmentDate ?? existingAppointment.AppointmentDatetime;
-            existingAppointment.Status = appointment.AppointmentStatus;
+            existingAppointment.Status = appointment.AppointmentStatus ?? existingAppointment.Status;
+            existingAppointment.PaymentStatus =
+                appointment.PaymentStatus ?? existingAppointment.PaymentStatus;
+            existingAppointment.ActualCost = appointment.ActualCost ?? existingAppointment.ActualCost;
+            existingAppointment.DiscountId = appointment.DiscountId ?? existingAppointment.DiscountId;
+            existingAppointment.Notes = appointment.Notes ?? existingAppointment.Notes;
+            existingAppointment.AppointmentCode =
+                appointment.AppointmentCode ?? existingAppointment.AppointmentCode;
+            if (appointment.DoctorId.HasValue)
+                existingAppointment.DoctorId = appointment.DoctorId.Value;
+            if (appointment.PatientId.HasValue)
+                existingAppointment.PatientId = appointment.PatientId.Value;
+            if (appointment.ServiceDetailId.HasValue)
+                existingAppointment.ServiceDetailId = appointment.ServiceDetailId.Value;
 
             await _context.SaveChangesAsync();
         }
@@ -110,8 +137,12 @@ public class AppointmentRepository : IAppointmentRepository
 
         if (date.HasValue)
         {
-            var startOfDay = date.Value.Date;
-            var endOfDay = startOfDay.AddDays(1);
+            // Convert to Unspecified kind to match PostgreSQL timestamp without time zone
+            var dateValue = date.Value.Kind == DateTimeKind.Utc
+                ? DateTime.SpecifyKind(date.Value, DateTimeKind.Unspecified)
+                : date.Value;
+            var startOfDay = DateTime.SpecifyKind(dateValue.Date, DateTimeKind.Unspecified);
+            var endOfDay = DateTime.SpecifyKind(startOfDay.AddDays(1), DateTimeKind.Unspecified);
             query = query.Where(a =>
                 a.AppointmentDatetime >= startOfDay && a.AppointmentDatetime < endOfDay
             );
@@ -123,8 +154,12 @@ public class AppointmentRepository : IAppointmentRepository
 
     public async Task<IEnumerable<DomainAppointment>> GetByDateAsync(DateTime date)
     {
-        var startOfDay = date.Date;
-        var endOfDay = startOfDay.AddDays(1);
+        // Convert to Unspecified kind to match PostgreSQL timestamp without time zone
+        var dateValue = date.Kind == DateTimeKind.Utc
+            ? DateTime.SpecifyKind(date, DateTimeKind.Unspecified)
+            : date;
+        var startOfDay = DateTime.SpecifyKind(dateValue.Date, DateTimeKind.Unspecified);
+        var endOfDay = DateTime.SpecifyKind(startOfDay.AddDays(1), DateTimeKind.Unspecified);
 
         var appointments = await _context
             .Appointments.Include(a => a.Doctor)

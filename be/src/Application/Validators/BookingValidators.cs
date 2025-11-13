@@ -28,14 +28,18 @@ public class CreateBookingRequestValidator : AbstractValidator<CreateBookingRequ
         RuleFor(x => x.SlotId).GreaterThan(0).WithMessage("Slot ID is required");
         
         RuleFor(x => x.ScheduleDate)
-            .NotEmpty()
+            .Must(date => date != default(DateOnly))
             .WithMessage("Schedule date is required")
             .Must(date => date >= DateOnly.FromDateTime(DateTime.Today))
             .WithMessage("Schedule date cannot be in the past")
             .Must(date => date <= DateOnly.FromDateTime(DateTime.Today.AddDays(30)))
             .WithMessage("Schedule date cannot be more than 30 days ahead");
 
-        RuleFor(x => x.StartTime).NotEmpty().WithMessage("Start time is required");
+        RuleFor(x => x.StartTime)
+            .NotEmpty()
+            .WithMessage("Start time is required")
+            .Must(time => time != default(TimeOnly))
+            .WithMessage("Start time is required");
 
         // Validation: CustomerId or (Phone + Email) must be provided
         RuleFor(x => x)
@@ -58,8 +62,8 @@ public class CreateBookingRequestValidator : AbstractValidator<CreateBookingRequ
         When(x => !string.IsNullOrEmpty(x.Phone), () =>
         {
             RuleFor(x => x.Phone)
-                .Matches(@"^(0|\+84)[3-9][0-9]{8}$")
-                .WithMessage("Invalid Vietnamese phone number format");
+                .Matches(@"^(0|\+84)[3-9][0-9]{8,9}$")
+                .WithMessage("Invalid Vietnamese phone number format. Expected: 0xxxxxxxxx or +84xxxxxxxxx (9-10 digits after prefix)");
         });
     }
 }

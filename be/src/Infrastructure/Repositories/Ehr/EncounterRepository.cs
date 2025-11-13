@@ -22,6 +22,12 @@ public class EncounterRepository : IEncounterRepository
         return model == null ? null : EncounterMapper.ToDomain(model);
     }
 
+    public async Task<Encounter?> GetByAppointmentIdAsync(int appointmentId)
+    {
+        var model = await _db.Encounters.FirstOrDefaultAsync(x => x.AppointmentId == appointmentId);
+        return model == null ? null : EncounterMapper.ToDomain(model);
+    }
+
     public async Task<IEnumerable<Encounter>> GetByDoctorAndRangeAsync(
         int doctorId,
         DateOnly? from,

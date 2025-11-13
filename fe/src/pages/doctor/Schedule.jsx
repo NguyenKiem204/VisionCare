@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getSchedules, getUpcomingAppointments, confirmMyAppointment, completeMyAppointment, cancelMyAppointment } from "../../services/doctorMeAPI";
-import { Calendar, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Calendar, CheckCircle, XCircle, Clock, Eye } from "lucide-react";
 
 const DoctorSchedule = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [todaySchedules, setTodaySchedules] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
@@ -87,6 +89,12 @@ const DoctorSchedule = () => {
                 <div className="flex items-center space-x-3">
                   <StatusBadge status={s?.Status || s?.ScheduleStatus || "Scheduled"} />
                   <button
+                    onClick={() => navigate(`/doctor/appointments/${s?.AppointmentId || s?.Id}`)}
+                    className="inline-flex items-center px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs dark:bg-indigo-900/30 dark:text-indigo-300"
+                  >
+                    <Eye className="h-3 w-3 mr-1" /> Chi tiết
+                  </button>
+                  <button
                     onClick={() => onConfirm(s?.AppointmentId || s?.Id)}
                     className="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs dark:bg-blue-900/30 dark:text-blue-300"
                   >
@@ -127,7 +135,15 @@ const DoctorSchedule = () => {
                   {new Date(s?.AppointmentDate || s?.ScheduleDate).toLocaleString("vi-VN")}
                 </div>
               </div>
-              <StatusBadge status={s?.Status || s?.ScheduleStatus || "Scheduled"} />
+              <div className="flex items-center space-x-3">
+                <StatusBadge status={s?.Status || s?.ScheduleStatus || "Scheduled"} />
+                <button
+                  onClick={() => navigate(`/doctor/appointments/${s?.AppointmentId || s?.Id}`)}
+                  className="inline-flex items-center px-2 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs dark:bg-indigo-900/30 dark:text-indigo-300"
+                >
+                  <Eye className="h-3 w-3 mr-1" /> Chi tiết
+                </button>
+              </div>
             </li>
           ))}
           {(!upcoming || upcoming.length === 0) && (

@@ -56,10 +56,12 @@ public class CustomerRepository : ICustomerRepository
 
         if (existingCustomer != null)
         {
-            existingCustomer.FullName = customer.CustomerName ?? string.Empty;
-            existingCustomer.Gender = customer.Gender;
-            existingCustomer.Dob = customer.Dob;
-            existingCustomer.Address = customer.Address;
+            existingCustomer.FullName = customer.CustomerName ?? existingCustomer.FullName;
+            existingCustomer.Gender = customer.Gender ?? existingCustomer.Gender;
+            existingCustomer.Dob = customer.Dob ?? existingCustomer.Dob;
+            existingCustomer.Address = customer.Address ?? existingCustomer.Address;
+            existingCustomer.Phone = customer.Phone ?? existingCustomer.Phone;
+            existingCustomer.Avatar = customer.Avatar ?? existingCustomer.Avatar;
 
             await _context.SaveChangesAsync();
         }

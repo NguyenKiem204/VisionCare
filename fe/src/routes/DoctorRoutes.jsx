@@ -8,6 +8,7 @@ import DoctorPatients from "../pages/doctor/Patients";
 import DoctorSchedule from "../pages/doctor/Schedule";
 import DoctorAbsences from "../pages/doctor/Absences";
 import EncounterPage from "../pages/doctor/Encounter";
+import AppointmentDetail from "../pages/doctor/AppointmentDetail";
 import Profile from "../pages/doctor/Profile";
 import Analytics from "../pages/doctor/Analytics";
 import MyDoctorSchedules from "../pages/doctor/MyDoctorSchedules";
@@ -52,6 +53,7 @@ const DoctorRoutes = () => {
         <Route index element={<DoctorDashboard />} />
         <Route path="patients" element={<DoctorPatients />} />
         <Route path="schedule" element={<DoctorSchedule />} />
+        <Route path="appointments/:id" element={<AppointmentDetail />} />
         <Route path="doctor-schedules" element={<MyDoctorSchedules />} />
         <Route path="absences" element={<DoctorAbsences />} />
         <Route path="ehr" element={<EncounterPage />} />

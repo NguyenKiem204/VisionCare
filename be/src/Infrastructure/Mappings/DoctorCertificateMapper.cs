@@ -8,7 +8,7 @@ public static class DoctorCertificateMapper
     {
         return new DoctorCertificate
         {
-            Id = 0, // Composite key, will be handled differently
+            Id = model.CertificateId,
             DoctorId = model.DoctorId,
             CertificateId = model.CertificateId,
             IssuedDate = model.IssuedDate,
@@ -17,7 +17,28 @@ public static class DoctorCertificateMapper
             ExpiryDate = model.ExpiryDate,
             Status = model.Status,
             Created = DateTime.UtcNow,
-            LastModified = DateTime.UtcNow
+            LastModified = DateTime.UtcNow,
+            Doctor = model.Doctor != null
+                ? new Doctor
+                {
+                    Id = model.Doctor.AccountId,
+                    DoctorName = model.Doctor.FullName,
+                    ProfileImage = model.Doctor.Avatar,
+                    ExperienceYears = model.Doctor.ExperienceYears,
+                    SpecializationId = model.Doctor.SpecializationId,
+                    Gender = model.Doctor.Gender,
+                    Dob = model.Doctor.Dob,
+                    Address = model.Doctor.Address,
+                    Phone = model.Doctor.Phone
+                }
+                : null,
+            Certificate = model.Certificate != null
+                ? new Certificate
+                {
+                    Id = model.Certificate.CertificateId,
+                    Name = model.Certificate.Name
+                }
+                : null
         };
     }
 

@@ -13,6 +13,7 @@ public class DoctorDto
     public int? SpecializationId { get; set; }
     public string? SpecializationName { get; set; }
     public string? ProfileImage { get; set; }
+    public string? Avatar { get; set; }
     public double? Rating { get; set; }
     public string? Gender { get; set; }
     public DateOnly? Dob { get; set; }
@@ -44,6 +45,7 @@ public class UpdateDoctorRequest
     public int? ExperienceYears { get; set; }
     public int? SpecializationId { get; set; }
     public string? ProfileImage { get; set; }
+    public string? Avatar { get; set; }
     public string? Gender { get; set; }
     public DateOnly? Dob { get; set; }
     public string? Address { get; set; }

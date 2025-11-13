@@ -77,7 +77,7 @@ export default function BlogDetail() {
                   
                   return {
                     ...comment,
-                    replies: [...(comment.replies || []), newComment]
+                    replies: [newComment, ...(comment.replies || [])]
                   };
                 }
                 // Check nested replies
@@ -95,7 +95,7 @@ export default function BlogDetail() {
             const exists = comments.some(c => c.commentId === newComment.commentId);
             if (exists) return comments;
             
-            return [...comments, newComment];
+            return [newComment, ...comments];
           };
           
           // Add new comment to the list
@@ -246,41 +246,43 @@ export default function BlogDetail() {
         </Link>
 
         {/* Blog Content */}
-        <article className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-8">
-          {blog.featuredImage && (
-            <div className="h-64 md:h-96 overflow-hidden">
+        <article className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl overflow-hidden mb-8 border border-slate-100 dark:border-slate-700">
+          {blog.featuredImage ? (
+            <div className="h-64 md:h-96 overflow-hidden bg-slate-200 dark:bg-slate-800">
               <img
                 src={blog.featuredImage}
                 alt={blog.title}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1600&q=80";
+                }}
               />
             </div>
+          ) : (
+            <div className="h-48 md:h-64 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700" />
           )}
 
-          <div className="p-6 md:p-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="p-6 md:p-10">
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
               {blog.title}
             </h1>
 
-            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
-              {blog.authorName && (
-                <span>Tác giả: {blog.authorName}</span>
-              )}
-              {blog.publishedAt && (
-                <span>• {formatDate(blog.publishedAt)}</span>
-              )}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-300 mb-6">
+              {blog.authorName && <span>Tác giả: {blog.authorName}</span>}
+              {blog.publishedAt && <span>• {formatDate(blog.publishedAt)}</span>}
               <span>• 👁️ {blog.viewCount || 0} lượt xem</span>
               <span>• 💬 {blog.commentCount || 0} bình luận</span>
             </div>
 
             {blog.excerpt && (
-              <div className="text-lg text-gray-700 dark:text-gray-300 mb-6 italic border-l-4 border-blue-500 pl-4">
+              <div className="text-lg text-slate-700 dark:text-slate-200 mb-6 italic border-l-4 border-blue-500 pl-4">
                 {blog.excerpt}
               </div>
             )}
 
             <div
-              className="prose prose-lg max-w-none dark:prose-invert"
+              className="prose prose-lg max-w-none text-slate-800 dark:prose-invert dark:text-slate-200 dark:[&_p]:text-slate-200 dark:[&_li]:text-slate-200 dark:[&_blockquote]:text-slate-200 dark:[&_strong]:text-white dark:[&_h2]:text-white dark:[&_h3]:text-white"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />
           </div>

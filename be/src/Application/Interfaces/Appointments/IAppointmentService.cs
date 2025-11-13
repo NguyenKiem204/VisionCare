@@ -2,19 +2,13 @@ using VisionCare.Application.DTOs.AppointmentDto;
 
 namespace VisionCare.Application.Interfaces.Appointments;
 
-/// <summary>
-/// Service interface for appointment management operations
-/// </summary>
 public interface IAppointmentService
 {
-    // Basic CRUD operations
     Task<IEnumerable<AppointmentDto>> GetAllAppointmentsAsync();
     Task<AppointmentDto?> GetAppointmentByIdAsync(int id);
     Task<AppointmentDto> CreateAppointmentAsync(CreateAppointmentRequest request);
     Task<AppointmentDto> UpdateAppointmentAsync(int id, UpdateAppointmentRequest request);
     Task<bool> DeleteAppointmentAsync(int id);
-
-    // Scheduling operations
     Task<IEnumerable<AppointmentDto>> GetAppointmentsByDoctorAsync(
         int doctorId,
         DateTime? date = null
@@ -32,14 +26,10 @@ public interface IAppointmentService
         int? doctorId = null,
         int? customerId = null
     );
-
-    // Status management
     Task<AppointmentDto> ConfirmAppointmentAsync(int appointmentId);
     Task<AppointmentDto> CancelAppointmentAsync(int appointmentId, string? reason = null);
     Task<AppointmentDto> CompleteAppointmentAsync(int appointmentId, string? notes = null);
     Task<AppointmentDto> RescheduleAppointmentAsync(int appointmentId, DateTime newDateTime);
-
-    // Availability checking
     Task<bool> IsDoctorAvailableAsync(int doctorId, DateTime dateTime);
     Task<IEnumerable<DateTime>> GetAvailableTimeSlotsAsync(int doctorId, DateTime date);
     Task<bool> CheckAppointmentConflictAsync(
@@ -47,8 +37,6 @@ public interface IAppointmentService
         DateTime dateTime,
         int? excludeAppointmentId = null
     );
-
-    // Search and filtering
     Task<(IEnumerable<AppointmentDto> items, int totalCount)> SearchAppointmentsAsync(
         string? keyword,
         string? status,
@@ -61,8 +49,6 @@ public interface IAppointmentService
         string? sortBy = null,
         bool desc = false
     );
-
-    // Statistics and reporting
     Task<int> GetTotalAppointmentsCountAsync();
     Task<Dictionary<string, int>> GetAppointmentsByStatusStatsAsync();
     Task<Dictionary<string, int>> GetAppointmentsByDoctorStatsAsync();

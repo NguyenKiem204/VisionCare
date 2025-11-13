@@ -9,6 +9,8 @@ const BookingPaymentCallback = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState("processing"); // processing, success, failed
   const [booking, setBooking] = useState(null);
+  const [responseCode, setResponseCode] = useState(null);
+  const [transactionStatus, setTransactionStatus] = useState(null);
 
   useEffect(() => {
     const processCallback = async () => {
@@ -19,11 +21,26 @@ const BookingPaymentCallback = () => {
         // However, the backend PaymentCallback endpoint handles this via GET request
         // So we need to check the current URL params
 
-        const appointmentCode = searchParams.get("vnp_TxnRef");
+        const appointmentCode =
+          searchParams.get("code") || searchParams.get("vnp_TxnRef");
+        const rspCode = searchParams.get("rsp") || searchParams.get("vnp_ResponseCode");
+        const txnStatus =
+          searchParams.get("st") || searchParams.get("vnp_TransactionStatus");
+
+        setResponseCode(rspCode);
+        setTransactionStatus(txnStatus);
+
         if (!appointmentCode) {
           setStatus("failed");
           toast.error("Không tìm thấy thông tin giao dịch");
           return;
+        }
+
+        const expectedSuccess =
+          (rspCode === "00" && txnStatus === "00") || (!rspCode && !txnStatus);
+
+        if (expectedSuccess) {
+          setStatus("success");
         }
 
         // The backend should have already processed the payment
@@ -41,17 +58,38 @@ const BookingPaymentCallback = () => {
                 setStatus("success");
                 toast.success("Thanh toán thành công!");
               } else {
-                setStatus("failed");
-                toast.error("Thanh toán thất bại");
+                if (expectedSuccess) {
+                  toast.error(
+                    "Thanh toán đã trả về thành công nhưng hệ thống chưa cập nhật trạng thái. Vui lòng liên hệ hỗ trợ."
+                  );
+                  setStatus("success");
+                } else {
+                  toast.error("Thanh toán thất bại");
+                  setStatus("failed");
+                }
               }
             } else {
-              setStatus("failed");
-              toast.error("Không tìm thấy thông tin đặt lịch");
+              if (expectedSuccess) {
+                toast.error(
+                  "Không tìm thấy thông tin đặt lịch dù giao dịch trả về thành công. Vui lòng liên hệ hỗ trợ."
+                );
+                setStatus("success");
+              } else {
+                setStatus("failed");
+                toast.error("Không tìm thấy thông tin đặt lịch");
+              }
             }
           } catch (error) {
             console.error("Error fetching booking:", error);
-            setStatus("failed");
-            toast.error("Không thể kiểm tra trạng thái thanh toán");
+            if (expectedSuccess && error?.response?.status === 404) {
+              toast.error(
+                "Không tìm thấy thông tin đặt lịch dù giao dịch trả về thành công. Vui lòng liên hệ hỗ trợ."
+              );
+              setStatus("success");
+            } else {
+              setStatus("failed");
+              toast.error("Không thể kiểm tra trạng thái thanh toán");
+            }
           }
         }, 2000); // Wait 2 seconds for backend to process
       } catch (error) {
@@ -209,6 +247,18 @@ const BookingPaymentCallback = () => {
                   </span>
                 </p>
               </div>
+            </div>
+          )}
+
+          {(responseCode || transactionStatus) && (
+            <div className="bg-red-50 rounded-lg p-4 mb-6 text-sm text-left">
+              <p className="font-semibold mb-1">Thông tin giao dịch từ VNPay</p>
+              <p>
+                <strong>ResponseCode:</strong> {responseCode || "N/A"}
+              </p>
+              <p>
+                <strong>TransactionStatus:</strong> {transactionStatus || "N/A"}
+              </p>
             </div>
           )}
 

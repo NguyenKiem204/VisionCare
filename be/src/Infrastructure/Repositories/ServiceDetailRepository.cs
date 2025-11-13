@@ -91,4 +91,39 @@ public class ServiceDetailRepository : IServiceDetailRepository
             LastModified = DateTime.UtcNow,
         };
     }
+
+    public async Task<IEnumerable<ServiceDetail>> GetByServiceTypeIdAsync(int serviceTypeId)
+    {
+        var serviceDetails = await _context
+            .Servicesdetails
+            .Include(sd => sd.Service)
+            .Include(sd => sd.ServiceType)
+            .Where(sd => sd.ServiceTypeId == serviceTypeId)
+            .ToListAsync();
+
+        return serviceDetails.Select(sd => new ServiceDetail
+        {
+            Id = sd.ServiceDetailId,
+            ServiceId = sd.ServiceId,
+            ServiceTypeId = sd.ServiceTypeId,
+            Cost = sd.Cost,
+            Service = sd.Service != null
+                ? new Service
+                {
+                    Id = sd.Service.ServiceId,
+                    Name = sd.Service.Name ?? string.Empty,
+                }
+                : null!,
+            ServiceType = sd.ServiceType != null
+                ? new ServiceType
+                {
+                    Id = sd.ServiceType.ServiceTypeId,
+                    Name = sd.ServiceType.Name ?? string.Empty,
+                    DurationMinutes = sd.ServiceType.DurationMinutes,
+                }
+                : null!,
+            Created = DateTime.UtcNow,
+            LastModified = DateTime.UtcNow,
+        }).ToList();
+    }
 }

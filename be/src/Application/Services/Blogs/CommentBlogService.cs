@@ -36,11 +36,11 @@ public class CommentBlogService : ICommentBlogService
         {
             parent.Replies = commentDtos
                 .Where(c => c.ParentCommentId == parent.CommentId)
-                .OrderBy(c => c.CreatedAt)
+                .OrderByDescending(c => c.CreatedAt)
                 .ToList();
         }
 
-        return parentComments.OrderBy(c => c.CreatedAt).ToList();
+        return parentComments.OrderByDescending(c => c.CreatedAt).ToList();
     }
 
     public async Task<CommentBlogDto?> GetByIdAsync(int id, CancellationToken ct = default)

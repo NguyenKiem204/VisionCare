@@ -5,6 +5,7 @@ namespace VisionCare.Application.Interfaces.Ehr;
 public interface IEncounterService
 {
     Task<EncounterDto?> GetByIdAsync(int id);
+    Task<EncounterDto?> GetByAppointmentIdAsync(int appointmentId, int doctorId);
     Task<IEnumerable<EncounterDto>> GetByDoctorAndRangeAsync(
         int doctorId,
         DateOnly? from,

@@ -235,6 +235,21 @@ export const useBooking = () => {
     setSubmitError(null);
 
     try {
+      // Validate required fields
+      if (!data.doctorId || !data.serviceDetailId || !data.slotId || !data.date || !data.time) {
+        const missingFields = [];
+        if (!data.doctorId) missingFields.push("Bác sĩ");
+        if (!data.serviceDetailId) missingFields.push("Dịch vụ");
+        if (!data.slotId) missingFields.push("Khung giờ");
+        if (!data.date) missingFields.push("Ngày khám");
+        if (!data.time) missingFields.push("Giờ khám");
+        
+        const errorMsg = `Vui lòng điền đầy đủ thông tin: ${missingFields.join(", ")}`;
+        setSubmitError(errorMsg);
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+
       // Prepare booking request
       const request = {
         holdToken: holdToken || null,
@@ -251,6 +266,7 @@ export const useBooking = () => {
         discountId: data.discountId || null,
       };
 
+      console.log("[Booking] Creating booking request:", request);
       const response = await bookingAPI.createBooking(request);
 
       // Release hold (will be done by backend, but good practice)
@@ -277,10 +293,81 @@ export const useBooking = () => {
 
       return response;
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || error.message || "Có lỗi xảy ra khi đặt lịch";
+      // Extract detailed error messages
+      let errorMessage = "Đã xảy ra lỗi khi đặt lịch. Vui lòng thử lại.";
+      let errorDetails = [];
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        
+        // Handle ApiResponse format from backend
+        if (errorData.errors && typeof errorData.errors === 'object') {
+          // Map field names to Vietnamese
+          const fieldNames = {
+            'DoctorId': 'Bác sĩ',
+            'ServiceDetailId': 'Dịch vụ',
+            'SlotId': 'Khung giờ',
+            'ScheduleDate': 'Ngày khám',
+            'StartTime': 'Giờ khám',
+            'CustomerId': 'Khách hàng',
+            'Phone': 'Số điện thoại',
+            'Email': 'Email',
+            'CustomerName': 'Họ tên',
+            'Notes': 'Ghi chú',
+          };
+          
+          for (const [key, messages] of Object.entries(errorData.errors)) {
+            const fieldName = fieldNames[key] || key;
+            if (Array.isArray(messages)) {
+              messages.forEach(msg => {
+                errorDetails.push(`${fieldName}: ${msg}`);
+              });
+            } else {
+              errorDetails.push(`${fieldName}: ${messages}`);
+            }
+          }
+          
+          if (errorDetails.length > 0) {
+            errorMessage = errorDetails.join('\n');
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // For 500 errors, try to get exception message if available
+      if (error.response?.status === 500 && error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.exception) {
+          errorMessage = `${errorMessage}\nChi tiết: ${errorData.exception}`;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      }
+      
+      // Log full error for debugging
+      console.error("[Booking] Error details:", {
+        error,
+        status: error.response?.status,
+        response: error.response?.data,
+        errorMessage,
+        errorDetails
+      });
+      
       setSubmitError(errorMessage);
-      toast.error(errorMessage);
+      
+      // Show toast with first error or summary
+      const toastMessage = errorDetails.length > 0 
+        ? errorDetails[0] 
+        : errorMessage;
+      toast.error(toastMessage, {
+        duration: 5000,
+      });
+      
       throw error;
     } finally {
       setIsSubmitting(false);

@@ -73,6 +73,16 @@ public class DoctorEhrController : ControllerBase
         return Ok(ApiResponse<IEnumerable<EncounterDto>>.Ok(list));
     }
 
+    [HttpGet("encounters/by-appointment/{appointmentId}")]
+    public async Task<ActionResult<EncounterDto>> GetEncounterByAppointment(int appointmentId)
+    {
+        var doctorId = GetCurrentAccountId();
+        var encounter = await _encounterService.GetByAppointmentIdAsync(appointmentId, doctorId);
+        if (encounter == null)
+            return NotFound(ApiResponse<EncounterDto>.Fail("Encounter not found"));
+        return Ok(ApiResponse<EncounterDto>.Ok(encounter));
+    }
+
     [HttpPost("prescriptions")]
     public async Task<ActionResult<PrescriptionDto>> CreatePrescription(
         [FromBody] CreatePrescriptionRequest request

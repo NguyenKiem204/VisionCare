@@ -24,6 +24,7 @@ const StaffLayout = () => {
     { name: "Lịch hẹn", href: "/staff/bookings", icon: Calendar },
     { name: "Bệnh nhân", href: "/staff/patients", icon: Users },
     { name: "Blogs", href: "/staff/blogs", icon: BookOpen },
+    { name: "Hồ sơ cá nhân", href: "/staff/profile", icon: User },
   ];
 
   const isActive = (path) => {

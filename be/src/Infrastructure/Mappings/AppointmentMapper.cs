@@ -30,10 +30,21 @@ public static class AppointmentMapper
         DomainAppointment domain
     )
     {
+        // Convert DateTime to Unspecified kind for PostgreSQL timestamp without time zone
+        var appointmentDatetime = domain.AppointmentDate.HasValue
+            ? (domain.AppointmentDate.Value.Kind == DateTimeKind.Unspecified
+                ? domain.AppointmentDate.Value
+                : DateTime.SpecifyKind(domain.AppointmentDate.Value, DateTimeKind.Unspecified))
+            : DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+
+        var createdAt = domain.Created.Kind == DateTimeKind.Unspecified
+            ? domain.Created
+            : DateTime.SpecifyKind(domain.Created, DateTimeKind.Unspecified);
+
         return new VisionCare.Infrastructure.Models.Appointment
         {
             AppointmentId = domain.Id,
-            AppointmentDatetime = domain.AppointmentDate ?? DateTime.UtcNow,
+            AppointmentDatetime = appointmentDatetime,
             Status = domain.AppointmentStatus ?? "Pending",
             DoctorId = domain.DoctorId ?? 0,
             PatientId = domain.PatientId ?? 0,
@@ -43,7 +54,7 @@ public static class AppointmentMapper
             AppointmentCode = domain.AppointmentCode,
             PaymentStatus = domain.PaymentStatus ?? "Unpaid",
             ActualCost = domain.ActualCost,
-            CreatedAt = domain.Created,
+            CreatedAt = createdAt,
         };
     }
 }

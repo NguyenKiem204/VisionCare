@@ -46,6 +46,10 @@ public class DoctorDegreeRepository : IDoctorDegreeRepository
         var doctorDegreeModel = DoctorDegreeMapper.ToInfrastructure(doctorDegree);
         _context.Degreedoctors.Add(doctorDegreeModel);
         await _context.SaveChangesAsync();
+
+        await _context.Entry(doctorDegreeModel).Reference(dd => dd.Doctor).LoadAsync();
+        await _context.Entry(doctorDegreeModel).Reference(dd => dd.Degree).LoadAsync();
+
         return DoctorDegreeMapper.ToDomain(doctorDegreeModel);
     }
 

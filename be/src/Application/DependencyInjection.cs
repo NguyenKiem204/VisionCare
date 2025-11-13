@@ -4,7 +4,12 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using VisionCare.Application.Interfaces.Appointments;
 using VisionCare.Application.Interfaces.Auth;
+using VisionCare.Application.Interfaces.Banners;
+using VisionCare.Application.Interfaces.Blogs;
+using VisionCare.Application.Interfaces.Content;
 using VisionCare.Application.Interfaces.Customers;
+using VisionCare.Application.Interfaces.DoctorCertificates;
+using VisionCare.Application.Interfaces.DoctorDegrees;
 using VisionCare.Application.Interfaces.Doctors;
 using VisionCare.Application.Interfaces.Equipment;
 using VisionCare.Application.Interfaces.Feedback;
@@ -20,15 +25,14 @@ using VisionCare.Application.Interfaces.Specializations;
 using VisionCare.Application.Interfaces.Staff;
 using VisionCare.Application.Interfaces.Users;
 using VisionCare.Application.Interfaces.WorkShifts;
-using VisionCare.Application.Interfaces.Content;
-using VisionCare.Application.Interfaces.Banners;
-using VisionCare.Application.Interfaces.Blogs;
 using VisionCare.Application.Services.Appointments;
 using VisionCare.Application.Services.Banners;
 using VisionCare.Application.Services.Blogs;
 using VisionCare.Application.Services.Content;
 using VisionCare.Application.Services.Customers;
 using VisionCare.Application.Services.Dashboard;
+using VisionCare.Application.Services.DoctorCertificates;
+using VisionCare.Application.Services.DoctorDegrees;
 using VisionCare.Application.Services.Doctors;
 using VisionCare.Application.Services.Equipment;
 using VisionCare.Application.Services.Feedback;
@@ -38,11 +42,11 @@ using VisionCare.Application.Services.Roles;
 using VisionCare.Application.Services.Rooms;
 using VisionCare.Application.Services.Scheduling;
 using VisionCare.Application.Services.Services;
-using VisionCare.Application.Services.WorkShifts;
 using VisionCare.Application.Services.ServiceTypes;
 using VisionCare.Application.Services.Specializations;
 using VisionCare.Application.Services.Staff;
 using VisionCare.Application.Services.Users;
+using VisionCare.Application.Services.WorkShifts;
 
 namespace VisionCare.Application;
 
@@ -53,7 +57,6 @@ public static class DependencyInjection
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-        // Register Core Services
         services.AddScoped<IDoctorService, DoctorService>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IAppointmentService, AppointmentService>();
@@ -61,51 +64,43 @@ public static class DependencyInjection
         services.AddScoped<IStaffService, StaffService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IUserService, UserService>();
-        // IAuthService is provided by Infrastructure (real JWT implementation)
 
-        // Register Services Management
         services.AddScoped<IServiceService, ServiceService>();
+        services.AddScoped<IServiceDetailService, ServiceDetailService>();
 
-        // Register Medical History Services
         services.AddScoped<IMedicalHistoryService, MedicalHistoryService>();
 
-        // Register Scheduling Services
         services.AddScoped<IScheduleService, ScheduleService>();
 
-        // Register Feedback Services
         services.AddScoped<IFeedbackService, FeedbackService>();
 
-        // Register Equipment Services
         services.AddScoped<IEquipmentService, EquipmentService>();
 
-        // Register Service Types Services
         services.AddScoped<IServiceTypeService, ServiceTypeService>();
 
-        // Register Follow-up Services
         services.AddScoped<IFollowUpService, FollowUpService>();
 
-        // Dashboard & Reporting
         services.AddMemoryCache();
         services.AddScoped<IDashboardService, DashboardService>();
 
-        // Register Content Services
         services.AddScoped<ISectionContentService, SectionContentService>();
         services.AddScoped<IBannerService, BannerService>();
         services.AddScoped<IBlogService, BlogService>();
         services.AddScoped<ICommentBlogService, CommentBlogService>();
-        
-        // Scheduling Services
+
+        services.AddScoped<IDoctorCertificateService, DoctorCertificateService>();
+
+        services.AddScoped<IDoctorDegreeService, DoctorDegreeService>();
+
         services.AddScoped<IWeeklyScheduleService, WeeklyScheduleService>();
         services.AddScoped<IScheduleGenerationService, ScheduleGenerationService>();
         services.AddScoped<IDoctorAbsenceService, DoctorAbsenceService>();
         services.AddScoped<ISubstituteDoctorService, SubstituteDoctorService>();
         services.AddScoped<ISlotGenerationService, SlotGenerationService>();
         services.AddScoped<IDoctorScheduleService, DoctorScheduleService>();
-        
-        // Register ScheduleGenerationJob for Hangfire
+
         services.AddScoped<VisionCare.Application.Services.Scheduling.ScheduleGenerationJob>();
-        
-        // Room & WorkShift Services
+
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IWorkShiftService, WorkShiftService>();
 

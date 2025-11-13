@@ -19,6 +19,7 @@ import {
   CalendarX,
   Clock,
   BookOpen,
+  User,
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 
@@ -48,6 +49,7 @@ const adminMenu = [
   { to: "/admin/equipment", label: "Thiết bị", icon: Wrench },
   { to: "/admin/feedback", label: "Phản hồi", icon: MessageSquare },
   { to: "/admin/settings", label: "Cài đặt", icon: Settings },
+  { to: "/admin/profile", label: "Hồ sơ cá nhân", icon: User },
 ];
 
 export default function AdminSidebar({ isOpen, setOpen }) {

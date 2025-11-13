@@ -26,6 +26,7 @@ import RoomsManagementPage from "../pages/admin/RoomsManagementPage";
 import WorkShiftsManagementPage from "../pages/admin/WorkShiftsManagementPage";
 import BlogsManagement from "../pages/admin/BlogsManagement";
 import BlogEditor from "../pages/admin/BlogEditor";
+import Profile from "../pages/admin/Profile";
 
 const AdminRoutes = () => {
   return (
@@ -84,6 +85,7 @@ const AdminRoutes = () => {
         <Route path="blogs" element={<BlogsManagement />} />
         <Route path="blogs/new" element={<BlogEditor />} />
         <Route path="blogs/:id/edit" element={<BlogEditor />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>
   );

@@ -24,6 +24,9 @@ import BlogDetail from "./pages/BlogDetail";
 import AdminRoutes from "./routes/AdminRoutes";
 import DoctorRoutes from "./routes/DoctorRoutes";
 import StaffRoutes from "./routes/StaffRoutes";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import CustomerProfile from "./pages/customer/Profile";
+import CustomerHistory from "./pages/customer/History";
 import "./index.css";
 
 function App() {
@@ -55,6 +58,22 @@ function App() {
               element={<BookingPaymentCallback />}
             />
             <Route path="profile" element={<Profile />} />
+            <Route
+              path="customer/profile"
+              element={
+                <ProtectedRoute>
+                  <CustomerProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="customer/history"
+              element={
+                <ProtectedRoute>
+                  <CustomerHistory />
+                </ProtectedRoute>
+              }
+            />
             <Route path="blogs" element={<Blogs />} />
             <Route path="blogs/:slug" element={<BlogDetail />} />
           </Route>

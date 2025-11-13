@@ -55,8 +55,10 @@ public class StaffRepository : IStaffRepository
         {
             existingStaff.FullName = staff.StaffName ?? existingStaff.FullName;
             existingStaff.Gender = staff.Gender ?? existingStaff.Gender;
-            existingStaff.Dob = staff.Dob;
+            existingStaff.Dob = staff.Dob ?? existingStaff.Dob;
             existingStaff.Address = staff.Address ?? existingStaff.Address;
+            existingStaff.Phone = staff.Phone ?? existingStaff.Phone;
+            existingStaff.Avatar = staff.Avatar ?? existingStaff.Avatar;
 
             await _context.SaveChangesAsync();
         }
@@ -123,6 +125,7 @@ public class StaffRepository : IStaffRepository
             Dob = model.Dob,
             Address = model.Address,
             Phone = model.Phone,
+            Avatar = model.Avatar,
             Created = DateTime.UtcNow,
             LastModified = DateTime.UtcNow,
             Account =
@@ -147,6 +150,7 @@ public class StaffRepository : IStaffRepository
             Dob = domain.Dob,
             Address = domain.Address,
             Phone = domain.Phone,
+            Avatar = domain.Avatar,
         };
     }
 }

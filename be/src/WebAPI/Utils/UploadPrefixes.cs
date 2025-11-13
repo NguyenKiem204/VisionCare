@@ -22,4 +22,10 @@ public static class UploadPrefixes
     public static string ServiceType(int serviceTypeId) => $"services/types/{serviceTypeId}";
 
     public static string Blog(int blogId) => $"blogs/{blogId}";
+
+    public static string DoctorCertificate(int doctorId, int certificateId) =>
+        $"doctors/{doctorId}/certificates/{certificateId}";
+
+    public static string DoctorDegree(int doctorId, int degreeId) =>
+        $"doctors/{doctorId}/degrees/{degreeId}";
 }

@@ -100,9 +100,7 @@ const Booking = () => {
     bookingMode,
   } = useBooking();
 
-  // Determine which component to render based on step and booking mode
   const renderStep = () => {
-    // Step 0: Select booking mode
     if (currentStep === 0) {
       return (
         <BookingModeSelector
@@ -113,10 +111,8 @@ const Booking = () => {
       );
     }
 
-    // Flow: Book by Doctor
     if (bookingMode === "doctor") {
       if (currentStep === 1) {
-        // Select doctor
         return (
           <DoctorSelection
             data={data}
@@ -128,7 +124,6 @@ const Booking = () => {
         );
       }
       if (currentStep === 2) {
-        // Select service
         return (
           <ServiceSelection
             data={data}
@@ -139,7 +134,6 @@ const Booking = () => {
         );
       }
       if (currentStep === 3) {
-        // Select date/time
         return (
           <DoctorTimeSelection
             data={data}
@@ -152,11 +146,9 @@ const Booking = () => {
         );
       }
       if (currentStep === 4) {
-        // Personal info
         return <PersonalInfo data={data} update={update} next={next} back={back} />;
       }
       if (currentStep === 5) {
-        // Confirmation
         return (
           <Confirmation
             data={data}
@@ -169,10 +161,8 @@ const Booking = () => {
       }
     }
 
-    // Flow: Book by Service
     if (bookingMode === "service") {
       if (currentStep === 1) {
-        // Select service
         return (
           <ServiceSelection
             data={data}
@@ -183,7 +173,6 @@ const Booking = () => {
         );
       }
       if (currentStep === 2) {
-        // Select doctor (filtered by service)
         return (
           <DoctorSelection
             data={data}
@@ -195,7 +184,6 @@ const Booking = () => {
         );
       }
       if (currentStep === 3) {
-        // Select date/time
         return (
           <DoctorTimeSelection
             data={data}
@@ -208,11 +196,9 @@ const Booking = () => {
         );
       }
       if (currentStep === 4) {
-        // Personal info
         return <PersonalInfo data={data} update={update} next={next} back={back} />;
       }
       if (currentStep === 5) {
-        // Confirmation
         return (
           <Confirmation
             data={data}

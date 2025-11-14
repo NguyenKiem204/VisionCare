@@ -33,7 +33,6 @@ class SignalRService {
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    // Set up connection event handlers
     this.connection.onclose(() => {
       console.log("[SignalR] Connection closed");
       this.isConnected = false;
@@ -51,9 +50,7 @@ class SignalRService {
     return this.connection;
   }
 
-  /**
-   * Start SignalR connection
-   */
+  
   async start() {
     try {
       const conn = this.getConnection();
@@ -68,9 +65,7 @@ class SignalRService {
     }
   }
 
-  /**
-   * Stop SignalR connection
-   */
+
   async stop() {
     if (this.connection && this.isConnected) {
       await this.connection.stop();
@@ -79,11 +74,7 @@ class SignalRService {
     }
   }
 
-  /**
-   * Join slots group to receive real-time updates for a doctor's schedule
-   * @param {number} doctorId - Doctor ID
-   * @param {string} date - Date in YYYY-MM-DD or yyyyMMdd format
-   */
+
   async joinSlotsGroup(doctorId, date) {
     try {
       const conn = this.getConnection();
@@ -104,11 +95,6 @@ class SignalRService {
     }
   }
 
-  /**
-   * Leave slots group
-   * @param {number} doctorId - Doctor ID
-   * @param {string} date - Date in YYYY-MM-DD or yyyyMMdd format
-   */
   async leaveSlotsGroup(doctorId, date) {
     try {
       const conn = this.getConnection();
@@ -122,9 +108,6 @@ class SignalRService {
     }
   }
 
-  /**
-   * Join admin group to receive booking updates
-   */
   async joinAdminGroup() {
     try {
       const conn = this.getConnection();
@@ -140,9 +123,6 @@ class SignalRService {
     }
   }
 
-  /**
-   * Leave admin group
-   */
   async leaveAdminGroup() {
     try {
       const conn = this.getConnection();
@@ -155,17 +135,10 @@ class SignalRService {
     }
   }
 
-  /**
-   * Subscribe to a SignalR event
-   * @param {string} eventName - Event name (e.g., "SlotHeld", "SlotBooked")
-   * @param {Function} callback - Callback function
-   * @returns {Function} Unsubscribe function
-   */
   on(eventName, callback) {
     if (!this.listeners.has(eventName)) {
       this.listeners.set(eventName, new Set());
 
-      // Set up SignalR handler for this event
       const conn = this.getConnection();
       conn.on(eventName, (data) => {
         const callbacks = this.listeners.get(eventName);
@@ -183,7 +156,6 @@ class SignalRService {
 
     this.listeners.get(eventName).add(callback);
 
-    // Return unsubscribe function
     return () => {
       const callbacks = this.listeners.get(eventName);
       if (callbacks) {
@@ -192,11 +164,6 @@ class SignalRService {
     };
   }
 
-  /**
-   * Unsubscribe from a SignalR event
-   * @param {string} eventName - Event name
-   * @param {Function} callback - Callback function to remove
-   */
   off(eventName, callback) {
     const callbacks = this.listeners.get(eventName);
     if (callbacks) {
@@ -204,17 +171,12 @@ class SignalRService {
     }
   }
 
-  /**
-   * Remove all listeners for an event
-   * @param {string} eventName - Event name
-   */
   removeAllListeners(eventName) {
     if (eventName) {
       this.listeners.delete(eventName);
       const conn = this.getConnection();
       conn.off(eventName);
     } else {
-      // Remove all listeners
       this.listeners.forEach((_, event) => {
         const conn = this.getConnection();
         conn.off(event);
@@ -224,8 +186,6 @@ class SignalRService {
   }
 }
 
-// Export singleton instance
 export const signalRService = new SignalRService();
 
-// Export class for testing
 export default SignalRService;

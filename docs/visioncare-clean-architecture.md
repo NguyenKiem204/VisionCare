@@ -539,6 +539,211 @@ flowchart TD
 
 > Những pattern như Builder, Decorator, Proxy hiện chưa có implementation rõ ràng trong dự án. Nếu muốn áp dụng (ví dụ builder cho email template, decorator cho logging middleware chuyên biệt), có thể bổ sung sau.
 
+## Observer Pattern trong VisionCare: SignalR Real-time Notifications
+
+### 📡 Observer Pattern với SignalR
+
+VisionCare sử dụng **Observer Pattern** thông qua SignalR để gửi thông báo real-time cho nhiều clients khi có sự kiện xảy ra (đặt lịch, bình luận blog).
+
+### 🏗️ Kiến trúc Observer Pattern
+
+```mermaid
+flowchart TB
+    subgraph Subject["📢 Subject (Observable)"]
+        BookingHub["BookingHub<br/>(SignalR Hub)"]
+        CommentHub["CommentHub<br/>(SignalR Hub)"]
+        HubContext["IHubContext<br/>(SignalR Context)"]
+    end
+
+    subgraph Publisher["📤 Publisher (Event Source)"]
+        BookingController["BookingController<br/>- HoldSlot()<br/>- CreateBooking()<br/>- CancelBooking()"]
+        CommentController["CommentBlogController<br/>- CreateComment()"]
+    end
+
+    subgraph Observers["👁️ Observers (Subscribers)"]
+        Client1["Frontend Client 1<br/>(User đang xem slots)"]
+        Client2["Frontend Client 2<br/>(User khác xem slots)"]
+        Client3["Admin Dashboard<br/>(Xem booking dashboard)"]
+        Client4["Blog Viewer<br/>(Đang xem blog)"]
+    end
+
+    subgraph Groups["👥 SignalR Groups"]
+        Group1["slots:doctorId:date<br/>(Users xem slots)"]
+        Group2["admin:bookings<br/>(Admin dashboard)"]
+        Group3["blog:blogId<br/>(Blog viewers)"]
+    end
+
+    %% Publisher notifies Subject
+    BookingController -->|"SendAsync('SlotHeld', data)"| HubContext
+    BookingController -->|"SendAsync('BookingCreated', data)"| HubContext
+    CommentController -->|"SendAsync('NewComment', data)"| HubContext
+
+    %% Subject manages groups
+    HubContext --> BookingHub
+    HubContext --> CommentHub
+    BookingHub --> Group1
+    BookingHub --> Group2
+    CommentHub --> Group3
+
+    %% Observers subscribe to groups
+    Client1 -.->|"JoinSlotsGroup()"| Group1
+    Client2 -.->|"JoinSlotsGroup()"| Group1
+    Client3 -.->|"JoinAdminGroup()"| Group2
+    Client4 -.->|"JoinBlogGroup()"| Group3
+
+    %% Subject notifies all observers in group
+    Group1 -.->|"Notify all"| Client1
+    Group1 -.->|"Notify all"| Client2
+    Group2 -.->|"Notify all"| Client3
+    Group3 -.->|"Notify all"| Client4
+
+    %% Styling
+    classDef subject fill:#fef08a,stroke:#ca8a04,color:#78350f
+    classDef publisher fill:#bfdbfe,stroke:#1d4ed8,color:#1e3a8a
+    classDef observer fill:#a7f3d0,stroke:#16a34a,color:#064e3b
+    classDef group fill:#e0e7ff,stroke:#6366f1,color:#312e8a
+
+    class Subject,BookingHub,CommentHub,HubContext subject
+    class Publisher,BookingController,CommentController publisher
+    class Observers,Client1,Client2,Client3,Client4 observer
+    class Groups,Group1,Group2,Group3 group
+```
+
+### 📊 Sequence Diagram: Luồng Observer Pattern
+
+```mermaid
+sequenceDiagram
+    participant Client1 as Frontend Client 1<br/>(Observer)
+    participant Client2 as Frontend Client 2<br/>(Observer)
+    participant Hub as BookingHub<br/>(Subject)
+    participant Controller as BookingController<br/>(Publisher)
+    participant Service as BookingService
+    participant DB as Database
+
+    Note over Client1,Client2: Subscribe Phase
+    Client1->>Hub: JoinSlotsGroup(doctorId: 1, date: "20240115")
+    Hub->>Hub: Add Client1 to group "slots:1:20240115"
+    Client2->>Hub: JoinSlotsGroup(doctorId: 1, date: "20240115")
+    Hub->>Hub: Add Client2 to group "slots:1:20240115"
+
+    Note over Client1,Client2: Both clients now observing slot changes
+
+    Note over Controller,DB: Event Occurs
+    Client1->>Controller: POST /api/booking/hold-slot
+    Controller->>Service: HoldSlotAsync(request)
+    Service->>DB: Save hold to cache
+    Service-->>Controller: HoldSlotResponse
+
+    Note over Controller,Hub: Notify All Observers
+    Controller->>Hub: _hubContext.Clients.Group("slots:1:20240115")<br/>.SendAsync("SlotHeld", data)
+
+    Note over Hub,Client2: Broadcast to All Subscribers
+    Hub->>Client1: "SlotHeld" event (WebSocket)
+    Hub->>Client2: "SlotHeld" event (WebSocket)
+
+    Note over Client1,Client2: Both clients update UI in real-time
+    Client1->>Client1: Update UI: Slot marked as "Held"
+    Client2->>Client2: Update UI: Slot marked as "Held"
+```
+
+### 💡 Ví dụ Code: Observer Pattern trong Action
+
+**1. Subject (BookingHub) - Quản lý Observers:**
+```csharp
+// WebAPI/Hubs/BookingHub.cs
+public class BookingHub : Hub
+{
+    // Observer subscribe vào group
+    public async Task JoinSlotsGroup(int doctorId, string date)
+    {
+        var groupName = $"slots:{doctorId}:{date}";
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+    }
+}
+```
+
+**2. Publisher (BookingController) - Phát sự kiện:**
+```csharp
+// WebAPI/Controllers/BookingController.cs
+[HttpPost("hold-slot")]
+public async Task<ActionResult<HoldSlotResponse>> HoldSlot([FromBody] HoldSlotRequest request)
+{
+    var response = await _bookingService.HoldSlotAsync(request);
+    
+    // Notify all observers in group
+    var groupName = $"slots:{request.DoctorId}:{request.ScheduleDate:yyyyMMdd}";
+    await _hubContext.Clients.Group(groupName).SendAsync("SlotHeld", new {
+        doctorId = request.DoctorId,
+        slotId = request.SlotId,
+        date = request.ScheduleDate.ToString("yyyyMMdd"),
+        holdToken = response.HoldToken
+    });
+    
+    return Ok(response);
+}
+```
+
+**3. Observer (Frontend) - Nhận thông báo:**
+```javascript
+// fe/src/hooks/useBooking.js
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/hubs/booking")
+    .build();
+
+// Subscribe vào group
+await connection.invoke("JoinSlotsGroup", doctorId, date);
+
+// Lắng nghe sự kiện
+connection.on("SlotHeld", (data) => {
+    // Update UI khi có slot bị hold
+    setSlots(prevSlots => 
+        prevSlots.map(slot => 
+            slot.id === data.slotId 
+                ? { ...slot, status: "held" }
+                : slot
+        )
+    );
+});
+```
+
+### ✅ Lợi ích Observer Pattern trong VisionCare
+
+1. **Real-time Updates**: Users thấy thay đổi ngay lập tức, không cần refresh
+2. **Decoupling**: Controller không cần biết có bao nhiêu clients đang lắng nghe
+3. **Scalable**: Có thể thêm nhiều observers mà không sửa code Publisher
+4. **Group-based**: Chỉ notify những clients quan tâm (theo doctorId, date, blogId)
+5. **Automatic Cleanup**: SignalR tự động remove observer khi disconnect
+
+### 🔄 So sánh: Observer Pattern vs Polling
+
+```mermaid
+flowchart LR
+    subgraph Observer["✅ Observer Pattern (SignalR)"]
+        C1[Client 1] -->|Subscribe| Hub[SignalR Hub]
+        C2[Client 2] -->|Subscribe| Hub
+        Event[Event Occurs] -->|Notify| Hub
+        Hub -->|Push| C1
+        Hub -->|Push| C2
+        Note1["✅ Real-time<br/>✅ Efficient<br/>✅ Server push"]
+    end
+
+    subgraph Polling["❌ Polling (Traditional)"]
+        C3[Client 1] -->|"GET /api/slots<br/>(every 5s)"| API[API]
+        C4[Client 2] -->|"GET /api/slots<br/>(every 5s)"| API
+        API -->|Response| C3
+        API -->|Response| C4
+        Note2["❌ Delay<br/>❌ Wasteful<br/>❌ Client pull"]
+    end
+
+    style Observer fill:#a7f3d0,stroke:#16a34a
+    style Polling fill:#fecaca,stroke:#b91c1c
+```
+
+**Observer Pattern tốt hơn vì:**
+- ✅ **Real-time**: Thông báo ngay khi có sự kiện
+- ✅ **Efficient**: Không cần polling liên tục
+- ✅ **Server push**: Server chủ động gửi, không đợi client hỏi
+
 ## Liên kết Frontend với Clean Architecture
 - FE chỉ gọi endpoint qua lớp service (`fe/src/services/bookingService.js`…), không biết về DB.
 - React Context quản lý trạng thái đăng nhập (`AuthContext`), hooks (`useBooking`) điều phối gọi API.

@@ -4,9 +4,6 @@ namespace VisionCare.WebAPI.Hubs;
 
 public class BookingHub : Hub
 {
-    // Groups structure:
-    // - "slots:{doctorId}:{date:yyyyMMdd}" - Users đang xem slots của bác sĩ trong ngày
-    // - "admin:bookings" - Admin đang xem booking dashboard
 
     public async Task JoinSlotsGroup(int doctorId, string date)
     {
@@ -33,7 +30,6 @@ public class BookingHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        // Auto leave all groups khi disconnect
         await base.OnDisconnectedAsync(exception);
     }
 }

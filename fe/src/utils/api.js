@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Simple auth manager for token handling
 export const authManager = {
   isAuthenticated: () => {
     return localStorage.getItem("accessToken") !== null;
@@ -10,12 +9,10 @@ export const authManager = {
     const expiresAt = localStorage.getItem("tokenExpiresAt");
     if (!expiresAt) return true;
     const remainingMs = parseInt(expiresAt) - Date.now();
-    // refresh when < 2 minutes remaining
     return remainingMs <= 2 * 60 * 1000;
   },
 
   ensureValidToken: async () => {
-    // If token is close to expiry, proactively refresh
     if (authManager.shouldRefreshToken()) {
       return await authManager.refreshToken();
     }
@@ -47,9 +44,9 @@ export const authManager = {
         `${
           import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
         }/auth/refresh`,
-        {}, // Empty body - refresh token comes from cookie
+        {},
         {
-          withCredentials: true, // This sends cookies
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
@@ -82,7 +79,6 @@ export const authManager = {
     }
   },
 
-  // Method for testing refresh token with body (for Swagger testing)
   refreshTokenWithBody: async (refreshToken) => {
     try {
       const response = await axios.post(
@@ -115,9 +111,7 @@ export const authManager = {
   },
 };
 
-// Initialize background auto-refresh (no React hooks)
 export function initAuthAutoRefresh() {
-  // Visibility-based trigger
   if (typeof document !== "undefined") {
     document.addEventListener("visibilitychange", async () => {
       if (
@@ -136,7 +130,6 @@ export function initAuthAutoRefresh() {
     });
   }
 
-  // Periodic lightweight check (every 60s)
   if (typeof window !== "undefined") {
     setInterval(async () => {
       if (!authManager.isAuthenticated()) return;
@@ -145,7 +138,7 @@ export function initAuthAutoRefresh() {
           console.log("[Auth] interval -> refreshing token");
           await authManager.refreshToken();
         } catch {
-          // ignore
+          // ignore error
         }
       }
     }, 60 * 1000);
@@ -292,11 +285,8 @@ api.interceptors.response.use(
   }
 );
 
-// Mock API functions for VisionCare features
 export const mockApi = {
-  // Booking API
   createBooking: async (bookingData) => {
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return {
       success: true,
@@ -326,7 +316,6 @@ export const mockApi = {
     };
   },
 
-  // Services API (dev only)
   getServices: async () => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return {
@@ -335,7 +324,6 @@ export const mockApi = {
     };
   },
 
-  // Doctors API (dev only)
   getDoctors: async () => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return {
@@ -344,7 +332,6 @@ export const mockApi = {
     };
   },
 
-  // Equipment API (dev only)
   getEquipment: async () => {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return {
@@ -353,11 +340,9 @@ export const mockApi = {
     };
   },
 
-  // Chat API
   sendChatMessage: async (message) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Mock AI responses
     const responses = {
       "đặt lịch": {
         text: "Tôi có thể giúp bạn đặt lịch khám. Bạn muốn khám dịch vụ gì?",
@@ -382,7 +367,7 @@ export const mockApi = {
     };
 
     const lowerMessage = message.toLowerCase();
-    let response = responses["giá"]; // default
+    let response = responses["giá"];
 
     if (lowerMessage.includes("đặt lịch") || lowerMessage.includes("book")) {
       response = responses["đặt lịch"];

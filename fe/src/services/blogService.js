@@ -1,6 +1,5 @@
 import api from "../utils/api";
 
-// Get published blogs (public)
 export const getPublishedBlogs = async (params = {}) => {
   const {
     keyword = "",
@@ -24,19 +23,16 @@ export const getPublishedBlogs = async (params = {}) => {
   return response.data;
 };
 
-// Get blog by ID
 export const getBlogById = async (id) => {
   const response = await api.get(`/blog/${id}`);
   return response.data;
 };
 
-// Get blog by slug (public)
 export const getBlogBySlug = async (slug) => {
   const response = await api.get(`/blog/slug/${slug}`);
   return response.data;
 };
 
-// Get current user's blogs
 export const getMyBlogs = async (params = {}) => {
   const {
     keyword = "",
@@ -61,7 +57,6 @@ export const getMyBlogs = async (params = {}) => {
   return response.data;
 };
 
-// Get all blogs (Admin only)
 export const getAllBlogs = async (params = {}) => {
   const {
     keyword = "",
@@ -88,7 +83,6 @@ export const getAllBlogs = async (params = {}) => {
   return response.data;
 };
 
-// Create blog
 export const createBlog = async (blogData, featuredImageFile = null) => {
   const formData = new FormData();
   formData.append("title", blogData.title);
@@ -109,7 +103,6 @@ export const createBlog = async (blogData, featuredImageFile = null) => {
   return response.data;
 };
 
-// Update blog
 export const updateBlog = async (id, blogData, featuredImageFile = null) => {
   const formData = new FormData();
   formData.append("title", blogData.title);
@@ -130,31 +123,26 @@ export const updateBlog = async (id, blogData, featuredImageFile = null) => {
   return response.data;
 };
 
-// Delete blog
 export const deleteBlog = async (id) => {
   const response = await api.delete(`/blog/${id}`);
   return response.data;
 };
 
-// Publish blog
 export const publishBlog = async (id) => {
   const response = await api.post(`/blog/${id}/publish`);
   return response.data;
 };
 
-// Unpublish blog
 export const unpublishBlog = async (id) => {
   const response = await api.post(`/blog/${id}/unpublish`);
   return response.data;
 };
 
-// Increment view count
 export const incrementViewCount = async (id) => {
   const response = await api.post(`/blog/${id}/view`);
   return response.data;
 };
 
-// Check if slug exists
 export const checkSlugExists = async (slug, excludeBlogId = null) => {
   const queryParams = new URLSearchParams({ slug });
   if (excludeBlogId) queryParams.append("excludeBlogId", excludeBlogId.toString());

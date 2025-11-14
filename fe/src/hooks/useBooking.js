@@ -7,7 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 export const useBooking = () => {
   const { user } = useAuth();
-  const [currentStep, setCurrentStep] = useState(0); // Start at step 0 (mode selection)
+  const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState({ bookingMode: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -16,23 +16,18 @@ export const useBooking = () => {
 
   const next = () => {
     setCurrentStep((s) => {
-      // If at step 0, go to step 1
       if (s === 0) return 1;
-      // Otherwise increment normally
       return s + 1;
     });
   };
   const back = () => {
     setCurrentStep((s) => {
-      // If at step 1, go back to step 0 (mode selection)
       if (s === 1) return 0;
-      // Otherwise decrement normally
       return Math.max(0, s - 1);
     });
   };
   const update = (patch) => setData((d) => ({ ...d, ...patch }));
 
-  // Initialize SignalR connection
   useEffect(() => {
     signalRService.start().catch((error) => {
       console.error("Failed to start SignalR:", error);
@@ -43,7 +38,6 @@ export const useBooking = () => {
     };
   }, []);
 
-  // Set up SignalR listeners for slot updates
   useEffect(() => {
     if (!data.doctorId || !data.date) return;
 
@@ -52,8 +46,6 @@ export const useBooking = () => {
         payload.doctorId === data.doctorId &&
         payload.date === data.date?.replace(/-/g, "")
       ) {
-        // Bất kỳ slot nào bị giữ trong ngày này → refresh để cập nhật trạng thái "Đang giữ"
-        // Refresh ngay cả khi là slot của mình (để update UI state)
         update({ refreshSlots: Date.now() });
       }
     };
@@ -80,7 +72,6 @@ export const useBooking = () => {
     const unsubscribeReleased = signalRService.on("SlotReleased", handleSlotReleased);
     const unsubscribeBooked = signalRService.on("SlotBooked", handleSlotBooked);
 
-    // Join slots group
     if (data.doctorId && data.date) {
       signalRService.joinSlotsGroup(data.doctorId, data.date).catch(console.error);
     }
@@ -96,11 +87,9 @@ export const useBooking = () => {
   }, [data.doctorId, data.date, data.slotId, holdToken]);
 
   /**
-   * Hold a slot before booking
    */
   const holdSlot = useCallback(async (doctorId, slotId, scheduleDate) => {
     try {
-      // If already holding a different slot/day/doctor → release first
       if (
         holdToken &&
         (data.doctorId !== doctorId || data.slotId !== slotId || data.date !== scheduleDate)
@@ -110,7 +99,7 @@ export const useBooking = () => {
           doctorId: data.doctorId,
           slotId: data.slotId,
           scheduleDate: data.date,
-        }).catch(() => {});
+        }).catch(() => { });
         setHoldToken(null);
         setHoldExpiresAt(null);
       }
@@ -124,8 +113,7 @@ export const useBooking = () => {
 
       setHoldToken(response.holdToken);
       setHoldExpiresAt(response.expiresAt);
-      
-      // Lưu holdToken vào localStorage để restore khi reload
+
       const holdKey = `hold:${doctorId}:${slotId}:${scheduleDate}`;
       localStorage.setItem(holdKey, JSON.stringify({
         holdToken: response.holdToken,
@@ -135,12 +123,9 @@ export const useBooking = () => {
         scheduleDate,
       }));
 
-      // Set up auto-release after expiration
       const expiresIn = new Date(response.expiresAt) - new Date();
       if (expiresIn > 0) {
         setTimeout(() => {
-          // Hold token will be cleared automatically by backend TTL
-          // Just clear local state
           setHoldToken(null);
           setHoldExpiresAt(null);
         }, Math.max(0, expiresIn));
@@ -153,7 +138,6 @@ export const useBooking = () => {
     }
   }, [user?.id]);
 
-  // Release hold when date/doctor changes or component unmounts
   useEffect(() => {
     return () => {
       if (holdToken && data.doctorId && data.slotId && data.date) {
@@ -164,7 +148,7 @@ export const useBooking = () => {
             slotId: data.slotId,
             scheduleDate: data.date,
           })
-          .catch(() => {})
+          .catch(() => { })
           .finally(() => {
             setHoldToken(null);
             setHoldExpiresAt(null);
@@ -186,13 +170,11 @@ export const useBooking = () => {
           slotId: data.slotId,
           scheduleDate: data.date,
         });
-        
-        // Clear from localStorage
+
         const holdKey = `hold:${data.doctorId}:${data.slotId}:${data.date}`;
         localStorage.removeItem(holdKey);
       } catch (error) {
         console.warn("Release hold error (ignored):", error);
-        // Still clear from localStorage even if API fails
         const holdKey = `hold:${data.doctorId}:${data.slotId}:${data.date}`;
         localStorage.removeItem(holdKey);
       } finally {
@@ -202,17 +184,14 @@ export const useBooking = () => {
     }
   }, [holdToken, data.doctorId, data.slotId, data.date]);
 
-  // Release immediately when tab closes, route changes, or page becomes hidden
   useEffect(() => {
     const handleBeforeUnload = () => {
-      // fire-and-forget; navigator.sendBeacon not used due to auth header
       if (holdToken && data.doctorId && data.slotId && data.date) {
         releaseHold();
       }
     };
 
     const handleVisibilityChange = () => {
-      // Khi tab trở thành hidden (chuyển tab, minimize, etc.) → release hold
       if (document.hidden && holdToken && data.doctorId && data.slotId && data.date) {
         releaseHold();
       }
@@ -220,7 +199,7 @@ export const useBooking = () => {
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    
+
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -228,14 +207,12 @@ export const useBooking = () => {
   }, [releaseHold, holdToken, data.doctorId, data.slotId, data.date]);
 
   /**
-   * Submit booking
    */
   const submit = async () => {
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      // Validate required fields
       if (!data.doctorId || !data.serviceDetailId || !data.slotId || !data.date || !data.time) {
         const missingFields = [];
         if (!data.doctorId) missingFields.push("Bác sĩ");
@@ -243,21 +220,20 @@ export const useBooking = () => {
         if (!data.slotId) missingFields.push("Khung giờ");
         if (!data.date) missingFields.push("Ngày khám");
         if (!data.time) missingFields.push("Giờ khám");
-        
+
         const errorMsg = `Vui lòng điền đầy đủ thông tin: ${missingFields.join(", ")}`;
         setSubmitError(errorMsg);
         toast.error(errorMsg);
         throw new Error(errorMsg);
       }
 
-      // Prepare booking request
       const request = {
         holdToken: holdToken || null,
         doctorId: data.doctorId,
         serviceDetailId: data.serviceDetailId,
         slotId: data.slotId,
-        scheduleDate: data.date, // YYYY-MM-DD
-        startTime: data.time, // HH:mm
+        scheduleDate: data.date,
+        startTime: data.time,
         customerId: user?.id || null,
         customerName: data.fullName || null,
         phone: data.phone || null,
@@ -269,40 +245,34 @@ export const useBooking = () => {
       console.log("[Booking] Creating booking request:", request);
       const response = await bookingAPI.createBooking(request);
 
-      // Release hold (will be done by backend, but good practice)
       const holdKey = `hold:${data.doctorId}:${data.slotId}:${data.date}`;
       localStorage.removeItem(holdKey);
       setHoldToken(null);
       setHoldExpiresAt(null);
 
-      // If payment is needed, redirect to payment URL
       if (response.paymentUrl) {
         window.location.href = response.paymentUrl;
         return;
       }
 
-      // Store booking info for confirmation page
       update({
         bookingResponse: response,
         appointmentCode: response.appointmentCode,
         appointmentId: response.appointmentId,
       });
 
-      setCurrentStep(BOOKING_STEPS.length); // Go to success step
+      setCurrentStep(BOOKING_STEPS.length);
       toast.success("Đặt lịch thành công!");
 
       return response;
     } catch (error) {
-      // Extract detailed error messages
       let errorMessage = "Đã xảy ra lỗi khi đặt lịch. Vui lòng thử lại.";
       let errorDetails = [];
-      
+
       if (error.response?.data) {
         const errorData = error.response.data;
-        
-        // Handle ApiResponse format from backend
+
         if (errorData.errors && typeof errorData.errors === 'object') {
-          // Map field names to Vietnamese
           const fieldNames = {
             'DoctorId': 'Bác sĩ',
             'ServiceDetailId': 'Dịch vụ',
@@ -315,7 +285,7 @@ export const useBooking = () => {
             'CustomerName': 'Họ tên',
             'Notes': 'Ghi chú',
           };
-          
+
           for (const [key, messages] of Object.entries(errorData.errors)) {
             const fieldName = fieldNames[key] || key;
             if (Array.isArray(messages)) {
@@ -326,7 +296,7 @@ export const useBooking = () => {
               errorDetails.push(`${fieldName}: ${messages}`);
             }
           }
-          
+
           if (errorDetails.length > 0) {
             errorMessage = errorDetails.join('\n');
           } else if (errorData.message) {
@@ -338,8 +308,7 @@ export const useBooking = () => {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
-      // For 500 errors, try to get exception message if available
+
       if (error.response?.status === 500 && error.response?.data) {
         const errorData = error.response.data;
         if (errorData.exception) {
@@ -348,8 +317,7 @@ export const useBooking = () => {
           errorMessage = errorData.message;
         }
       }
-      
-      // Log full error for debugging
+
       console.error("[Booking] Error details:", {
         error,
         status: error.response?.status,
@@ -357,24 +325,22 @@ export const useBooking = () => {
         errorMessage,
         errorDetails
       });
-      
+
       setSubmitError(errorMessage);
-      
-      // Show toast with first error or summary
-      const toastMessage = errorDetails.length > 0 
-        ? errorDetails[0] 
+
+      const toastMessage = errorDetails.length > 0
+        ? errorDetails[0]
         : errorMessage;
       toast.error(toastMessage, {
         duration: 5000,
       });
-      
+
       throw error;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Pre-fill user data if logged in
   useEffect(() => {
     if (user && !data.fullName) {
       update({
@@ -386,7 +352,6 @@ export const useBooking = () => {
     }
   }, [user]);
 
-  // Restore holdToken from localStorage khi vào lại trang
   useEffect(() => {
     if (data.doctorId && data.slotId && data.date) {
       const holdKey = `hold:${data.doctorId}:${data.slotId}:${data.date}`;
@@ -394,31 +359,26 @@ export const useBooking = () => {
       if (saved) {
         try {
           const holdData = JSON.parse(saved);
-          // Check xem hold còn hạn không
           if (new Date(holdData.expiresAt) > new Date()) {
             setHoldToken(holdData.holdToken);
             setHoldExpiresAt(holdData.expiresAt);
-            // Validate hold với backend
             bookingAPI.getAvailableSlots(data.doctorId, data.date, data.serviceTypeId)
               .then(slots => {
                 const slot = slots.find(s => s.slotId === data.slotId);
                 if (slot && slot.isOnHold && slot.holdByCustomerId === user?.id) {
-                  // Hold vẫn còn hiệu lực, giữ lại
                 } else {
-                  // Hold không còn, clear
                   setHoldToken(null);
                   setHoldExpiresAt(null);
                   localStorage.removeItem(holdKey);
                 }
               })
               .catch(() => {
-                // Ignore error
               });
           } else {
-            // Hold đã hết hạn
             localStorage.removeItem(holdKey);
           }
         } catch (e) {
+          console.error("Error restoring hold:", e);
           localStorage.removeItem(holdKey);
         }
       }

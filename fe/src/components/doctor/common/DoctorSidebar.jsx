@@ -17,7 +17,7 @@ const doctorMenu = [
   { to: "/doctor/schedule", label: "Lịch hôm nay", icon: Calendar },
   { to: "/doctor/doctor-schedules", label: "Lịch định kỳ", icon: Calendar },
   { to: "/doctor/absences", label: "Nghỉ phép", icon: ClipboardList },
-  { to: "/doctor/ehr", label: "Hồ sơ khám", icon: Activity },
+  { to: "/doctor/ehr", label: "Hồ sơ khám (SOAP)", icon: Activity },
   { to: "/doctor/analytics", label: "Thống kê", icon: Activity },
   { to: "/doctor/blogs", label: "Blogs", icon: BookOpen },
   { to: "/doctor/profile", label: "Hồ sơ cá nhân", icon: User },

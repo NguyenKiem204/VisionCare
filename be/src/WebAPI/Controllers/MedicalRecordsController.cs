@@ -7,7 +7,7 @@ using VisionCare.WebAPI.Responses;
 namespace VisionCare.WebAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/medical-records")]
 public class MedicalRecordsController : ControllerBase
 {
     private readonly IMedicalHistoryService _medicalHistoryService;

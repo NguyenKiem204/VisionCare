@@ -32,7 +32,7 @@ public class PrescriptionService : IPrescriptionService
         {
             EncounterId = request.EncounterId,
             Notes = request.Notes,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
         };
         var lines = (request.Lines ?? new()).Select(l => new PrescriptionLine
         {

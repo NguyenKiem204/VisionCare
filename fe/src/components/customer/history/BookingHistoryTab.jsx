@@ -1,14 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "../../../utils/helpers";
 import { formatDateTime, formatDate } from "../../../utils/formatDate";
 import { classNames } from "../../../utils/helpers";
+import RescheduleNotificationCard from "../../common/RescheduleNotificationCard";
+import RescheduleRequestModal from "../../common/RescheduleRequestModal";
+import {
+  requestReschedule,
+  approveReschedule,
+  rejectReschedule,
+  counterReschedule,
+} from "../../../services/customerAppointmentAPI";
+import toast from "react-hot-toast";
 
 const STATUS_STYLES = {
   Pending: "bg-blue-100 text-blue-700",
   Confirmed: "bg-emerald-100 text-emerald-700",
   Completed: "bg-teal-100 text-teal-700",
   Cancelled: "bg-rose-100 text-rose-700",
+  PendingReschedule: "bg-yellow-100 text-yellow-700",
+  Rescheduled: "bg-blue-100 text-blue-700",
 };
 
 const BookingHistoryTab = ({
@@ -24,6 +35,126 @@ const BookingHistoryTab = ({
   onPageChange,
   error,
 }) => {
+  const [showRescheduleModal, setShowRescheduleModal] = useState(null);
+  const [rescheduleLoading, setRescheduleLoading] = useState(false);
+  const [isCounterPropose, setIsCounterPropose] = useState(false);
+
+  const extractProposedDateTime = (notes) => {
+    if (!notes) return null;
+    // Match ALL reschedule requests and get the LAST one (most recent)
+    const matches = [...notes.matchAll(/\[(?:Doctor|Customer|Counter)\]\s*Đề xuất đổi lịch:\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/g)];
+    if (matches.length === 0) return null;
+    
+    // Get the last match (most recent request)
+    const lastMatch = matches[matches.length - 1];
+    const [date, time] = lastMatch[1].split(" ");
+    const [day, month, year] = date.split("/");
+    const [hours, minutes] = time.split(":");
+    // Create date in local timezone (not UTC)
+    const dateObj = new Date();
+    dateObj.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+    dateObj.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    return dateObj;
+  };
+
+  const extractReason = (notes) => {
+    if (!notes) return null;
+    // Find the last reschedule request and extract its reason
+    const matches = [...notes.matchAll(/\[(?:Doctor|Customer|Counter)\]\s*Đề xuất đổi lịch:.*?Lý do:\s*(.+?)(?:\n|\[|$)/g)];
+    if (matches.length === 0) return null;
+    
+    // Get the last match (most recent request)
+    const lastMatch = matches[matches.length - 1];
+    return lastMatch[1] ? lastMatch[1].trim() : null;
+  };
+
+  const extractRejectionReason = (notes) => {
+    if (!notes) return null;
+    // Find the last rejection and extract its reason
+    const matches = [...notes.matchAll(/\[Từ chối đổi lịch\]\s*Lý do:\s*(.+?)(?:\n|\[|$)/g)];
+    if (matches.length === 0) return null;
+    
+    // Get the last match (most recent rejection)
+    const lastMatch = matches[matches.length - 1];
+    return lastMatch[1] ? lastMatch[1].trim() : null;
+  };
+
+  const canReschedule = (booking) => {
+    const status = booking.status || booking.appointmentStatus;
+    const paymentStatus = booking.paymentStatus;
+    if (status !== "Confirmed" && status !== "Scheduled") return false;
+    if (paymentStatus !== "Paid") return false;
+    
+    // Check if appointment is more than 24 hours away
+    if (booking.appointmentDate) {
+      const appointmentDate = new Date(booking.appointmentDate);
+      const hoursUntil = (appointmentDate - new Date()) / (1000 * 60 * 60);
+      if (hoursUntil < 24) return false;
+    }
+    
+    return true;
+  };
+
+  const handleRequestReschedule = async (appointmentId, proposedDateTime, reason) => {
+    setRescheduleLoading(true);
+    try {
+      await requestReschedule(appointmentId, proposedDateTime.toISOString(), reason);
+      toast.success("Đã gửi đề xuất đổi lịch");
+      setShowRescheduleModal(null);
+      onRefresh();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Lỗi khi gửi đề xuất đổi lịch");
+    } finally {
+      setRescheduleLoading(false);
+    }
+  };
+
+  const handleApproveReschedule = async (appointmentId) => {
+    setRescheduleLoading(true);
+    try {
+      await approveReschedule(appointmentId);
+      toast.success("Đã chấp nhận đổi lịch");
+      onRefresh();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Lỗi khi chấp nhận đổi lịch");
+    } finally {
+      setRescheduleLoading(false);
+    }
+  };
+
+  const handleRejectReschedule = async (appointmentId) => {
+    const reason = window.prompt("Lý do từ chối (tùy chọn):");
+    setRescheduleLoading(true);
+    try {
+      await rejectReschedule(appointmentId, reason || null);
+      toast.success("Đã từ chối đề xuất đổi lịch");
+      onRefresh();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Lỗi khi từ chối đổi lịch");
+    } finally {
+      setRescheduleLoading(false);
+    }
+  };
+
+  const handleCounterReschedule = (appointmentId) => {
+    // Mark as counter-propose and open modal
+    setIsCounterPropose(true);
+    setShowRescheduleModal(appointmentId);
+  };
+
+  const handleCounterRescheduleSubmit = async (appointmentId, proposedDateTime, reason) => {
+    setRescheduleLoading(true);
+    try {
+      await counterReschedule(appointmentId, proposedDateTime.toISOString(), reason);
+      toast.success("Đã gửi đề xuất thời gian khác");
+      setShowRescheduleModal(null);
+      onRefresh();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Lỗi khi gửi đề xuất thời gian khác");
+    } finally {
+      setRescheduleLoading(false);
+    }
+  };
   const renderSkeleton = () => (
     <div className="grid gap-4 sm:grid-cols-2">
       {Array.from({ length: 4 }).map((_, index) => (
@@ -107,6 +238,10 @@ const BookingHistoryTab = ({
                     ? "Hoàn thành"
                     : status === "Cancelled"
                     ? "Đã hủy"
+                    : status === "PendingReschedule"
+                    ? "Chờ phê duyệt đổi lịch"
+                    : status === "Rescheduled"
+                    ? "Đã đổi lịch"
                     : status}
                 </span>
               </div>
@@ -177,9 +312,58 @@ const BookingHistoryTab = ({
                   </div>
                 </div>
 
-                {booking.notes && (
+                {booking.notes && !booking.notes.includes("Đề xuất đổi lịch") && !booking.notes.includes("Từ chối đổi lịch") && (
                   <div className="rounded-xl border border-slate-100 bg-white p-3 text-sm italic text-slate-500 shadow-inner dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-400">
                     Ghi chú: {booking.notes}
+                  </div>
+                )}
+
+                {/* Rejection Reason Card - Hiển thị khi reschedule bị từ chối và chưa được chấp nhận */}
+                {extractRejectionReason(booking.notes) && status !== "Rescheduled" && (
+                  <div className="mt-4 rounded-lg border-2 border-red-400 bg-red-50 p-4 dark:border-red-600 dark:bg-red-900/20">
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-full bg-red-100 p-2 dark:bg-red-900/40">
+                        <svg className="h-5 w-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-red-900 dark:text-red-100">
+                          Đề xuất đổi lịch đã bị từ chối
+                        </h3>
+                        <div className="mt-2 flex items-start gap-2 text-sm">
+                          <svg className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                          </svg>
+                          <span className="text-red-800 dark:text-red-200">
+                            <strong>Lý do từ chối:</strong> {extractRejectionReason(booking.notes)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Reschedule Notification Card */}
+                {status === "PendingReschedule" && (
+                  <div className="mt-4">
+                    <RescheduleNotificationCard
+                      appointment={booking}
+                      requestedBy={(() => {
+                        if (!booking.notes) return "Customer";
+                        const matches = [...booking.notes.matchAll(/\[(Customer|Doctor|Counter)\]\s*Đề xuất đổi lịch:/g)];
+                        if (matches.length === 0) return "Customer";
+                        const lastMatch = matches[matches.length - 1];
+                        return lastMatch[1] || "Customer";
+                      })()}
+                      proposedDateTime={extractProposedDateTime(booking.notes)}
+                      reason={extractReason(booking.notes)}
+                      onApprove={() => handleApproveReschedule(booking.appointmentId)}
+                      onReject={() => handleRejectReschedule(booking.appointmentId)}
+                      onCounterPropose={() => handleCounterReschedule(booking.appointmentId)}
+                      isLoading={rescheduleLoading}
+                      currentUserRole="Customer"
+                    />
                   </div>
                 )}
               </div>
@@ -190,12 +374,25 @@ const BookingHistoryTab = ({
                 Tạo lúc {formatDate(booking.createdAt)} • Mã dịch vụ #
                 {booking.serviceDetailId}
               </span>
-              <Link
-                to="/booking"
-                className="text-sm font-semibold text-yellow-600 transition hover:text-yellow-500"
-              >
-                Đặt lại lịch
-              </Link>
+              <div className="flex gap-2">
+                {canReschedule(booking) && (
+                  <button
+                    onClick={() => {
+                      setIsCounterPropose(false);
+                      setShowRescheduleModal(booking.appointmentId);
+                    }}
+                    className="text-sm font-semibold text-yellow-600 transition hover:text-yellow-500"
+                  >
+                    Đề xuất đổi lịch
+                  </button>
+                )}
+                <Link
+                  to="/booking"
+                  className="text-sm font-semibold text-yellow-600 transition hover:text-yellow-500"
+                >
+                  Đặt lại lịch
+                </Link>
+              </div>
             </div>
           </div>
         );
@@ -293,6 +490,26 @@ const BookingHistoryTab = ({
             </button>
           </div>
         </div>
+      )}
+
+      {/* Reschedule Request Modal */}
+      {showRescheduleModal && (
+        <RescheduleRequestModal
+          isOpen={!!showRescheduleModal}
+          onClose={() => {
+            setShowRescheduleModal(null);
+            setIsCounterPropose(false);
+          }}
+          appointment={bookings.find((b) => b.appointmentId === showRescheduleModal)}
+          onSubmit={(proposedDateTime, reason) => {
+            if (isCounterPropose) {
+              handleCounterRescheduleSubmit(showRescheduleModal, proposedDateTime, reason);
+            } else {
+              handleRequestReschedule(showRescheduleModal, proposedDateTime, reason);
+            }
+          }}
+          isLoading={rescheduleLoading}
+        />
       )}
     </div>
   );

@@ -36,8 +36,14 @@ public static class EncounterMapper
             Assessment = domain.Assessment,
             Plan = domain.Plan,
             Status = domain.Status,
-            CreatedAt = domain.CreatedAt,
-            UpdatedAt = domain.UpdatedAt,
+            CreatedAt = domain.CreatedAt.Kind == DateTimeKind.Utc 
+                ? DateTime.SpecifyKind(domain.CreatedAt, DateTimeKind.Unspecified) 
+                : domain.CreatedAt,
+            UpdatedAt = domain.UpdatedAt.HasValue 
+                ? (domain.UpdatedAt.Value.Kind == DateTimeKind.Utc 
+                    ? DateTime.SpecifyKind(domain.UpdatedAt.Value, DateTimeKind.Unspecified) 
+                    : domain.UpdatedAt)
+                : null,
         };
     }
 }

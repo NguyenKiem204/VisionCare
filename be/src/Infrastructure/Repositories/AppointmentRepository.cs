@@ -69,11 +69,14 @@ public class AppointmentRepository : IAppointmentRepository
         {
             existingAppointment.AppointmentDatetime =
                 appointment.AppointmentDate ?? existingAppointment.AppointmentDatetime;
-            existingAppointment.Status = appointment.AppointmentStatus ?? existingAppointment.Status;
+            existingAppointment.Status =
+                appointment.AppointmentStatus ?? existingAppointment.Status;
             existingAppointment.PaymentStatus =
                 appointment.PaymentStatus ?? existingAppointment.PaymentStatus;
-            existingAppointment.ActualCost = appointment.ActualCost ?? existingAppointment.ActualCost;
-            existingAppointment.DiscountId = appointment.DiscountId ?? existingAppointment.DiscountId;
+            existingAppointment.ActualCost =
+                appointment.ActualCost ?? existingAppointment.ActualCost;
+            existingAppointment.DiscountId =
+                appointment.DiscountId ?? existingAppointment.DiscountId;
             existingAppointment.Notes = appointment.Notes ?? existingAppointment.Notes;
             existingAppointment.AppointmentCode =
                 appointment.AppointmentCode ?? existingAppointment.AppointmentCode;
@@ -138,9 +141,10 @@ public class AppointmentRepository : IAppointmentRepository
         if (date.HasValue)
         {
             // Convert to Unspecified kind to match PostgreSQL timestamp without time zone
-            var dateValue = date.Value.Kind == DateTimeKind.Utc
-                ? DateTime.SpecifyKind(date.Value, DateTimeKind.Unspecified)
-                : date.Value;
+            var dateValue =
+                date.Value.Kind == DateTimeKind.Utc
+                    ? DateTime.SpecifyKind(date.Value, DateTimeKind.Unspecified)
+                    : date.Value;
             var startOfDay = DateTime.SpecifyKind(dateValue.Date, DateTimeKind.Unspecified);
             var endOfDay = DateTime.SpecifyKind(startOfDay.AddDays(1), DateTimeKind.Unspecified);
             query = query.Where(a =>
@@ -155,9 +159,10 @@ public class AppointmentRepository : IAppointmentRepository
     public async Task<IEnumerable<DomainAppointment>> GetByDateAsync(DateTime date)
     {
         // Convert to Unspecified kind to match PostgreSQL timestamp without time zone
-        var dateValue = date.Kind == DateTimeKind.Utc
-            ? DateTime.SpecifyKind(date, DateTimeKind.Unspecified)
-            : date;
+        var dateValue =
+            date.Kind == DateTimeKind.Utc
+                ? DateTime.SpecifyKind(date, DateTimeKind.Unspecified)
+                : date;
         var startOfDay = DateTime.SpecifyKind(dateValue.Date, DateTimeKind.Unspecified);
         var endOfDay = DateTime.SpecifyKind(startOfDay.AddDays(1), DateTimeKind.Unspecified);
 
@@ -176,11 +181,23 @@ public class AppointmentRepository : IAppointmentRepository
         DateTime endDate
     )
     {
+        // Convert to Unspecified kind to match PostgreSQL timestamp without time zone
+        var startDateValue =
+            startDate.Kind == DateTimeKind.Utc
+                ? DateTime.SpecifyKind(startDate, DateTimeKind.Unspecified)
+                : startDate;
+        var endDateValue =
+            endDate.Kind == DateTimeKind.Utc
+                ? DateTime.SpecifyKind(endDate, DateTimeKind.Unspecified)
+                : endDate;
+
         var appointments = await _context
             .Appointments.Include(a => a.Doctor)
             .ThenInclude(d => d.Specialization)
             .Include(a => a.Patient)
-            .Where(a => a.AppointmentDatetime >= startDate && a.AppointmentDatetime <= endDate)
+            .Where(a =>
+                a.AppointmentDatetime >= startDateValue && a.AppointmentDatetime <= endDateValue
+            )
             .ToListAsync();
 
         return appointments.Select(AppointmentMapper.ToDomain);
@@ -230,8 +247,13 @@ public class AppointmentRepository : IAppointmentRepository
 
     public async Task<bool> IsDoctorAvailableAsync(int doctorId, DateTime dateTime)
     {
+        // Convert to Unspecified kind to match PostgreSQL timestamp without time zone
+        var dateTimeValue = dateTime.Kind == DateTimeKind.Utc
+            ? DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified)
+            : dateTime;
+
         var conflictingAppointment = await _context.Appointments.FirstOrDefaultAsync(a =>
-            a.DoctorId == doctorId && a.AppointmentDatetime == dateTime && a.Status != "Cancelled"
+            a.DoctorId == doctorId && a.AppointmentDatetime == dateTimeValue && a.Status != "Cancelled"
         );
 
         return conflictingAppointment == null;
@@ -306,7 +328,10 @@ public class AppointmentRepository : IAppointmentRepository
             .ToDictionaryAsync(g => g.Key ?? "Unknown", g => g.Count());
     }
 
-    public async Task<(IEnumerable<DomainAppointment> items, int totalCount)> SearchAppointmentsAsync(
+    public async Task<(
+        IEnumerable<DomainAppointment> items,
+        int totalCount
+    )> SearchAppointmentsAsync(
         string? keyword,
         string? status,
         int? doctorId,
@@ -328,10 +353,13 @@ public class AppointmentRepository : IAppointmentRepository
         if (!string.IsNullOrEmpty(keyword))
         {
             var loweredKeyword = keyword.Trim().ToLower();
-            query = query.Where(a => 
-                (a.Doctor.FullName != null && a.Doctor.FullName.ToLower().Contains(loweredKeyword)) ||
-                (a.Patient.FullName != null && a.Patient.FullName.ToLower().Contains(loweredKeyword)) ||
-                (a.Status != null && a.Status.ToLower().Contains(loweredKeyword))
+            query = query.Where(a =>
+                (a.Doctor.FullName != null && a.Doctor.FullName.ToLower().Contains(loweredKeyword))
+                || (
+                    a.Patient.FullName != null
+                    && a.Patient.FullName.ToLower().Contains(loweredKeyword)
+                )
+                || (a.Status != null && a.Status.ToLower().Contains(loweredKeyword))
             );
         }
 
@@ -363,18 +391,28 @@ public class AppointmentRepository : IAppointmentRepository
         // Sorting
         query = (sortBy?.ToLower()) switch
         {
-            "appointmentdate" => desc ? query.OrderByDescending(a => a.AppointmentDatetime) : query.OrderBy(a => a.AppointmentDatetime),
-            "appointmentstatus" => desc ? query.OrderByDescending(a => a.Status) : query.OrderBy(a => a.Status),
-            "patientname" => desc ? query.OrderByDescending(a => a.Patient.FullName) : query.OrderBy(a => a.Patient.FullName),
-            "doctorname" => desc ? query.OrderByDescending(a => a.Doctor.FullName) : query.OrderBy(a => a.Doctor.FullName),
-            _ => desc ? query.OrderByDescending(a => a.AppointmentId) : query.OrderBy(a => a.AppointmentId),
+            "appointmentdate" => desc
+                ? query.OrderByDescending(a => a.AppointmentDatetime)
+                : query.OrderBy(a => a.AppointmentDatetime),
+            "appointmentstatus" => desc
+                ? query.OrderByDescending(a => a.Status)
+                : query.OrderBy(a => a.Status),
+            "patientname" => desc
+                ? query.OrderByDescending(a => a.Patient.FullName)
+                : query.OrderBy(a => a.Patient.FullName),
+            "doctorname" => desc
+                ? query.OrderByDescending(a => a.Doctor.FullName)
+                : query.OrderBy(a => a.Doctor.FullName),
+            _ => desc
+                ? query.OrderByDescending(a => a.AppointmentId)
+                : query.OrderBy(a => a.AppointmentId),
         };
 
         var totalCount = await query.CountAsync();
 
         var skip = (Math.Max(page, 1) - 1) * Math.Max(pageSize, 1);
         var appointments = await query.Skip(skip).Take(Math.Max(pageSize, 1)).ToListAsync();
-        
+
         return (appointments.Select(AppointmentMapper.ToDomain), totalCount);
     }
 

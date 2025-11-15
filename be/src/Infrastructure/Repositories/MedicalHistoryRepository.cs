@@ -264,8 +264,14 @@ public class MedicalHistoryRepository : IMedicalHistoryRepository
             VisionRight = domainEntity.VisionRight,
             AdditionalTests = domainEntity.AdditionalTests,
             Notes = domainEntity.Notes,
-            CreatedAt = domainEntity.Created,
-            UpdatedAt = domainEntity.LastModified,
+            CreatedAt = domainEntity.Created.Kind == DateTimeKind.Utc 
+                ? DateTime.SpecifyKind(domainEntity.Created, DateTimeKind.Unspecified) 
+                : domainEntity.Created,
+            UpdatedAt = domainEntity.LastModified.HasValue 
+                ? (domainEntity.LastModified.Value.Kind == DateTimeKind.Utc 
+                    ? DateTime.SpecifyKind(domainEntity.LastModified.Value, DateTimeKind.Unspecified) 
+                    : domainEntity.LastModified)
+                : null,
         };
     }
 
@@ -282,6 +288,10 @@ public class MedicalHistoryRepository : IMedicalHistoryRepository
         model.VisionRight = domainEntity.VisionRight;
         model.AdditionalTests = domainEntity.AdditionalTests;
         model.Notes = domainEntity.Notes;
-        model.UpdatedAt = domainEntity.LastModified;
+        model.UpdatedAt = domainEntity.LastModified.HasValue 
+            ? (domainEntity.LastModified.Value.Kind == DateTimeKind.Utc 
+                ? DateTime.SpecifyKind(domainEntity.LastModified.Value, DateTimeKind.Unspecified) 
+                : domainEntity.LastModified)
+            : null;
     }
 }

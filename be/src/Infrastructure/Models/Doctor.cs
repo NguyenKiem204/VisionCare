@@ -27,6 +27,8 @@ public partial class Doctor
 
     public string? Status { get; set; }
 
+    public string? Biography { get; set; }
+
     public virtual Account Account { get; set; } = null!;
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();

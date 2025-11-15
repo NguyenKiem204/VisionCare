@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using VisionCare.Application.DTOs.AppointmentDto;
 using VisionCare.Application.Interfaces.Appointments;
+using VisionCare.WebAPI.Hubs;
 using VisionCare.WebAPI.Responses;
 
 namespace VisionCare.WebAPI.Controllers;
@@ -11,10 +13,15 @@ namespace VisionCare.WebAPI.Controllers;
 public class AppointmentsController : ControllerBase
 {
     private readonly IAppointmentService _appointmentService;
+    private readonly IHubContext<BookingHub> _hubContext;
 
-    public AppointmentsController(IAppointmentService appointmentService)
+    public AppointmentsController(
+        IAppointmentService appointmentService,
+        IHubContext<BookingHub> hubContext
+    )
     {
         _appointmentService = appointmentService;
+        _hubContext = hubContext;
     }
 
 
@@ -235,5 +242,69 @@ public class AppointmentsController : ControllerBase
                 DoctorStats = doctorStats,
             }
         );
+    }
+
+    // Staff/Admin can approve/reject reschedule for any appointment
+    [HttpPut("{id}/approve-reschedule")]
+    [Authorize(Policy = "StaffOrAdmin")]
+    public async Task<ActionResult<AppointmentDto>> ApproveReschedule(int id)
+    {
+        try
+        {
+            var updated = await _appointmentService.ApproveRescheduleAsync(id, "Staff");
+
+            // Send SignalR notification
+            await _hubContext.Clients
+                .Group($"appointment:{id}")
+                .SendAsync("RescheduleApproved", new
+                {
+                    appointmentId = id,
+                    newDateTime = updated.AppointmentDate,
+                    approvedBy = "Staff"
+                });
+
+            return Ok(ApiResponse<AppointmentDto>.Ok(updated));
+        }
+        catch (VisionCare.Application.Exceptions.ValidationException ex)
+        {
+            return BadRequest(ApiResponse<AppointmentDto>.Fail(ex.Message));
+        }
+        catch (VisionCare.Application.Exceptions.NotFoundException ex)
+        {
+            return NotFound(ApiResponse<AppointmentDto>.Fail(ex.Message));
+        }
+    }
+
+    [HttpPut("{id}/reject-reschedule")]
+    [Authorize(Policy = "StaffOrAdmin")]
+    public async Task<ActionResult<AppointmentDto>> RejectReschedule(
+        int id,
+        [FromBody] RejectRescheduleRequest? request = null
+    )
+    {
+        try
+        {
+            var updated = await _appointmentService.RejectRescheduleAsync(id, "Staff", request?.Reason);
+
+            // Send SignalR notification
+            await _hubContext.Clients
+                .Group($"appointment:{id}")
+                .SendAsync("RescheduleRejected", new
+                {
+                    appointmentId = id,
+                    reason = request?.Reason,
+                    rejectedBy = "Staff"
+                });
+
+            return Ok(ApiResponse<AppointmentDto>.Ok(updated));
+        }
+        catch (VisionCare.Application.Exceptions.ValidationException ex)
+        {
+            return BadRequest(ApiResponse<AppointmentDto>.Fail(ex.Message));
+        }
+        catch (VisionCare.Application.Exceptions.NotFoundException ex)
+        {
+            return NotFound(ApiResponse<AppointmentDto>.Fail(ex.Message));
+        }
     }
 }

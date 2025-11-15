@@ -63,7 +63,7 @@ public class MedicalHistoryService : IMedicalHistoryService
 
         // Use AutoMapper to create entity from DTO
         var medicalHistory = _mapper.Map<VisionCare.Domain.Entities.MedicalHistory>(request);
-        medicalHistory.Created = DateTime.UtcNow;
+        medicalHistory.Created = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
 
         var createdMedicalHistory = await _medicalHistoryRepository.AddAsync(medicalHistory);
         return _mapper.Map<MedicalHistoryDto>(createdMedicalHistory);

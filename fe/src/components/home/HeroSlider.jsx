@@ -33,16 +33,21 @@ const HeroSlider = () => {
       try {
         const data = await getBanners("home_hero");
         if (mounted && Array.isArray(data) && data.length > 0) {
-          const mapped = data.map((b, idx) => ({
-            id: b.bannerId || idx + 1,
-            title: b.title,
-            subtitle: b.description,
-            image: b.imageUrl,
-          }));
-          setSlides(mapped);
-          setCurrentSlide(0);
+          const mapped = data
+            .filter(b => b && (b.imageUrl || b.ImageUrl)) // Chỉ lấy banner có image
+            .map((b, idx) => ({
+              id: b.bannerId || b.BannerId || idx + 1,
+              title: b.title || b.Title || "",
+              subtitle: b.description || b.Description || "",
+              image: b.imageUrl || b.ImageUrl || "",
+            }));
+          if (mapped.length > 0) {
+            setSlides(mapped);
+            setCurrentSlide(0);
+          }
         }
-      } catch {
+      } catch (error) {
+        console.error("Error loading banners:", error);
         // fallback to default slides
       }
     })();

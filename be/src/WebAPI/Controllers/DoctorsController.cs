@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using VisionCare.Application.DTOs.DoctorDto;
+using VisionCare.Application.Interfaces;
 using VisionCare.Application.Interfaces.Doctors;
 using VisionCare.WebAPI.Responses;
+using VisionCare.WebAPI.Utils;
 
 namespace VisionCare.WebAPI.Controllers;
 
@@ -10,10 +12,12 @@ namespace VisionCare.WebAPI.Controllers;
 public class DoctorsController : ControllerBase
 {
     private readonly IDoctorService _doctorService;
+    private readonly IS3StorageService _storage;
 
-    public DoctorsController(IDoctorService doctorService)
+    public DoctorsController(IDoctorService doctorService, IS3StorageService storage)
     {
         _doctorService = doctorService;
+        _storage = storage;
     }
 
     [HttpGet]
@@ -42,10 +46,112 @@ public class DoctorsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<DoctorDto>> UpdateDoctor(int id, UpdateDoctorRequest request)
+    public async Task<ActionResult<DoctorDto>> UpdateDoctor(
+        int id,
+        [FromForm] UpdateDoctorRequest request,
+        IFormFile? avatar
+    )
     {
-        var doctor = await _doctorService.UpdateDoctorAsync(id, request);
-        return Ok(doctor);
+        try
+        {
+            var currentDoctor = await _doctorService.GetDoctorByIdAsync(id);
+            if (currentDoctor == null)
+            {
+                return NotFound();
+            }
+
+            var formCollection = Request.HasFormContentType ? Request.Form : null;
+
+            if (formCollection != null)
+            {
+                if (
+                    formCollection.TryGetValue("doctorName", out var doctorNameValue)
+                    && !string.IsNullOrWhiteSpace(doctorNameValue)
+                )
+                {
+                    request.DoctorName = doctorNameValue!;
+                }
+
+                if (
+                    formCollection.TryGetValue("dob", out var dobValue)
+                    && !string.IsNullOrWhiteSpace(dobValue)
+                    && DateOnly.TryParse(dobValue, out var parsedDob)
+                )
+                {
+                    request.Dob = parsedDob;
+                }
+
+                if (
+                    formCollection.TryGetValue("experienceYears", out var expValue)
+                    && !string.IsNullOrWhiteSpace(expValue)
+                    && int.TryParse(expValue, out var parsedExp)
+                )
+                {
+                    request.ExperienceYears = parsedExp;
+                }
+
+                if (
+                    formCollection.TryGetValue("specializationId", out var specValue)
+                    && !string.IsNullOrWhiteSpace(specValue)
+                    && int.TryParse(specValue, out var parsedSpec)
+                )
+                {
+                    request.SpecializationId = parsedSpec;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(request.DoctorName))
+            {
+                request.DoctorName = currentDoctor.DoctorName;
+            }
+
+            ModelState.Clear();
+            if (!TryValidateModel(request))
+            {
+                var errors = ModelState
+                    .Where(x => x.Value?.Errors.Count > 0)
+                    .SelectMany(x => x.Value!.Errors.Select(e => e.ErrorMessage))
+                    .ToList();
+                return BadRequest(string.Join("; ", errors));
+            }
+
+            if (avatar != null && avatar.Length > 0)
+            {
+                var oldKey = S3KeyHelper.TryExtractObjectKey(
+                    currentDoctor.Avatar ?? currentDoctor.ProfileImage
+                );
+                if (!string.IsNullOrWhiteSpace(oldKey))
+                {
+                    await _storage.DeleteAsync(oldKey);
+                }
+
+                var url = await _storage.UploadAsync(
+                    avatar.OpenReadStream(),
+                    avatar.FileName,
+                    avatar.ContentType,
+                    UploadPrefixes.DoctorAvatar(id)
+                );
+                request.Avatar = url;
+                request.ProfileImage = url;
+            }
+            else
+            {
+                // Giữ nguyên ảnh cũ nếu không có ảnh mới
+                request.Avatar = currentDoctor.Avatar ?? currentDoctor.ProfileImage;
+                request.ProfileImage = currentDoctor.ProfileImage ?? currentDoctor.Avatar;
+            }
+
+            var doctor = await _doctorService.UpdateDoctorAsync(id, request);
+            return Ok(doctor);
+        }
+        catch (VisionCare.Application.Exceptions.ValidationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
     }
 
     [HttpDelete("{id}")]

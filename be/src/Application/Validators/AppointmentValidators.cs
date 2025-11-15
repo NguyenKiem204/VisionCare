@@ -59,10 +59,12 @@ public class UpdateAppointmentRequestValidator : AbstractValidator<UpdateAppoint
         RuleFor(x => x.AppointmentStatus)
             .Must(status => status == null || 
                 status == "Pending" || 
+                status == "Scheduled" ||
                 status == "Confirmed" || 
                 status == "Cancelled" || 
                 status == "Completed" || 
-                status == "Rescheduled")
+                status == "Rescheduled" ||
+                status == "PendingReschedule")
             .WithMessage("Invalid appointment status");
 
         RuleFor(x => x.Notes)

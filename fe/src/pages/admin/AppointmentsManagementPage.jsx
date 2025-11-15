@@ -10,7 +10,12 @@ import {
   cancelAppointment,
   completeAppointment,
   rescheduleAppointment,
+  approveReschedule,
+  rejectReschedule,
 } from "../../services/adminAppointmentAPI";
+import RescheduleNotificationCard from "../../components/common/RescheduleNotificationCard";
+import { useAuth } from "../../contexts/AuthContext";
+import toast from "react-hot-toast";
 import AppointmentTable from "../../components/admin/appointments/AppointmentTable";
 import AppointmentSearchBar from "../../components/admin/appointments/AppointmentSearchBar";
 import AppointmentModal from "../../components/admin/appointments/AppointmentModal";
@@ -26,6 +31,7 @@ const sortFields = [
 const pageSizes = [5, 10, 20, 50, 100];
 
 const AppointmentsManagementPage = () => {
+  const { user } = useAuth();
   const [appointments, setAppointments] = useState([]);
   const [pagination, setPagination] = useState({ page: 0, size: 10, total: 0 });
   const [sort, setSort] = useState({ sortBy: "id", sortDir: "asc" });
@@ -156,6 +162,83 @@ const AppointmentsManagementPage = () => {
     }
   };
 
+  const handleApproveReschedule = async (id) => {
+    try {
+      await approveReschedule(id);
+      toast.success("Đã chấp nhận đề xuất đổi lịch");
+      loadAppointments();
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || "Không thể chấp nhận đề xuất đổi lịch";
+      console.error("Approve reschedule error:", error.response?.data || error);
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleRejectReschedule = async (id) => {
+    const reason = prompt("Nhập lý do từ chối (tùy chọn):");
+    if (reason === null) return; // User cancelled
+    
+    try {
+      await rejectReschedule(id, reason || null);
+      toast.success("Đã từ chối đề xuất đổi lịch");
+      loadAppointments();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Không thể từ chối đề xuất đổi lịch");
+    }
+  };
+
+  const handleCounterReschedule = async (id) => {
+    // TODO: Implement counter reschedule modal
+    toast.info("Chức năng đề xuất thời gian khác đang được phát triển");
+  };
+
+  // Helper functions to extract data from notes
+  const extractProposedDateTime = (notes) => {
+    if (!notes) return null;
+    // Match ALL reschedule requests and get the LAST one (most recent)
+    const matches = [...notes.matchAll(/\[(?:Doctor|Customer|Counter)\]\s*Đề xuất đổi lịch:\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/g)];
+    if (matches.length === 0) {
+      return null;
+    }
+    
+    // Get the last match (most recent request)
+    const lastMatch = matches[matches.length - 1];
+    const [date, time] = lastMatch[1].split(" ");
+    const [day, month, year] = date.split("/");
+    const [hours, minutes] = time.split(":");
+    
+    // Create date in local timezone (not UTC)
+    // Use local date components to avoid timezone conversion
+    const dateObj = new Date();
+    dateObj.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+    dateObj.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    
+    return dateObj;
+  };
+
+  const extractReason = (notes) => {
+    if (!notes) return null;
+    // Find the last reschedule request and extract its reason
+    // Match pattern: [Customer/Doctor] Đề xuất đổi lịch: ... Lý do: {reason}
+    const matches = [...notes.matchAll(/\[(?:Doctor|Customer|Counter)\]\s*Đề xuất đổi lịch:.*?Lý do:\s*(.+?)(?:\n|\[|$)/g)];
+    if (matches.length === 0) return null;
+    
+    // Get the last match (most recent request)
+    const lastMatch = matches[matches.length - 1];
+    return lastMatch[1] ? lastMatch[1].trim() : null;
+  };
+
+  const extractRequestedBy = (notes) => {
+    if (!notes) return null;
+    // Find the last reschedule request to get the requester
+    const matches = [...notes.matchAll(/\[(Customer|Doctor|Counter)\]\s*Đề xuất đổi lịch:/g)];
+    if (matches.length === 0) return null;
+    
+    // Get the last match (most recent request)
+    const lastMatch = matches[matches.length - 1];
+    return lastMatch[1] || null;
+  };
+
   const handleSortChange = (e) => {
     setSort((prev) => ({ ...prev, sortBy: e.target.value }));
     setPagination((prev) => ({ ...prev, page: 0 }));
@@ -269,6 +352,30 @@ const AppointmentsManagementPage = () => {
           + Tạo lịch hẹn mới
         </button>
       </div>
+
+      {/* Display reschedule notifications */}
+      {appointments
+        .filter((apt) => apt.appointmentStatus === "PendingReschedule" || apt.status === "PendingReschedule")
+        .map((appointment) => {
+          const proposedDateTime = extractProposedDateTime(appointment.notes);
+          const reason = extractReason(appointment.notes);
+          const requestedBy = extractRequestedBy(appointment.notes);
+          
+          return (
+            <div key={appointment.id} className="mb-4">
+              <RescheduleNotificationCard
+                appointment={appointment}
+                requestedBy={requestedBy || "Unknown"}
+                proposedDateTime={proposedDateTime}
+                reason={reason}
+                onApprove={() => handleApproveReschedule(appointment.id)}
+                onReject={() => handleRejectReschedule(appointment.id)}
+                onCounterPropose={() => handleCounterReschedule(appointment.id)}
+                currentUserRole={user?.role || "Admin"}
+              />
+            </div>
+          );
+        })}
 
       <div className="overflow-x-auto rounded-2xl shadow-lg">
         <AppointmentTable

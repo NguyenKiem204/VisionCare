@@ -11,13 +11,14 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
     address: "",
     specializationId: "",
     specializationName: "",
-    licenseNumber: "",
     experienceYears: "",
     rating: "",
     doctorStatus: "",
-    accountId: "",
+    biography: "",
   });
   const [activeTab, setActiveTab] = useState("basic");
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
 
   useEffect(() => {
     if (doctor) {
@@ -34,12 +35,12 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
         address: doctor.address || "",
         specializationId: doctor.specializationId || "",
         specializationName: doctor.specializationName || "",
-        licenseNumber: doctor.licenseNumber || "",
         experienceYears: doctor.experienceYears || doctor.experience || "",
         rating: doctor.rating || "",
         doctorStatus: doctor.doctorStatus || doctor.status || "",
-        accountId: doctor.accountId || "",
+        biography: doctor.biography || "",
       });
+      setAvatarPreview(doctor.avatar || doctor.profileImage || null);
     } else {
       setForm({
         doctorName: "",
@@ -50,14 +51,31 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
         address: "",
         specializationId: "",
         specializationName: "",
-        licenseNumber: "",
         experienceYears: "",
         rating: "",
         doctorStatus: "",
-        accountId: "",
+        biography: "",
       });
+      setAvatarPreview(null);
     }
+    setAvatarFile(null);
   }, [doctor]);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File ảnh không được vượt quá 5MB");
+        return;
+      }
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   if (!open) return null;
 
@@ -96,6 +114,42 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
 
         {activeTab === "basic" && (
           <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Ảnh đại diện
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <img
+                  src={
+                    avatarPreview ||
+                    doctor?.avatar ||
+                    doctor?.profileImage ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      form.doctorName || "D"
+                    )}&background=ffffff&color=10b981&size=128&bold=true`
+                  }
+                  alt="Avatar"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600"
+                />
+              </div>
+              <label className="cursor-pointer">
+                <div className="px-4 py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 transition-colors text-center text-sm text-gray-600 dark:text-gray-400">
+                  {avatarFile ? avatarFile.name : "Chọn ảnh đại diện"}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Kích thước tối đa: 5MB
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -218,16 +272,19 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Số chứng chỉ hành nghề
+                Trạng thái
               </label>
-              <input
+              <select
                 className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-md w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={form.licenseNumber}
+                value={form.doctorStatus}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, licenseNumber: e.target.value }))
+                  setForm((f) => ({ ...f, doctorStatus: e.target.value }))
                 }
-                placeholder="Nhập số chứng chỉ"
-              />
+              >
+                <option value="">Chọn trạng thái</option>
+                <option value="Active">Hoạt động</option>
+                <option value="Inactive">Không hoạt động</option>
+              </select>
             </div>
           </div>
 
@@ -267,38 +324,22 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Trạng thái
-              </label>
-              <select
-                className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-md w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={form.doctorStatus}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, doctorStatus: e.target.value }))
-                }
-              >
-                <option value="">Chọn trạng thái</option>
-                <option value="Active">Hoạt động</option>
-                <option value="Inactive">Không hoạt động</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Account ID
-              </label>
-              <input
-                type="number"
-                className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-md w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={form.accountId}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, accountId: e.target.value }))
-                }
-                placeholder="Nhập Account ID"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Giới thiệu bác sĩ
+            </label>
+            <textarea
+              className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-md w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={form.biography}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, biography: e.target.value }))
+              }
+              placeholder="Nhập giới thiệu về bác sĩ (bằng khen, chức vụ, kinh nghiệm...)"
+              rows={6}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Ví dụ: Bằng khen của Bộ trưởng Bộ Y Tế về đóng góp cho ngành Nhãn khoa. Trưởng khoa Khám và Điều trị theo yêu cầu - Bệnh viện Mắt Trung Ương. Hơn 30 năm kinh nghiệm...
+            </p>
           </div>
         </div>
         )}
@@ -310,7 +351,7 @@ const DoctorModal = ({ open, doctor, onClose, onSave }) => {
         <div className="flex justify-end gap-2 mt-6">
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition"
-            onClick={() => onSave(form)}
+            onClick={() => onSave(form, avatarFile)}
           >
             Lưu
           </button>

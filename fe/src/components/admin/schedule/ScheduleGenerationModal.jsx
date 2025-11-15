@@ -1,25 +1,20 @@
 import React, { useState } from "react";
 import { X, RefreshCw, Calendar, AlertCircle } from "lucide-react";
-import toast from "react-hot-toast";
 
 const ScheduleGenerationModal = ({
   open,
   onClose,
-  doctorId,
   onGenerate,
 }) => {
   const [daysAhead, setDaysAhead] = useState(14);
   const [generating, setGenerating] = useState(false);
 
   const handleGenerate = async () => {
-    if (!doctorId) {
-      toast.error("Vui lòng chọn bác sĩ");
-      return;
-    }
-
     setGenerating(true);
     try {
       await onGenerate(daysAhead);
+    } catch {
+      // Error is already handled in parent component
     } finally {
       setGenerating(false);
     }

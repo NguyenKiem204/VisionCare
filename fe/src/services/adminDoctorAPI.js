@@ -56,8 +56,35 @@ export const createDoctor = async (doctorData) => {
 };
 
 // Update doctor
-export const updateDoctor = async (id, doctorData) => {
-  const response = await api.put(`/doctors/${id}`, doctorData);
+export const updateDoctor = async (id, doctorData, avatarFile = null) => {
+  const formData = new FormData();
+  
+  // Append all fields to FormData
+  if (doctorData.doctorName) formData.append("doctorName", doctorData.doctorName);
+  if (doctorData.phone) formData.append("phone", doctorData.phone);
+  if (doctorData.experienceYears !== undefined && doctorData.experienceYears !== null) {
+    formData.append("experienceYears", doctorData.experienceYears.toString());
+  }
+  if (doctorData.specializationId) {
+    formData.append("specializationId", doctorData.specializationId.toString());
+  }
+  if (doctorData.gender) formData.append("gender", doctorData.gender);
+  if (doctorData.dob) formData.append("dob", doctorData.dob);
+  if (doctorData.address) formData.append("address", doctorData.address);
+  if (doctorData.rating !== undefined && doctorData.rating !== null) {
+    formData.append("rating", doctorData.rating.toString());
+  }
+  if (doctorData.doctorStatus) formData.append("doctorStatus", doctorData.doctorStatus);
+  if (doctorData.biography) formData.append("biography", doctorData.biography);
+  
+  // Append avatar file if provided
+  if (avatarFile) {
+    formData.append("avatar", avatarFile);
+  }
+
+  const response = await api.put(`/doctors/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return response;
 };
 

@@ -1,13 +1,18 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using VisionCare.Application.DTOs;
 using VisionCare.Application.DTOs.AppointmentDto;
 using VisionCare.Application.DTOs.CustomerDto;
 using VisionCare.Application.DTOs.DoctorScheduleDto;
+using VisionCare.Application.DTOs.MedicalHistoryDto;
 using VisionCare.Application.DTOs.ScheduleDto;
 using VisionCare.Application.Interfaces.Appointments;
+using VisionCare.Application.Interfaces.Customers;
+using VisionCare.Application.Interfaces.MedicalHistory;
 using VisionCare.Application.Interfaces.Scheduling;
+using VisionCare.WebAPI.Hubs;
 using VisionCare.WebAPI.Responses;
 
 namespace VisionCare.WebAPI.Controllers;
@@ -22,13 +27,19 @@ public class DoctorMeController : ControllerBase
     private readonly IDoctorScheduleService _doctorScheduleService;
     private readonly IDoctorAbsenceService _absenceService;
     private readonly IAppointmentService _appointmentService;
+    private readonly ICustomerService _customerService;
+    private readonly IMedicalHistoryService _medicalHistoryService;
+    private readonly IHubContext<BookingHub> _hubContext;
 
     public DoctorMeController(
         IScheduleService scheduleService,
         IWeeklyScheduleService weeklyScheduleService,
         IDoctorScheduleService doctorScheduleService,
         IDoctorAbsenceService absenceService,
-        IAppointmentService appointmentService
+        IAppointmentService appointmentService,
+        ICustomerService customerService,
+        IMedicalHistoryService medicalHistoryService,
+        IHubContext<BookingHub> hubContext
     )
     {
         _scheduleService = scheduleService;
@@ -36,6 +47,9 @@ public class DoctorMeController : ControllerBase
         _doctorScheduleService = doctorScheduleService;
         _absenceService = absenceService;
         _appointmentService = appointmentService;
+        _customerService = customerService;
+        _medicalHistoryService = medicalHistoryService;
+        _hubContext = hubContext;
     }
 
     private int GetCurrentAccountId()
@@ -65,9 +79,12 @@ public class DoctorMeController : ControllerBase
         return Ok(ApiResponse<AppointmentDto>.Ok(updated));
     }
 
-    // Patients of current doctor (unique by customer)
+    // Patients of current doctor (unique by customer) with pagination and search
     [HttpGet("patients")]
-    public async Task<ActionResult<IEnumerable<CustomerDto>>> GetMyPatients(
+    public async Task<ActionResult<PagedResponse<CustomerDto>>> GetMyPatients(
+        [FromQuery] string? keyword = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
         [FromQuery] DateTime? from = null,
         [FromQuery] DateTime? to = null
     )
@@ -95,21 +112,99 @@ public class DoctorMeController : ControllerBase
             items = await _appointmentService.GetAppointmentsByDoctorAsync(doctorId, null);
         }
 
-        var patients = items
+        var patientGroups = items
             .Where(a => a.PatientId.HasValue)
             .GroupBy(a => a.PatientId!.Value)
-            .Select(g => new CustomerDto
-            {
-                Id = g.Key,
-                CustomerName = g.First().PatientName ?? $"Bệnh nhân #{g.Key}",
-                Phone = null,
-                Address = null,
-                Dob = null,
-                Gender = null,
-            })
             .ToList();
 
-        return Ok(ApiResponse<IEnumerable<CustomerDto>>.Ok(patients));
+        var allPatients = new List<CustomerDto>();
+        
+        foreach (var group in patientGroups)
+        {
+            var patientId = group.Key;
+            var appointments = group.ToList();
+            var firstAppointment = appointments.First();
+            
+            // Load full customer details
+            var customerDto = await _customerService.GetCustomerByIdAsync(patientId);
+            
+            if (customerDto == null)
+            {
+                // Fallback if customer not found
+                customerDto = new CustomerDto
+                {
+                    Id = patientId,
+                    CustomerName = firstAppointment.PatientName ?? $"Bệnh nhân #{patientId}",
+                };
+            }
+            else
+            {
+                // Ensure name is set
+                if (string.IsNullOrEmpty(customerDto.CustomerName))
+                {
+                    customerDto.CustomerName = firstAppointment.PatientName ?? $"Bệnh nhân #{patientId}";
+                }
+            }
+            
+            allPatients.Add(customerDto);
+        }
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var keywordLower = keyword.ToLower();
+            allPatients = allPatients
+                .Where(p => 
+                    (p.CustomerName != null && p.CustomerName.ToLower().Contains(keywordLower)) ||
+                    (p.Email != null && p.Email.ToLower().Contains(keywordLower)) ||
+                    (p.Phone != null && p.Phone.Contains(keyword))
+                )
+                .ToList();
+        }
+
+        // Sort by name
+        allPatients = allPatients
+            .OrderBy(p => p.CustomerName ?? $"Bệnh nhân #{p.Id}")
+            .ToList();
+
+        // Apply pagination
+        var totalCount = allPatients.Count;
+        var paginatedPatients = allPatients
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return Ok(PagedResponse<CustomerDto>.Ok(
+            paginatedPatients,
+            totalCount,
+            page,
+            pageSize
+        ));
+    }
+
+    // Get medical history for a patient (only patients of current doctor)
+    [HttpGet("patients/{patientId}/medical-history")]
+    public async Task<ActionResult<IEnumerable<MedicalHistoryDto>>> GetPatientMedicalHistory(int patientId)
+    {
+        var doctorId = GetCurrentAccountId();
+        
+        // Verify this patient has appointments with current doctor
+        var appointments = await _appointmentService.GetAppointmentsByDoctorAsync(doctorId, null);
+        var hasAppointment = appointments.Any(a => a.PatientId == patientId);
+        
+        if (!hasAppointment)
+        {
+            return Forbid();
+        }
+
+        var medicalHistories = await _medicalHistoryService.GetMedicalHistoriesByPatientIdAsync(patientId);
+        
+        // Filter to only include histories from appointments with this doctor
+        var filteredHistories = medicalHistories
+            .Where(mh => appointments.Any(a => a.Id == mh.AppointmentId && a.DoctorId == doctorId))
+            .ToList();
+
+        return Ok(ApiResponse<IEnumerable<MedicalHistoryDto>>.Ok(filteredHistories));
     }
 
     [HttpPut("appointments/{id}/complete")]
@@ -208,6 +303,35 @@ public class DoctorMeController : ControllerBase
         return Ok(ApiResponse<IEnumerable<ScheduleDto>>.Ok(upcoming));
     }
 
+    [HttpGet("appointments")]
+    public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetMyAppointments(
+        [FromQuery] DateTime? from = null,
+        [FromQuery] DateTime? to = null
+    )
+    {
+        var doctorId = GetCurrentAccountId();
+        IEnumerable<AppointmentDto> appointments;
+        
+        if (from.HasValue && to.HasValue)
+        {
+            appointments = await _appointmentService.GetAppointmentsByDateRangeAsync(from.Value, to.Value);
+            // Filter by doctorId since GetAppointmentsByDateRangeAsync doesn't filter by doctor
+            appointments = appointments.Where(a => a.DoctorId == doctorId);
+        }
+        else if (from.HasValue)
+        {
+            var endDate = from.Value.AddDays(7); // Default to 7 days if only from is provided
+            appointments = await _appointmentService.GetAppointmentsByDateRangeAsync(from.Value, endDate);
+            appointments = appointments.Where(a => a.DoctorId == doctorId);
+        }
+        else
+        {
+            appointments = await _appointmentService.GetAppointmentsByDoctorAsync(doctorId, null);
+        }
+        
+        return Ok(ApiResponse<IEnumerable<AppointmentDto>>.Ok(appointments));
+    }
+
     [HttpGet("absences")]
     public async Task<ActionResult<IEnumerable<DoctorAbsenceDto>>> GetMyAbsences()
     {
@@ -235,5 +359,152 @@ public class DoctorMeController : ControllerBase
 
         var created = await _absenceService.CreateAsync(payload);
         return CreatedAtAction(nameof(GetMyAbsences), ApiResponse<DoctorAbsenceDto>.Ok(created));
+    }
+
+    // Reschedule Workflow Endpoints
+    [HttpPost("appointments/{id}/request-reschedule")]
+    public async Task<ActionResult<AppointmentDto>> RequestRescheduleMyAppointment(
+        int id,
+        [FromBody] RequestRescheduleRequest request
+    )
+    {
+        var doctorId = GetCurrentAccountId();
+        var appt = await _appointmentService.GetAppointmentByIdAsync(id);
+        if (appt == null || appt.DoctorId != doctorId)
+        {
+            return Forbid();
+        }
+
+        try
+        {
+            var updated = await _appointmentService.RequestRescheduleAsync(
+                id,
+                request.ProposedDateTime,
+                "Doctor",
+                request.Reason
+            );
+
+            // Send SignalR notification
+            await _hubContext.Clients
+                .Group($"appointment:{id}")
+                .SendAsync("RescheduleRequested", new
+                {
+                    appointmentId = id,
+                    proposedDateTime = request.ProposedDateTime,
+                    requestedBy = "Doctor",
+                    reason = request.Reason
+                });
+
+            return Ok(ApiResponse<AppointmentDto>.Ok(updated));
+        }
+        catch (VisionCare.Application.Exceptions.ValidationException ex)
+        {
+            return BadRequest(ApiResponse<AppointmentDto>.Fail(ex.Message));
+        }
+    }
+
+    [HttpPut("appointments/{id}/approve-reschedule")]
+    public async Task<ActionResult<AppointmentDto>> ApproveRescheduleMyAppointment(int id)
+    {
+        var doctorId = GetCurrentAccountId();
+        var appt = await _appointmentService.GetAppointmentByIdAsync(id);
+        if (appt == null || appt.DoctorId != doctorId)
+        {
+            return Forbid();
+        }
+
+        try
+        {
+            var updated = await _appointmentService.ApproveRescheduleAsync(id, "Doctor");
+
+            // Send SignalR notification
+            await _hubContext.Clients
+                .Group($"appointment:{id}")
+                .SendAsync("RescheduleApproved", new
+                {
+                    appointmentId = id,
+                    newDateTime = updated.AppointmentDate
+                });
+
+            return Ok(ApiResponse<AppointmentDto>.Ok(updated));
+        }
+        catch (VisionCare.Application.Exceptions.ValidationException ex)
+        {
+            return BadRequest(ApiResponse<AppointmentDto>.Fail(ex.Message));
+        }
+    }
+
+    [HttpPut("appointments/{id}/reject-reschedule")]
+    public async Task<ActionResult<AppointmentDto>> RejectRescheduleMyAppointment(
+        int id,
+        [FromBody] RejectRescheduleRequest? request = null
+    )
+    {
+        var doctorId = GetCurrentAccountId();
+        var appt = await _appointmentService.GetAppointmentByIdAsync(id);
+        if (appt == null || appt.DoctorId != doctorId)
+        {
+            return Forbid();
+        }
+
+        try
+        {
+            var updated = await _appointmentService.RejectRescheduleAsync(id, "Doctor", request?.Reason);
+
+            // Send SignalR notification
+            await _hubContext.Clients
+                .Group($"appointment:{id}")
+                .SendAsync("RescheduleRejected", new
+                {
+                    appointmentId = id,
+                    reason = request?.Reason
+                });
+
+            return Ok(ApiResponse<AppointmentDto>.Ok(updated));
+        }
+        catch (VisionCare.Application.Exceptions.ValidationException ex)
+        {
+            return BadRequest(ApiResponse<AppointmentDto>.Fail(ex.Message));
+        }
+    }
+
+    [HttpPost("appointments/{id}/counter-reschedule")]
+    public async Task<ActionResult<AppointmentDto>> CounterRescheduleMyAppointment(
+        int id,
+        [FromBody] CounterRescheduleRequest request
+    )
+    {
+        var doctorId = GetCurrentAccountId();
+        var appt = await _appointmentService.GetAppointmentByIdAsync(id);
+        if (appt == null || appt.DoctorId != doctorId)
+        {
+            return Forbid();
+        }
+
+        try
+        {
+            var updated = await _appointmentService.CounterRescheduleAsync(
+                id,
+                request.ProposedDateTime,
+                request.Reason
+            );
+
+            // Send SignalR notification
+            await _hubContext.Clients
+                .Group($"appointment:{id}")
+                .SendAsync("RescheduleCounterProposed", new
+                {
+                    appointmentId = id,
+                    proposedDateTime = request.ProposedDateTime,
+                    requestedBy = "Doctor",
+                    reason = request.Reason
+                });
+
+            return Ok(ApiResponse<AppointmentDto>.Ok(updated));
+        }
+        catch (VisionCare.Application.Exceptions.ValidationException ex)
+        {
+            return BadRequest(ApiResponse<AppointmentDto>.Fail(ex.Message));
+        }
     }
 }

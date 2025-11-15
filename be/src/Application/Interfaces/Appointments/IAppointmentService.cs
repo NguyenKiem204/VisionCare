@@ -53,4 +53,10 @@ public interface IAppointmentService
     Task<Dictionary<string, int>> GetAppointmentsByStatusStatsAsync();
     Task<Dictionary<string, int>> GetAppointmentsByDoctorStatsAsync();
     Task<IEnumerable<AppointmentDto>> GetOverdueAppointmentsAsync();
+
+    // Reschedule Workflow
+    Task<AppointmentDto> RequestRescheduleAsync(int appointmentId, DateTime proposedDateTime, string requestedBy, string? reason = null);
+    Task<AppointmentDto> ApproveRescheduleAsync(int appointmentId, string approvedBy);
+    Task<AppointmentDto> RejectRescheduleAsync(int appointmentId, string rejectedBy, string? reason = null);
+    Task<AppointmentDto> CounterRescheduleAsync(int appointmentId, DateTime proposedDateTime, string? reason = null);
 }

@@ -94,6 +94,14 @@ public class MappingProfile : Profile
                             ? src.Doctor.Specialization.SpecializationName
                             : null
                     )
+            )
+            .ForMember(
+                dest => dest.ServiceName,
+                opt => opt.Ignore() // Will be set manually in service
+            )
+            .ForMember(
+                dest => dest.ServiceDetailName,
+                opt => opt.Ignore() // Will be set manually in service
             );
 
         // Specialization mappings

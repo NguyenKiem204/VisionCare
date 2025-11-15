@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { register } from "../services/authAPI";
+import toast from "react-hot-toast";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -43,14 +45,35 @@ const Register = () => {
     }
 
     try {
-      // TODO: Implement actual registration API call
-      // For now, just simulate success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+      });
 
-      // Redirect to login page
-      navigate("/login");
+      if (response.success) {
+        toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
+        navigate("/login");
+      } else {
+        setError(response.message || "Có lỗi xảy ra, vui lòng thử lại");
+      }
     } catch (error) {
-      setError("Có lỗi xảy ra, vui lòng thử lại");
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.errors ||
+        error.message ||
+        "Có lỗi xảy ra, vui lòng thử lại";
+      
+      if (typeof errorMessage === "object") {
+        // Handle validation errors object
+        const errorText = Object.values(errorMessage)
+          .flat()
+          .join(", ");
+        setError(errorText);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }

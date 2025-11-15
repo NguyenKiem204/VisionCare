@@ -52,17 +52,23 @@ public class DoctorRepository : IDoctorRepository
         if (existingDoctor != null)
         {
             existingDoctor.FullName = doctor.DoctorName;
+            existingDoctor.Phone = doctor.Phone;
             existingDoctor.ExperienceYears = doctor.ExperienceYears.HasValue
                 ? (short?)doctor.ExperienceYears.Value
                 : null;
             existingDoctor.SpecializationId =
                 doctor.SpecializationId ?? existingDoctor.SpecializationId;
-            existingDoctor.Avatar = doctor.ProfileImage;
+            // Chỉ update avatar nếu có giá trị mới
+            if (!string.IsNullOrWhiteSpace(doctor.ProfileImage))
+            {
+                existingDoctor.Avatar = doctor.ProfileImage;
+            }
             existingDoctor.Gender = doctor.Gender;
             existingDoctor.Dob = doctor.Dob;
             existingDoctor.Address = doctor.Address;
             existingDoctor.Status = doctor.DoctorStatus;
             existingDoctor.Rating = doctor.Rating.HasValue ? (decimal?)doctor.Rating.Value : null;
+            existingDoctor.Biography = doctor.Biography;
 
             await _context.SaveChangesAsync();
         }

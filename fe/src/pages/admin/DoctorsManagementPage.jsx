@@ -92,11 +92,25 @@ const DoctorsManagementPage = () => {
     loadDoctors();
   }, [loadDoctors]);
 
-  const handleSave = async (data) => {
+  const handleSave = async (data, avatarFile = null) => {
     try {
       if (selectedDoctor) {
-        await updateDoctor(selectedDoctor.id, data);
+        // Map form data to UpdateDoctorRequest format
+        const updateData = {
+          doctorName: data.doctorName,
+          phone: data.phone || null,
+          experienceYears: data.experienceYears ? parseInt(data.experienceYears) : null,
+          specializationId: data.specializationId ? parseInt(data.specializationId) : null,
+          gender: data.gender || null,
+          dob: data.dob || null,
+          address: data.address || null,
+          rating: data.rating ? parseFloat(data.rating) : null,
+          doctorStatus: data.doctorStatus || null,
+          biography: data.biography || null,
+        };
+        await updateDoctor(selectedDoctor.id, updateData, avatarFile);
       } else {
+        // For create, need AccountId - this should be handled separately
         await createDoctor(data);
       }
       setModalOpen(false);

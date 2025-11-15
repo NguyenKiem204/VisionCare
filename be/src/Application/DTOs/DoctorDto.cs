@@ -19,6 +19,7 @@ public class DoctorDto
     public DateOnly? Dob { get; set; }
     public string? Address { get; set; }
     public string? DoctorStatus { get; set; }
+    public string? Biography { get; set; }
     public DateTime Created { get; set; }
     public DateTime? LastModified { get; set; }
     public string? Email { get; set; }
@@ -49,6 +50,9 @@ public class UpdateDoctorRequest
     public string? Gender { get; set; }
     public DateOnly? Dob { get; set; }
     public string? Address { get; set; }
+    public double? Rating { get; set; }
+    public string? DoctorStatus { get; set; }
+    public string? Biography { get; set; }
 }
 
 public class DoctorSearchRequest

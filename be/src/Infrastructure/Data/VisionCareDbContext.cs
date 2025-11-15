@@ -808,6 +808,7 @@ public partial class VisionCareDbContext : DbContext
             entity.Property(e => e.AccountId).ValueGeneratedNever().HasColumnName("account_id");
             entity.Property(e => e.Address).HasColumnName("address");
             entity.Property(e => e.Avatar).HasMaxLength(255).HasColumnName("avatar");
+            entity.Property(e => e.Biography).HasColumnName("biography");
             entity.Property(e => e.Dob).HasColumnName("dob");
             entity.Property(e => e.ExperienceYears).HasColumnName("experience_years");
             entity.Property(e => e.FullName).HasMaxLength(255).HasColumnName("full_name");

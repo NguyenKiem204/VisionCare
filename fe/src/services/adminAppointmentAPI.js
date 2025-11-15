@@ -174,3 +174,15 @@ export const getAppointmentStatistics = async () => {
   const response = await api.get("/appointments/statistics");
   return response;
 };
+
+// Approve reschedule request (Staff/Admin)
+export const approveReschedule = async (id) => {
+  const response = await api.put(`/appointments/${id}/approve-reschedule`);
+  return response;
+};
+
+// Reject reschedule request (Staff/Admin)
+export const rejectReschedule = async (id, reason = null) => {
+  const response = await api.put(`/appointments/${id}/reject-reschedule`, reason ? { reason } : null);
+  return response;
+};

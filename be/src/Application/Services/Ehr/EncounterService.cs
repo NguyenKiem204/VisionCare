@@ -69,7 +69,7 @@ public class EncounterService : IEncounterService
             Assessment = request.Assessment,
             Plan = request.Plan,
             Status = "Draft",
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified),
         };
         var created = await _encounterRepository.AddAsync(entity);
         return Map(created);
@@ -94,7 +94,7 @@ public class EncounterService : IEncounterService
         if (request.Assessment != null) e.Assessment = request.Assessment;
         if (request.Plan != null) e.Plan = request.Plan;
         if (!string.IsNullOrWhiteSpace(request.Status)) e.Status = request.Status!;
-        e.UpdatedAt = DateTime.UtcNow;
+        e.UpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
         await _encounterRepository.UpdateAsync(e);
         return Map(e);
     }

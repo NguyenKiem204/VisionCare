@@ -204,6 +204,7 @@ public static class DbSeeder
                         SpecializationId = specialization.SpecializationId,
                         Gender = config[$"{section}:Gender"] ?? "Male",
                         Status = "Active",
+                        Biography = config[$"{section}:Biography"] ?? null,
                     };
                     db.Doctors.Add(doctor);
                     await db.SaveChangesAsync();

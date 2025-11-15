@@ -119,11 +119,11 @@ INSERT INTO Certificate (name) VALUES
 ('Chứng chỉ Phẫu thuật Laser');
 
 -- 10. Insert Doctors
-INSERT INTO Doctors (account_id, full_name, phone, experience_years, specialization_id, avatar, rating, gender, dob, address, status) VALUES 
-((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 'BS. Nguyễn Văn Nam', '0902345678', 15, 1, 'doctor01.jpg', 4.8, 'Nam', '1978-05-15', '123 Lê Lợi, Q.1, TP.HCM', 'Active'),
-((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 'BS. CKI Trần Thị Mai', '0903456789', 12, 2, 'doctor02.jpg', 4.7, 'Nữ', '1982-08-20', '456 Nguyễn Huệ, Q.1, TP.HCM', 'Active'),
-((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 'BS. CKII Lê Minh Tuấn', '0904567890', 20, 3, 'doctor03.jpg', 4.9, 'Nam', '1975-12-10', '789 Hai Bà Trưng, Q.3, TP.HCM', 'Active'),
-((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 'BS. CKI Phạm Thị Lan', '0905678901', 8, 4, 'doctor04.jpg', 4.6, 'Nữ', '1985-03-25', '321 Pasteur, Q.3, TP.HCM', 'Active');
+INSERT INTO Doctors (account_id, full_name, phone, experience_years, specialization_id, avatar, rating, gender, dob, address, status, biography) VALUES 
+((SELECT account_id FROM accounts WHERE email = 'dr.nguyen@visioncare.com'), 'BS. Nguyễn Văn Nam', '0902345678', 15, 1, 'doctor01.jpg', 4.8, 'Nam', '1978-05-15', '123 Lê Lợi, Q.1, TP.HCM', 'Active', 'Bằng khen của Bộ trưởng Bộ Y Tế về đóng góp cho ngành Nhãn khoa. Trưởng khoa Khám và Điều trị theo yêu cầu - Bệnh viện Mắt Trung Ương. Hơn 30 năm kinh nghiệm, thực hiện thành công hơn 100,000 ca phẫu thuật nhãn khoa.'),
+((SELECT account_id FROM accounts WHERE email = 'dr.tran@visioncare.com'), 'BS. CKI Trần Thị Mai', '0903456789', 12, 2, 'doctor02.jpg', 4.7, 'Nữ', '1982-08-20', '456 Nguyễn Huệ, Q.1, TP.HCM', 'Active', 'Bằng khen Sáng kiến, sáng tạo thủ đô do Ban Nhân Dân Thành Phố Hà Nội trao tặng. Chuyên gia hàng đầu về bệnh võng mạc với hơn 12 năm kinh nghiệm.'),
+((SELECT account_id FROM accounts WHERE email = 'dr.le@visioncare.com'), 'BS. CKII Lê Minh Tuấn', '0904567890', 20, 3, 'doctor03.jpg', 4.9, 'Nam', '1975-12-10', '789 Hai Bà Trưng, Q.3, TP.HCM', 'Active', 'Chuyên gia điều trị Glaucoma với hơn 20 năm kinh nghiệm. Đã thực hiện thành công hàng nghìn ca phẫu thuật điều trị bệnh tăng nhãn áp.'),
+((SELECT account_id FROM accounts WHERE email = 'dr.pham@visioncare.com'), 'BS. CKI Phạm Thị Lan', '0905678901', 8, 4, 'doctor04.jpg', 4.6, 'Nữ', '1985-03-25', '321 Pasteur, Q.3, TP.HCM', 'Active', 'Bác sĩ chuyên khoa Phẫu thuật mắt với 8 năm kinh nghiệm. Chuyên về phẫu thuật Lasik và các phẫu thuật khúc xạ hiện đại.');
 
 -- 11. Insert Degree-Doctor relationships
 INSERT INTO DegreeDoctor (doctor_id, degree_id, issued_date, issued_by, certificate_image, status) VALUES 

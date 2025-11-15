@@ -19,7 +19,14 @@ import {
   confirmMyAppointment,
   completeMyAppointment,
   cancelMyAppointment,
+  requestReschedule,
+  approveReschedule,
+  rejectReschedule,
+  counterReschedule,
 } from "../../services/doctorMeAPI";
+import RescheduleNotificationCard from "../../components/common/RescheduleNotificationCard";
+import RescheduleRequestModal from "../../components/common/RescheduleRequestModal";
+import toast from "react-hot-toast";
 import { Calendar, User, Clock, FileText, Pill, ClipboardList, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 
 const AppointmentDetail = () => {
@@ -32,6 +39,9 @@ const AppointmentDetail = () => {
   const [prescriptions, setPrescriptions] = useState([]);
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("info");
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [rescheduleLoading, setRescheduleLoading] = useState(false);
+  const [isCounterPropose, setIsCounterPropose] = useState(false);
 
   // Encounter form
   const [encounterForm, setEncounterForm] = useState({
@@ -256,6 +266,112 @@ const AppointmentDetail = () => {
     }
   };
 
+  const extractProposedDateTime = (notes) => {
+    if (!notes) return null;
+    // Match ALL reschedule requests and get the LAST one (most recent)
+    const matches = [...notes.matchAll(/\[(?:Doctor|Customer|Counter)\]\s*Đề xuất đổi lịch:\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})/g)];
+    if (matches.length === 0) return null;
+    
+    // Get the last match (most recent request)
+    const lastMatch = matches[matches.length - 1];
+    const [date, time] = lastMatch[1].split(" ");
+    const [day, month, year] = date.split("/");
+    const [hours, minutes] = time.split(":");
+    // Create date in local timezone (not UTC)
+    const dateObj = new Date();
+    dateObj.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+    dateObj.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    return dateObj;
+  };
+
+  const extractReason = (notes) => {
+    if (!notes) return null;
+    // Find the last reschedule request and extract its reason
+    const matches = [...notes.matchAll(/\[(?:Doctor|Customer|Counter)\]\s*Đề xuất đổi lịch:.*?Lý do:\s*(.+?)(?:\n|\[|$)/g)];
+    if (matches.length === 0) return null;
+    
+    // Get the last match (most recent request)
+    const lastMatch = matches[matches.length - 1];
+    return lastMatch[1] ? lastMatch[1].trim() : null;
+  };
+
+  const extractRejectionReason = (notes) => {
+    if (!notes) return null;
+    // Find the last rejection and extract its reason
+    const matches = [...notes.matchAll(/\[Từ chối đổi lịch\]\s*Lý do:\s*(.+?)(?:\n|\[|$)/g)];
+    if (matches.length === 0) return null;
+    
+    // Get the last match (most recent rejection)
+    const lastMatch = matches[matches.length - 1];
+    return lastMatch[1] ? lastMatch[1].trim() : null;
+  };
+
+  const handleRequestReschedule = async (proposedDateTime, reason) => {
+    setRescheduleLoading(true);
+    try {
+      await requestReschedule(id, proposedDateTime.toISOString(), reason);
+      toast.success("Đã gửi đề xuất đổi lịch");
+      setShowRescheduleModal(false);
+      await loadData();
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error ||
+                          error.message || 
+                          "Lỗi khi gửi đề xuất đổi lịch";
+      toast.error(errorMessage);
+      console.error("Reschedule error:", error.response?.data || error);
+    } finally {
+      setRescheduleLoading(false);
+    }
+  };
+
+  const handleApproveReschedule = async () => {
+    setRescheduleLoading(true);
+    try {
+      await approveReschedule(id);
+      toast.success("Đã chấp nhận đổi lịch");
+      await loadData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Lỗi khi chấp nhận đổi lịch");
+    } finally {
+      setRescheduleLoading(false);
+    }
+  };
+
+  const handleRejectReschedule = async () => {
+    const reason = window.prompt("Lý do từ chối (tùy chọn):");
+    setRescheduleLoading(true);
+    try {
+      await rejectReschedule(id, reason || null);
+      toast.success("Đã từ chối đề xuất đổi lịch");
+      await loadData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Lỗi khi từ chối đổi lịch");
+    } finally {
+      setRescheduleLoading(false);
+    }
+  };
+
+  const handleCounterReschedule = () => {
+    setIsCounterPropose(true);
+    setShowRescheduleModal(true);
+  };
+
+  const handleCounterRescheduleSubmit = async (proposedDateTime, reason) => {
+    setRescheduleLoading(true);
+    try {
+      await counterReschedule(id, proposedDateTime.toISOString(), reason);
+      toast.success("Đã gửi đề xuất thời gian khác");
+      setShowRescheduleModal(false);
+      setIsCounterPropose(false);
+      await loadData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Lỗi khi gửi đề xuất thời gian khác");
+    } finally {
+      setRescheduleLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -287,6 +403,9 @@ const AppointmentDetail = () => {
       Confirmed: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
       Completed: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
       Canceled: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+      Cancelled: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+      PendingReschedule: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+      Rescheduled: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
     };
     return (
       <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusMap[status] || statusMap.Pending}`}>
@@ -340,8 +459,71 @@ const AppointmentDetail = () => {
               Hủy
             </button>
           ) : null}
+          {/* Button đề xuất đổi lịch - Bác sĩ có thể đề xuất khi appointment đã được confirm và paid */}
+          {((appointment.status === "Confirmed" || appointment.status === "Scheduled" || appointment.status === "Pending") && 
+           appointment.paymentStatus === "Paid" &&
+           appointment.status !== "PendingReschedule" &&
+           appointment.status !== "Rescheduled" &&
+           appointment.status !== "Completed" &&
+           appointment.status !== "Canceled" &&
+           appointment.status !== "Cancelled") && (
+            <button
+              onClick={() => {
+                setIsCounterPropose(false);
+                setShowRescheduleModal(true);
+              }}
+              className="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
+              title="Đề xuất đổi lịch khám cho khách hàng"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Đề xuất đổi lịch
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Rejection Reason Card - Hiển thị khi reschedule bị từ chối và chưa được chấp nhận */}
+      {extractRejectionReason(appointment.notes) && appointment.appointmentStatus !== "Rescheduled" && (
+        <div className="mb-4 rounded-lg border-2 border-red-400 bg-red-50 p-4 dark:border-red-600 dark:bg-red-900/20">
+          <div className="flex items-start gap-3">
+            <div className="rounded-full bg-red-100 p-2 dark:bg-red-900/40">
+              <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-red-900 dark:text-red-100">
+                Đề xuất đổi lịch đã bị từ chối
+              </h3>
+              <div className="mt-2 flex items-start gap-2 text-sm">
+                <MessageSquare className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5" />
+                <span className="text-red-800 dark:text-red-200">
+                  <strong>Lý do từ chối:</strong> {extractRejectionReason(appointment.notes)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reschedule Notification Card */}
+      {appointment.status === "PendingReschedule" && (
+        <RescheduleNotificationCard
+          appointment={appointment}
+          requestedBy={(() => {
+            if (!appointment.notes) return "Customer";
+            const matches = [...appointment.notes.matchAll(/\[(Customer|Doctor|Counter)\]\s*Đề xuất đổi lịch:/g)];
+            if (matches.length === 0) return "Customer";
+            const lastMatch = matches[matches.length - 1];
+            return lastMatch[1] || "Customer";
+          })()}
+          proposedDateTime={extractProposedDateTime(appointment.notes)}
+          reason={extractReason(appointment.notes)}
+          onApprove={handleApproveReschedule}
+          onReject={handleRejectReschedule}
+          onCounterPropose={handleCounterReschedule}
+          isLoading={rescheduleLoading}
+          currentUserRole="Doctor"
+        />
+      )}
 
       {/* Appointment Info Card */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
@@ -398,9 +580,9 @@ const AppointmentDetail = () => {
           <nav className="flex space-x-8 px-6" aria-label="Tabs">
             {[
               { id: "info", label: "Thông tin", icon: FileText },
-              { id: "encounter", label: "Hồ sơ khám (SOAP)", icon: ClipboardList },
-              { id: "prescription", label: "Đơn thuốc", icon: Pill },
-              { id: "medical", label: "Hồ sơ bệnh án", icon: FileText },
+              { id: "encounter", label: "Hồ sơ khám (SOAP)", icon: ClipboardList, description: "Chi tiết quá trình khám" },
+              { id: "prescription", label: "Đơn thuốc & Chỉ định", icon: Pill, description: "Từ Encounter" },
+              { id: "medical", label: "Hồ sơ bệnh án", icon: FileText, description: "Lịch sử tổng quan" },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -426,19 +608,22 @@ const AppointmentDetail = () => {
           {activeTab === "encounter" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   Hồ sơ khám (SOAP Notes)
                 </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Ghi chép chi tiết quá trình khám bệnh theo chuẩn SOAP. Đây là hồ sơ khám chi tiết với đơn thuốc và chỉ định riêng.
+                </p>
                 {encounter ? (
-                  <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-md">
+                  <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
                     <p className="text-sm text-green-800 dark:text-green-300">
-                      Hồ sơ khám đã được tạo. Trạng thái: <strong>{encounter.status}</strong>
+                      ✓ Hồ sơ khám đã được tạo. Trạng thái: <strong>{encounter.status}</strong>
                     </p>
                   </div>
                 ) : (
-                  <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+                  <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
                     <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                      Chưa có hồ sơ khám. Vui lòng tạo mới.
+                      ⚠ Chưa có hồ sơ khám. Vui lòng tạo mới để ghi chép quá trình khám bệnh.
                     </p>
                   </div>
                 )}
@@ -507,11 +692,16 @@ const AppointmentDetail = () => {
           {activeTab === "prescription" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Đơn thuốc</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Đơn thuốc & Chỉ định
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Quản lý đơn thuốc và chỉ định (xét nghiệm, thủ thuật) thuộc về Hồ sơ khám (Encounter).
+                </p>
                 {!encounter ? (
-                  <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+                  <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
                     <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                      Vui lòng tạo hồ sơ khám (Encounter) trước khi thêm đơn thuốc.
+                      ⚠ Vui lòng tạo Hồ sơ khám (SOAP) ở tab trên trước để có thể thêm đơn thuốc và chỉ định.
                     </p>
                   </div>
                 ) : (
@@ -611,27 +801,59 @@ const AppointmentDetail = () => {
                           {prescriptions.map((rx) => (
                             <div
                               key={rx.id}
-                              className="border border-gray-200 dark:border-gray-700 rounded-md p-4"
+                              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50"
                             >
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="font-medium text-gray-900 dark:text-white">
-                                  Đơn thuốc #{rx.id}
-                                </span>
-                                <span className="text-sm text-gray-500 dark:text-gray-400">
-                                  {new Date(rx.createdAt).toLocaleDateString("vi-VN")}
+                              <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+                                <div>
+                                  <span className="font-semibold text-gray-900 dark:text-white">
+                                    Đơn thuốc #{rx.id}
+                                  </span>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Ngày kê đơn: {new Date(rx.createdAt).toLocaleString("vi-VN")}
+                                  </p>
+                                </div>
+                                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded dark:bg-blue-900/30 dark:text-blue-300">
+                                  {rx.status || "Draft"}
                                 </span>
                               </div>
-                              {rx.lines && rx.lines.length > 0 ? (
-                                <div className="space-y-2">
-                                  {rx.lines.map((line, idx) => (
-                                    <div key={idx} className="text-sm text-gray-700 dark:text-gray-300">
-                                      <strong>{line.drugName}</strong> - {line.dosage} - {line.frequency} -{" "}
-                                      {line.duration}
-                                      {line.instructions && ` - ${line.instructions}`}
-                                    </div>
-                                  ))}
+                              {rx.notes && (
+                                <div className="mb-3 p-2 bg-white dark:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300">
+                                  <strong>Ghi chú:</strong> {rx.notes}
                                 </div>
-                              ) : null}
+                              )}
+                              {rx.lines && rx.lines.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-sm">
+                                    <thead className="bg-gray-100 dark:bg-gray-700">
+                                      <tr>
+                                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Tên thuốc</th>
+                                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Liều dùng</th>
+                                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Tần suất</th>
+                                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Thời gian</th>
+                                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">Hướng dẫn</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                      {rx.lines.map((line, idx) => (
+                                        <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                          <td className="px-3 py-2">
+                                            <div className="font-medium text-gray-900 dark:text-white">{line.drugName}</div>
+                                            {line.drugCode && (
+                                              <div className="text-xs text-gray-500 dark:text-gray-400">Mã: {line.drugCode}</div>
+                                            )}
+                                          </td>
+                                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{line.dosage || "—"}</td>
+                                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{line.frequency || "—"}</td>
+                                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{line.duration || "—"}</td>
+                                          <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{line.instructions || "—"}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-gray-500 dark:text-gray-400 italic">Đơn thuốc chưa có chi tiết thuốc</p>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -647,8 +869,33 @@ const AppointmentDetail = () => {
           {activeTab === "medical" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Hồ sơ bệnh án</h3>
-                <form onSubmit={handleSaveMedicalHistory} className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Hồ sơ bệnh án (Medical History)
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Lưu trữ lịch sử khám bệnh tổng quan. Đây là bản tóm tắt đơn giản, khác với Hồ sơ khám (SOAP) chi tiết ở tab trên.
+                </p>
+                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                  <p className="text-xs text-blue-800 dark:text-blue-300">
+                    <strong>Lưu ý:</strong> Hồ sơ bệnh án dùng để xem lịch sử tổng quan. 
+                    Để xem chi tiết SOAP notes, đơn thuốc và chỉ định, vui lòng xem tab "Hồ sơ khám (SOAP)".
+                  </p>
+                </div>
+                {medicalHistory ? (
+                  <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                    <p className="text-sm text-green-800 dark:text-green-300">
+                      ✓ Hồ sơ bệnh án đã được tạo
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                      ⚠ Chưa có hồ sơ bệnh án. Có thể tạo để lưu tóm tắt lịch sử khám.
+                    </p>
+                  </div>
+                )}
+              </div>
+              <form onSubmit={handleSaveMedicalHistory} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -774,7 +1021,6 @@ const AppointmentDetail = () => {
                     {medicalHistory ? "Cập nhật" : "Tạo"} hồ sơ bệnh án
                   </button>
                 </form>
-              </div>
             </div>
           )}
 
@@ -840,6 +1086,25 @@ const AppointmentDetail = () => {
           )}
         </div>
       </div>
+
+      {/* Reschedule Request Modal */}
+      <RescheduleRequestModal
+        isOpen={showRescheduleModal}
+        onClose={() => {
+          setShowRescheduleModal(false);
+          setIsCounterPropose(false);
+        }}
+        appointment={appointment}
+        onSubmit={(proposedDateTime, reason) => {
+          if (isCounterPropose) {
+            handleCounterRescheduleSubmit(proposedDateTime, reason);
+          } else {
+            handleRequestReschedule(proposedDateTime, reason);
+          }
+        }}
+        isLoading={rescheduleLoading}
+        isDoctorRequest={true} // Bác sĩ có thể chọn bất kỳ thời gian nào
+      />
     </div>
   );
 };

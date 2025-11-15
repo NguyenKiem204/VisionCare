@@ -73,12 +73,19 @@ const PrescriptionHistoryTab = ({ prescriptions, loading, error, onRefresh }) =>
                 >
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-400">
-                      Ngày kê đơn
+                      Ngày khám
                     </p>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white">
-                      {formatDateTime(prescription.createdAt)}
+                      {prescription.appointmentDate 
+                        ? formatDateTime(prescription.appointmentDate)
+                        : prescription.encounterDate 
+                        ? formatDateTime(prescription.encounterDate)
+                        : formatDateTime(prescription.createdAt)}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Ngày kê đơn: {formatDateTime(prescription.createdAt)}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                       Bác sĩ:{" "}
                       <span className="font-medium text-slate-700 dark:text-slate-200">
                         {prescription.doctorName || "Đang cập nhật"}
@@ -88,6 +95,9 @@ const PrescriptionHistoryTab = ({ prescriptions, loading, error, onRefresh }) =>
                   <div className="flex flex-col items-end text-xs text-slate-500 dark:text-slate-400">
                     <span>Mã đơn: #{prescription.prescriptionId}</span>
                     <span>Trạng thái: {prescription.encounterStatus}</span>
+                    {prescription.appointmentId > 0 && (
+                      <span className="mt-1">Mã lịch hẹn: #{prescription.appointmentId}</span>
+                    )}
                   </div>
                 </button>
 

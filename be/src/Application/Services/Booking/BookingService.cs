@@ -141,7 +141,10 @@ public class BookingService : IBookingService
         await _holdCache.ReleaseHoldAsync(holdToken);
     }
 
-    public async Task<BookingResponse> CreateBookingAsync(CreateBookingRequest request, string ipAddress)
+    public async Task<BookingResponse> CreateBookingAsync(
+        CreateBookingRequest request,
+        string ipAddress
+    )
     {
         // Validate hold token if provided
         if (!string.IsNullOrEmpty(request.HoldToken))
@@ -249,15 +252,17 @@ public class BookingService : IBookingService
         // After identifying patient, block only if another patient's unpaid appointment already reserves this slot
         var appointmentsOnDate = await _appointmentRepository.GetByDateAsync(appointmentDateTime);
         var conflictingAppointment = appointmentsOnDate.FirstOrDefault(a =>
-            a.DoctorId == request.DoctorId &&
-            a.PatientId != patientId &&
-            a.AppointmentDate.HasValue &&
-            Math.Abs((a.AppointmentDate.Value - appointmentDateTime).TotalMinutes) < 5 &&
-            a.PaymentStatus == PaymentStatus.Unpaid.ToString() &&
-            a.AppointmentStatus != "Cancelled"
+            a.DoctorId == request.DoctorId
+            && a.PatientId != patientId
+            && a.AppointmentDate.HasValue
+            && Math.Abs((a.AppointmentDate.Value - appointmentDateTime).TotalMinutes) < 5
+            && a.PaymentStatus == PaymentStatus.Unpaid.ToString()
+            && a.AppointmentStatus != "Cancelled"
         );
         if (conflictingAppointment != null)
-            throw new ValidationException("Slot is already reserved by another booking. Please try a different slot.");
+            throw new ValidationException(
+                "Slot is already reserved by another booking. Please try a different slot."
+            );
 
         // Get service detail for pricing
         var serviceDetail = await _serviceDetailRepository.GetByIdAsync(request.ServiceDetailId);
@@ -266,7 +271,9 @@ public class BookingService : IBookingService
 
         // Validate cost - must be greater than 0
         if (serviceDetail.Cost <= 0)
-            throw new ValidationException("Service cost must be greater than 0. Please contact admin to set service price.");
+            throw new ValidationException(
+                "Service cost must be greater than 0. Please contact admin to set service price."
+            );
 
         // Calculate cost
         var baseCost = serviceDetail.Cost;
@@ -309,7 +316,7 @@ public class BookingService : IBookingService
         // DON'T mark schedule as "Booked" yet - wait for payment confirmation
         // Schedule will be marked as "Booked" only after successful payment
         // This prevents slot from being locked if payment fails
-        
+
         // Release hold if exists
         if (!string.IsNullOrEmpty(request.HoldToken))
         {
@@ -332,13 +339,20 @@ public class BookingService : IBookingService
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to generate payment URL for appointment {AppointmentId}. Booking will continue without payment URL.", createdAppointment.Id);
+                _logger.LogWarning(
+                    ex,
+                    "Failed to generate payment URL for appointment {AppointmentId}. Booking will continue without payment URL.",
+                    createdAppointment.Id
+                );
                 // Continue without payment URL - booking is still created
             }
         }
         else
         {
-            _logger.LogInformation("Appointment {AppointmentId} has zero cost, skipping payment URL generation", createdAppointment.Id);
+            _logger.LogInformation(
+                "Appointment {AppointmentId} has zero cost, skipping payment URL generation",
+                createdAppointment.Id
+            );
         }
 
         return new BookingResponse
@@ -392,7 +406,9 @@ public class BookingService : IBookingService
 
         if (appointment.ServiceDetailId.HasValue)
         {
-            var serviceDetail = await _serviceDetailRepository.GetByIdAsync(appointment.ServiceDetailId.Value);
+            var serviceDetail = await _serviceDetailRepository.GetByIdAsync(
+                appointment.ServiceDetailId.Value
+            );
             serviceName = serviceDetail?.Service?.Name;
         }
 
@@ -428,7 +444,9 @@ public class BookingService : IBookingService
             pageSize: 10
         );
 
-        var appointment = appointments.items.FirstOrDefault(a => a.AppointmentCode == appointmentCode);
+        var appointment = appointments.items.FirstOrDefault(a =>
+            a.AppointmentCode == appointmentCode
+        );
         if (appointment == null)
             return null;
 
@@ -449,7 +467,9 @@ public class BookingService : IBookingService
 
         if (appointment.ServiceDetailId.HasValue)
         {
-            var serviceDetail = await _serviceDetailRepository.GetByIdAsync(appointment.ServiceDetailId.Value);
+            var serviceDetail = await _serviceDetailRepository.GetByIdAsync(
+                appointment.ServiceDetailId.Value
+            );
             serviceName = serviceDetail?.Service?.Name;
         }
 
@@ -519,7 +539,6 @@ public class BookingService : IBookingService
 
         appointment.Cancel(request.Reason);
 
-        // Update payment status if needed
         if (request.RequestRefund && appointment.PaymentStatus == "Paid")
         {
             appointment.PaymentStatus = "Refunding";
@@ -546,21 +565,24 @@ public class BookingService : IBookingService
         }
         else
         {
-            // Get service detail to get cost
             if (!appointment.ServiceDetailId.HasValue)
                 throw new ValidationException("Service detail is missing");
-            
-            var serviceDetail = await _serviceDetailRepository.GetByIdAsync(appointment.ServiceDetailId.Value);
+
+            var serviceDetail = await _serviceDetailRepository.GetByIdAsync(
+                appointment.ServiceDetailId.Value
+            );
             if (serviceDetail == null)
                 throw new NotFoundException("Service detail not found");
-            
+
             amount = serviceDetail.Cost;
         }
 
-        // Don't create payment URL if amount is 0 or negative
         if (amount <= 0)
         {
-            _logger.LogInformation("Skipping payment URL generation for appointment {AppointmentId} with zero or negative amount", appointmentId);
+            _logger.LogInformation(
+                "Skipping payment URL generation for appointment {AppointmentId} with zero or negative amount",
+                appointmentId
+            );
             return string.Empty;
         }
 
@@ -582,9 +604,8 @@ public class BookingService : IBookingService
     {
         var callbackResult = await _vnPayService.VerifyCallbackAsync(queryParams);
 
-        // Find appointment by code
         var appointment = await _appointmentRepository.GetByCodeAsync(callbackResult.OrderId);
-        
+
         if (appointment == null)
         {
             _logger.LogError("Appointment not found for code: {Code}", callbackResult.OrderId);
@@ -593,32 +614,34 @@ public class BookingService : IBookingService
 
         if (!callbackResult.IsSuccess)
         {
-            _logger.LogWarning("Payment callback failed for appointment {AppointmentId}: {Message}. Cancelling booking and releasing slot.", appointment.Id, callbackResult.Message);
-            
-            // Cancel booking and release slot if payment failed
+            _logger.LogWarning(
+                "Payment callback failed for appointment {AppointmentId}: {Message}. Cancelling booking and releasing slot.",
+                appointment.Id,
+                callbackResult.Message
+            );
+
             await CancelBookingDueToPaymentFailureAsync(appointment.Id);
             return false;
         }
 
-        // Update appointment payment status
         appointment.PaymentStatus = PaymentStatus.Paid.ToString();
-        appointment.Confirm(); // Change status to "Confirmed"
+        appointment.Confirm();
         await _appointmentRepository.UpdateAsync(appointment);
 
-        // NOW mark schedule as "Booked" after successful payment
         if (appointment.DoctorId.HasValue && appointment.AppointmentDate.HasValue)
         {
             var appointmentDate = DateOnly.FromDateTime(appointment.AppointmentDate.Value);
             var appointmentTime = appointment.AppointmentDate.Value.TimeOfDay;
-            
+
             var schedules = await _scheduleRepository.GetByDoctorAndDateAsync(
                 appointment.DoctorId.Value,
                 appointmentDate
             );
 
-            var matchingSchedule = schedules.FirstOrDefault(s => 
+            var matchingSchedule = schedules.FirstOrDefault(s =>
             {
-                if (s.Slot == null) return false;
+                if (s.Slot == null)
+                    return false;
                 var slotStart = s.Slot.StartTime.ToTimeSpan();
                 return Math.Abs((appointmentTime - slotStart).TotalMinutes) < 5;
             });
@@ -627,24 +650,29 @@ public class BookingService : IBookingService
             {
                 matchingSchedule.MarkAsBooked();
                 await _scheduleRepository.UpdateAsync(matchingSchedule);
-                _logger.LogInformation("Marked schedule {ScheduleId} as Booked after successful payment for appointment {AppointmentId}", matchingSchedule.Id, appointment.Id);
+                _logger.LogInformation(
+                    "Marked schedule {ScheduleId} as Booked after successful payment for appointment {AppointmentId}",
+                    matchingSchedule.Id,
+                    appointment.Id
+                );
             }
         }
 
-        // Create checkout record
         var paymentDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
-        await _checkoutService.CreateCheckoutAsync(new CreateCheckoutRequest
-        {
-            AppointmentId = appointment.Id,
-            TransactionType = "VNPay",
-            TransactionStatus = "Completed",
-            TotalAmount = callbackResult.Amount,
-            TransactionCode = $"VNP_{callbackResult.OrderId}",
-            PaymentDate = paymentDate,
-            PaymentGateway = "VNPay",
-            GatewayTransactionId = callbackResult.TransactionId,
-            GatewayResponse = System.Text.Json.JsonSerializer.Serialize(queryParams),
-        });
+        await _checkoutService.CreateCheckoutAsync(
+            new CreateCheckoutRequest
+            {
+                AppointmentId = appointment.Id,
+                TransactionType = "VNPay",
+                TransactionStatus = "Completed",
+                TotalAmount = callbackResult.Amount,
+                TransactionCode = $"VNP_{callbackResult.OrderId}",
+                PaymentDate = paymentDate,
+                PaymentGateway = "VNPay",
+                GatewayTransactionId = callbackResult.TransactionId,
+                GatewayResponse = System.Text.Json.JsonSerializer.Serialize(queryParams),
+            }
+        );
 
         _logger.LogInformation(
             "Payment processed successfully: AppointmentId={Id}, TransactionId={TxnId}",
@@ -662,33 +690,32 @@ public class BookingService : IBookingService
             var appointment = await _appointmentRepository.GetByIdAsync(appointmentId);
             if (appointment == null)
             {
-                _logger.LogWarning("Appointment {AppointmentId} not found when trying to cancel due to payment failure", appointmentId);
+                _logger.LogWarning(
+                    "Appointment {AppointmentId} not found when trying to cancel due to payment failure",
+                    appointmentId
+                );
                 return;
             }
 
-            // Cancel the appointment
             appointment.Cancel("Thanh toán thất bại");
             appointment.PaymentStatus = PaymentStatus.Unpaid.ToString();
             await _appointmentRepository.UpdateAsync(appointment);
 
-            // Release the schedule slot
             if (appointment.DoctorId.HasValue && appointment.AppointmentDate.HasValue)
             {
                 var appointmentDate = DateOnly.FromDateTime(appointment.AppointmentDate.Value);
-                
-                // Find all schedules for this doctor on this date
+
                 var schedules = await _scheduleRepository.GetByDoctorAndDateAsync(
                     appointment.DoctorId.Value,
                     appointmentDate
                 );
 
-                // Find schedule that matches the appointment time
                 var appointmentTime = appointment.AppointmentDate.Value.TimeOfDay;
-                var matchingSchedule = schedules.FirstOrDefault(s => 
+                var matchingSchedule = schedules.FirstOrDefault(s =>
                 {
-                    if (s.Slot == null) return false;
+                    if (s.Slot == null)
+                        return false;
                     var slotStart = s.Slot.StartTime.ToTimeSpan();
-                    // Check if appointment time matches slot start time (within 5 minutes tolerance)
                     return Math.Abs((appointmentTime - slotStart).TotalMinutes) < 5;
                 });
 
@@ -696,19 +723,33 @@ public class BookingService : IBookingService
                 {
                     matchingSchedule.MarkAsAvailable();
                     await _scheduleRepository.UpdateAsync(matchingSchedule);
-                    _logger.LogInformation("Released schedule {ScheduleId} for appointment {AppointmentId} due to payment failure", matchingSchedule.Id, appointmentId);
+                    _logger.LogInformation(
+                        "Released schedule {ScheduleId} for appointment {AppointmentId} due to payment failure",
+                        matchingSchedule.Id,
+                        appointmentId
+                    );
                 }
                 else
                 {
-                    _logger.LogWarning("Could not find matching schedule to release for appointment {AppointmentId}", appointmentId);
+                    _logger.LogWarning(
+                        "Could not find matching schedule to release for appointment {AppointmentId}",
+                        appointmentId
+                    );
                 }
             }
 
-            _logger.LogInformation("Cancelled booking {AppointmentId} and released slot due to payment failure", appointmentId);
+            _logger.LogInformation(
+                "Cancelled booking {AppointmentId} and released slot due to payment failure",
+                appointmentId
+            );
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error cancelling booking {AppointmentId} due to payment failure", appointmentId);
+            _logger.LogError(
+                ex,
+                "Error cancelling booking {AppointmentId} due to payment failure",
+                appointmentId
+            );
         }
     }
 }

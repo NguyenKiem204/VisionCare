@@ -52,8 +52,8 @@ const DoctorSchedulesManagementPage = () => {
     try {
       const res = await searchDoctors({ page: 1, pageSize: 100 });
       setDoctors(res?.data?.data || res?.data?.items || []);
-    } catch (error) {
-      console.error("Failed to load doctors:", error);
+    } catch {
+      // Silently fail - doctors list is not critical
     }
   };
 
@@ -62,8 +62,7 @@ const DoctorSchedulesManagementPage = () => {
     try {
       const res = await fetchDoctorSchedules();
       setDoctorSchedules(res?.data?.data || res?.data || []);
-    } catch (error) {
-      console.error("Failed to load doctor schedules:", error);
+    } catch {
       toast.error("Không thể tải lịch làm việc");
     } finally {
       setLoading(false);
@@ -76,8 +75,7 @@ const DoctorSchedulesManagementPage = () => {
     try {
       const res = await getDoctorSchedulesByDoctorId(selectedDoctor);
       setDoctorSchedules(res?.data?.data || res?.data || []);
-    } catch (error) {
-      console.error("Failed to load doctor schedules:", error);
+    } catch {
       toast.error("Không thể tải lịch làm việc");
     } finally {
       setLoading(false);
@@ -100,7 +98,6 @@ const DoctorSchedulesManagementPage = () => {
         loadAllDoctorSchedules();
       }
     } catch (error) {
-      console.error("Failed to create doctor schedule:", error);
       toast.error(error?.response?.data?.message || "Không thể tạo lịch làm việc");
     }
   };
@@ -115,8 +112,7 @@ const DoctorSchedulesManagementPage = () => {
       } else {
         loadAllDoctorSchedules();
       }
-    } catch (error) {
-      console.error("Failed to delete doctor schedule:", error);
+    } catch {
       toast.error("Không thể xóa lịch làm việc");
     }
   };
@@ -124,7 +120,6 @@ const DoctorSchedulesManagementPage = () => {
   const handleGenerateSchedules = async (daysAhead) => {
     try {
       if (selectedDoctor) {
-        // Pre-check: doctor must have active recurrent schedules
         const active = await getActiveDoctorSchedulesByDoctorId(selectedDoctor);
         const items = active?.data?.data || active?.data || [];
         if (!items.length) {
@@ -133,19 +128,21 @@ const DoctorSchedulesManagementPage = () => {
         }
         const res = await generateSchedulesForDoctor(selectedDoctor, daysAhead);
         const count = res?.data?.data ?? 0;
+        
         if (count === 0) {
-          toast("Không có lịch mới nào được tạo (có thể đã tồn tại)", { icon: "ℹ️" });
+          const message = res?.data?.message || "Không có lịch mới nào được tạo (có thể đã tồn tại)";
+          toast(message, { icon: "ℹ️", duration: 5000 });
         } else {
           toast.success(`Đã tạo ${count} lịch hẹn từ lịch định kỳ`);
         }
-        // Fetch preview for next N days
+        
         const today = new Date();
         const fromDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString().substring(0,10);
         const toDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysAhead).toISOString().substring(0,10);
         const searchRes = await searchSchedules({ doctorId: selectedDoctor, fromDate, toDate, page: 1, pageSize: 200 });
         const previewListDoctor = searchRes?.data?.data || searchRes?.data || [];
         setPreviewItems(previewListDoctor);
-        // also fetch active recurrent to pass shift ranges for grouping
+        
         const activeRecur = await getActiveDoctorSchedulesByDoctorId(selectedDoctor);
         const recurItems = activeRecur?.data?.data || activeRecur?.data || [];
         const shifts = recurItems.map(r => ({ shiftName: r.shiftName, startTime: r.startTime, endTime: r.endTime }));
@@ -154,16 +151,17 @@ const DoctorSchedulesManagementPage = () => {
       } else {
         const res = await generateSchedulesForAll(daysAhead);
         const count = res?.data?.data ?? 0;
+        
         if (count === 0) {
-          toast("Không có lịch mới nào được tạo (có thể đã tồn tại)", { icon: "ℹ️" });
+          const message = res?.data?.message || "Không có lịch mới nào được tạo (có thể đã tồn tại)";
+          toast(message, { icon: "ℹ️", duration: 5000 });
         } else {
           toast.success(`Đã tạo ${count} lịch hẹn cho tất cả bác sĩ`);
         }
       }
       setGenerateModalOpen(false);
     } catch (error) {
-      console.error("Failed to generate schedules:", error);
-      const msg = error?.response?.data?.message || error?.message || "Không thể tạo lịch tự động";
+      const msg = error?.response?.data?.message || error?.response?.data?.Message || error?.message || "Không thể tạo lịch tự động";
       toast.error(msg);
     }
   };
@@ -185,8 +183,7 @@ const DoctorSchedulesManagementPage = () => {
       const shifts = recurItems.map(r => ({ shiftName: r.shiftName, startTime: r.startTime, endTime: r.endTime }));
       setPreviewShifts(shifts);
       setPreviewOpen(true);
-  } catch (e) {
-      console.error(e);
+  } catch {
       toast.error("Không thể tải lịch 30 ngày");
     }
   };

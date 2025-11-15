@@ -46,4 +46,54 @@ public class Appointment : BaseEntity
         AppointmentStatus = "Rescheduled";
         LastModified = DateTime.UtcNow;
     }
+
+    public void RequestReschedule(DateTime proposedDateTime, string requestedBy, string? reason = null)
+    {
+        AppointmentStatus = "PendingReschedule";
+        var reasonText = reason != null ? $". Lý do: {reason}" : "";
+        var existingNotes = !string.IsNullOrEmpty(Notes) ? $"{Notes}\n" : "";
+        
+        // Convert to local time (Vietnam timezone UTC+7) for display in Notes
+        // If DateTime is UTC, convert to local; otherwise use as-is
+        DateTime localDateTime = proposedDateTime;
+        if (proposedDateTime.Kind == DateTimeKind.Utc)
+        {
+            // Convert UTC to Vietnam timezone (UTC+7)
+            localDateTime = proposedDateTime.AddHours(7);
+            // Ensure Unspecified kind to avoid timezone issues when formatting
+            localDateTime = DateTime.SpecifyKind(localDateTime, DateTimeKind.Unspecified);
+        }
+        else if (proposedDateTime.Kind == DateTimeKind.Local)
+        {
+            // Convert Local to Unspecified to avoid timezone conversion
+            localDateTime = DateTime.SpecifyKind(proposedDateTime, DateTimeKind.Unspecified);
+        }
+        else if (proposedDateTime.Kind == DateTimeKind.Unspecified)
+        {
+            // Already in local time, use as-is
+            localDateTime = proposedDateTime;
+        }
+        
+        // Format using local time components (day, month, year, hour, minute)
+        // This ensures the time displayed matches what user selected
+        Notes = $"{existingNotes}[{requestedBy}] Đề xuất đổi lịch: {localDateTime:dd/MM/yyyy HH:mm}{reasonText}";
+        LastModified = DateTime.UtcNow;
+    }
+
+    public void ApproveReschedule(DateTime newDateTime)
+    {
+        AppointmentDate = newDateTime;
+        AppointmentStatus = "Rescheduled";
+        LastModified = DateTime.UtcNow;
+    }
+
+    public void RejectReschedule(string? reason = null)
+    {
+        AppointmentStatus = "Confirmed";
+        if (reason != null)
+        {
+            Notes = $"{Notes}\n[Từ chối đổi lịch] Lý do: {reason}";
+        }
+        LastModified = DateTime.UtcNow;
+    }
 }

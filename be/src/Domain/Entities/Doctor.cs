@@ -15,6 +15,7 @@ public class Doctor : BaseEntity
     public DateOnly? Dob { get; set; }
     public string? Address { get; set; }
     public string? DoctorStatus { get; set; }
+    public string? Biography { get; set; }
 
     // Navigation properties
     public User? Account { get; set; }

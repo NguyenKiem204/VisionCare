@@ -20,6 +20,7 @@ public static class DoctorMapper
             Dob = model.Dob,
             Address = model.Address,
             DoctorStatus = model.Status,
+            Biography = model.Biography,
             Created = DateTime.UtcNow,
             LastModified = DateTime.UtcNow,
             Account =
@@ -59,6 +60,7 @@ public static class DoctorMapper
             Dob = domain.Dob,
             Address = domain.Address,
             Status = domain.DoctorStatus ?? "Active",
+            Biography = domain.Biography,
         };
     }
 }

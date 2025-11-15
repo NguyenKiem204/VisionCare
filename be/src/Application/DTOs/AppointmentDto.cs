@@ -15,6 +15,12 @@ public class AppointmentDto
     public DateTime Created { get; set; }
     public DateTime? LastModified { get; set; }
     public string? Notes { get; set; }
+    public string? AppointmentCode { get; set; }
+    public string? PaymentStatus { get; set; }
+    public decimal? ActualCost { get; set; }
+    public int? ServiceDetailId { get; set; }
+    public string? ServiceName { get; set; }
+    public string? ServiceDetailName { get; set; }
 }
 
 public class CreateAppointmentRequest
@@ -47,4 +53,26 @@ public class AppointmentSearchRequest
     public string? Status { get; set; }
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 10;
+}
+
+public class RequestRescheduleRequest
+{
+    public DateTime ProposedDateTime { get; set; }
+    public string? Reason { get; set; }
+}
+
+public class ApproveRescheduleRequest
+{
+    // Empty - will use proposedDateTime from appointment notes
+}
+
+public class RejectRescheduleRequest
+{
+    public string? Reason { get; set; }
+}
+
+public class CounterRescheduleRequest
+{
+    public DateTime ProposedDateTime { get; set; }
+    public string? Reason { get; set; }
 }

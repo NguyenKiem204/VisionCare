@@ -21,6 +21,8 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
+import Doctors from "./pages/Doctors";
+import DoctorDetail from "./pages/DoctorDetail";
 import AdminRoutes from "./routes/AdminRoutes";
 import DoctorRoutes from "./routes/DoctorRoutes";
 import StaffRoutes from "./routes/StaffRoutes";
@@ -76,6 +78,8 @@ function App() {
             />
             <Route path="blogs" element={<Blogs />} />
             <Route path="blogs/:slug" element={<BlogDetail />} />
+            <Route path="doctors" element={<Doctors />} />
+            <Route path="doctors/:id" element={<DoctorDetail />} />
           </Route>
 
           {/* Auth Routes */}

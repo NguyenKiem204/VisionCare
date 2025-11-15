@@ -133,6 +133,12 @@ public class CustomerHistoryReadRepository : ICustomerHistoryReadRepository
                 Notes = p.Notes,
                 EncounterStatus = p.Encounter != null ? p.Encounter.Status : string.Empty,
                 EncounterDate = p.Encounter != null ? p.Encounter.CreatedAt : p.CreatedAt,
+                AppointmentDate = p.Encounter != null && p.Encounter.Appointment != null 
+                    ? p.Encounter.Appointment.AppointmentDatetime 
+                    : (DateTime?)null,
+                AppointmentId = p.Encounter != null && p.Encounter.Appointment != null 
+                    ? p.Encounter.Appointment.AppointmentId 
+                    : 0,
                 DoctorId = p.Encounter != null ? p.Encounter.DoctorId : 0,
                 DoctorName = p.Encounter != null && p.Encounter.Doctor != null
                     ? p.Encounter.Doctor.FullName

@@ -22,13 +22,7 @@ public class PrescriptionRepository : IPrescriptionRepository
         IEnumerable<PrescriptionLine> lines
     )
     {
-        var model = new InfraPrescription
-        {
-            EncounterId = prescription.EncounterId,
-            Notes = prescription.Notes,
-            CreatedAt = prescription.CreatedAt,
-            UpdatedAt = prescription.UpdatedAt,
-        };
+        var model = PrescriptionMapper.ToInfrastructure(prescription);
         _db.Prescriptions.Add(model);
         await _db.SaveChangesAsync();
         foreach (var l in lines)

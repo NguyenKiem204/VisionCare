@@ -58,10 +58,13 @@ public class DoctorSchedule : BaseEntity
     public bool IsValid()
     {
         if (!IsActive) return false;
+        // Check if schedule has expired (EndDate is in the past)
         if (EndDate.HasValue && EndDate.Value < DateOnly.FromDateTime(DateTime.Today))
             return false;
 
-        return StartDate <= DateOnly.FromDateTime(DateTime.Today);
+        // Schedule is valid if it's active and not expired
+        // StartDate can be in the future - that's OK, AppliesToDate will handle it
+        return true;
     }
 
     public bool AppliesToDate(DateOnly date)

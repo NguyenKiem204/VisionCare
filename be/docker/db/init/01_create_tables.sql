@@ -205,6 +205,7 @@ CREATE TABLE Doctors (
     dob DATE,
     address TEXT,
     status VARCHAR(20) DEFAULT 'Active',
+    biography TEXT,
     
     FOREIGN KEY (account_id) REFERENCES Accounts(account_id) ON DELETE CASCADE,
     FOREIGN KEY (specialization_id) REFERENCES Specialization(specialization_id)

@@ -46,7 +46,7 @@ const Header = () => {
     { name: "TRANG CHỦ", href: "/" },
     { name: "VỀ MẮT VisionCare", href: "/about" },
     { name: "DỊCH VỤ", href: "/services" },
-    { name: "ĐỘI NGŨ BÁC SĨ", href: "/#doctors-section" },
+    { name: "ĐỘI NGŨ BÁC SĨ", href: "/doctors" },
     { name: "TIN TỨC", href: "/blogs" },
   ];
 
